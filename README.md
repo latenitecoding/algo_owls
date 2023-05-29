@@ -5,5 +5,3 @@ A repo of solutions to competitive programming problems for those who code late 
 For the Rust branch: `git checkout rusteze`
 
 For the Rust solutions branch: `git checkout rusteze-solutions`
-
-For the Rust benchmarks branch: `git checkout rusteze-benches`
