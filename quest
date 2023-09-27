@@ -1,0 +1,39 @@
+#!/bin/bash
+
+if [[ $1 == "" || $1 == "-help" || $1 == "-h" || $1 == "--help" ]]
+then
+    echo "Usage Instructions:"
+    echo "./quest <solution_name>"
+    echo "requires src/**/<solution_name>.java"
+    echo "requires tests/<solution_name>/**/*.{in, ans}"
+else
+    JAVA_FILE=$(find src/ -name "$1.java")
+
+    CLASS_PATH="${JAVA_FILE%/*}"
+    CLASS_PATH="${CLASS_PATH/src/build}"
+
+    javac -d $CLASS_PATH $JAVA_FILE
+
+    FLAG=true
+
+    for IN_FILE in $(find tests/$1/ -name "*.in")
+    do
+        ANS_FILE="${IN_FILE%.*}.ans"
+        if diff -u --suppress-common-lines --label $ANS_FILE --label $JAVA_FILE --strip-trailing-cr -d --speed-large-files --color $ANS_FILE <(java -cp $CLASS_PATH $1 < $IN_FILE)
+        then
+            echo -e "\033[0;32m$IN_FILE aye!\033[0m"
+        else
+            echo -e "\033[0;31m$IN_FILE nay!\033[0m"
+            FLAG=false
+        fi
+    done
+
+    echo ""
+
+    if [[ $FLAG == true ]]
+    then
+        echo -e "\033[0;32m$RS_FILE passes!\033[0m"
+    else
+        echo -e "\033[0;31m$RS_FILE vetoed!\033[0m"
+    fi
+fi
