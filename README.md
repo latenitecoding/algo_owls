@@ -21,6 +21,11 @@ For the Java branch: `git checkout hotjava`
 
 For the Java solutions branch: `git checkout hotjava-solutions`
 
+### Python
+For the Python branch: `git checkout pyday`
+
+For the Python solutions branch: `git checkout pyday-solutions`
+
 ### Rust
 For the Rust branch: `git checkout rusteze`
 
