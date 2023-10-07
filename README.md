@@ -30,3 +30,8 @@ For the Python solutions branch: `git checkout pyday-solutions`
 For the Rust branch: `git checkout rusteze`
 
 For the Rust solutions branch: `git checkout rusteze-solutions`
+
+### Zig
+For the Zig branch: `git checkout ziggywithit`
+
+For the Zig solutions branch: `git checkout ziggywithit-solutions`
