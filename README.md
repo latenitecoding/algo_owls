@@ -1,6 +1,16 @@
 # algo_owls
 A repo of solutions to competitive programming problems for those who code late at nite!
 
+### C
+For the C branch: `git checkout cfault`
+
+For the C solutions branch: `git checkout cfault-solutions`
+
+### C++
+For the C++ branch: `git checkout cmypp`
+
+For the C++ solutions branch: `git checkout cmypp-solutions`
+
 ### Go
 For the Go branch: `git checkout gokart`
 
