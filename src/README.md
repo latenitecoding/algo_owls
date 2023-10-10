@@ -1,6 +1,6 @@
 # Algo Owls
 
-The source code for `algo_owls` is shoudl be defined in the `src` dir. The CLI for `algo_owls` is defined as follows:
+The source code for `algo_owls` should be defined in the `src` dir. The CLI for `algo_owls` is defined as follows:
 
 _Usage: algo_owls [[-s --solution] solution | [-h --help] | [-V --version]]_
 
