@@ -34,9 +34,14 @@ algo_owls_usage() {
   echo
   # :command.usage_commands
   printf "%s\n" "Commands:"
-  printf "  %s   Compile target solution into the 'ALGO_TARGET' directory\n" "build"
-  printf "  %s   Create solution file from a template (if desired)\n" "init "
-  printf "  %s   Run target solution\n" "run  "
+  printf "  %s   Compile target solution from the 'options.solutions_dir' directory\n" "build "
+  printf "  %s   Manage the algo_owls config file\n" "config"
+  printf "  %s   Format the target solution from the 'options.solutions_dir' directory\n" "fmt   "
+  printf "  %s   Create solution file from a template (if desired)\n" "init  "
+  printf "  %s   Run target solution against each input file in 'options.test_dir' comparing results to adjacent answers\n" "quest "
+  printf "  %s   Run target solution\n" "run   "
+  printf "  %s   Commits and pushes target solution using git\n" "submit"
+  printf "  %s   Wipes all build files from the 'options.target_dir'\n" "wipe  "
   echo
 
   # :command.long_usage
@@ -51,38 +56,17 @@ algo_owls_usage() {
     printf "    Show version number\n"
     echo
 
-    # :command.usage_environment_variables
-    printf "%s\n" "Environment Variables:"
-
-    # :environment_variable.usage
-    printf "  %s\n" "ALGO_EXT"
-    printf "    Set the default file extension to use for solution files if no other\n    extension is provided\n"
-    printf "    Default: .txt\n"
-    echo
-
-    # :environment_variable.usage
-    printf "  %s\n" "ALGO_SOLUTIONS"
-    printf "    Set the default location for the solutions directory\n"
-    printf "    Default: ./solutions\n"
-    echo
-
-    # :environment_variable.usage
-    printf "  %s\n" "ALGO_TARGET"
-    printf "    Set the default location for the target build directory\n"
-    printf "    Default: ./target\n"
-    echo
-
   fi
 }
 
 # :command.usage
 algo_owls_build_usage() {
   if [[ -n $long_usage ]]; then
-    printf "algo_owls build - Compile target solution into the 'ALGO_TARGET' directory\n"
+    printf "algo_owls build - Compile target solution from the 'options.solutions_dir' directory\n"
     echo
 
   else
-    printf "algo_owls build - Compile target solution into the 'ALGO_TARGET' directory\n"
+    printf "algo_owls build - Compile target solution from the 'options.solutions_dir' directory\n"
     echo
 
   fi
@@ -101,18 +85,38 @@ algo_owls_build_usage() {
 
     # :command.usage_flags
     # :flag.usage
-    printf "  %s\n" "--build_cmd COMMAND"
-    printf "    The build command to use compile the program into the 'ALGO_TARGET'\n    directory\n"
+    printf "  %s\n" "--build_cmd, -x COMMAND"
+    printf "    The build command to compile the program\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--build_flag FLAG"
-    printf "    The compiler flag to use to specify 'ALGO_TARGET' as the target build\n    directory\n"
+    printf "  %s\n" "--build_flags, -I FLAGS"
+    printf "    The compiler flags to use when compiling the program\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--build_out, -o FLAG"
+    printf "    The compiler flag to specify the output directory (can pattern match on\n    'options.target_dir')\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--build_sources, -s FLAG"
+    printf "    The compiler flag to include sources in the build (can pattern match on\n    'options.solutions_dir')\n"
     echo
 
     # :flag.usage
     printf "  %s\n" "--ext, -e EXTENSION"
     printf "    The file extension to use for the solution file\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--local, -l"
+    printf "    Use the target solution directory as the build source\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--no_ext, -n"
+    printf "    Ignore file extensions when compiling the program\n"
     echo
 
     # :command.usage_fixed_flags
@@ -125,27 +129,248 @@ algo_owls_build_usage() {
 
     # :argument.usage
     printf "  %s\n" "SOLUTION"
-    printf "    The name of the target solution inside the 'ALGO_SOLUTIONS' directory\n"
-    echo
-
-    # :command.usage_environment_variables
-    printf "%s\n" "Environment Variables:"
-
-    # :environment_variable.usage
-    printf "  %s\n" "ALGO_BUILD_CMD"
-    printf "    Set the default build command if no other build command is provided\n"
-    echo
-
-    # :environment_variable.usage
-    printf "  %s\n" "ALGO_BUILD_FLAG"
-    printf "    Set the default compiler flag to use when compiling solutions into the\n    'ALGO_TARGET' directory\n"
+    printf "    The name of the target solution in the 'options.solutions_dir' directory\n"
     echo
 
     # :command.usage_examples
     printf "%s\n" "Examples:"
-    printf "  algo_owls build fading_wind\n"
-    printf "  algo_owls build --ext .java champernowne_count\n"
-    printf "  algo_owls build --ext .java --build_cmd javac --build_flag -d streets_ahead\n"
+    printf "  algo_owls build TODO\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+algo_owls_config_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "algo_owls config - Manage the algo_owls config file\n"
+    echo
+
+  else
+    printf "algo_owls config - Manage the algo_owls config file\n"
+    echo
+
+  fi
+
+  printf "Alias: c\n"
+  echo
+
+  printf "%s\n" "Usage:"
+  printf "  algo_owls config COMMAND\n"
+  printf "  algo_owls config [COMMAND] --help | -h\n"
+  echo
+  # :command.usage_commands
+  printf "%s\n" "Commands:"
+  printf "  %s   Read a value from the config file\n" "get "
+  printf "  %s   Show entire config file\n" "list"
+  printf "  %s   Save a value in the config file\n" "set "
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+algo_owls_config_get_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "algo_owls config get - Read a value from the config file\n"
+    echo
+
+  else
+    printf "algo_owls config get - Read a value from the config file\n"
+    echo
+
+  fi
+
+  printf "Alias: g\n"
+  echo
+
+  printf "%s\n" "Usage:"
+  printf "  algo_owls config get KEY\n"
+  printf "  algo_owls config get --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "KEY"
+    printf "    Config key\n"
+    echo
+
+    # :command.usage_examples
+    printf "%s\n" "Examples:"
+    printf "  algo_owls config get TODO\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+algo_owls_config_list_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "algo_owls config list - Show entire config file\n"
+    echo
+
+  else
+    printf "algo_owls config list - Show entire config file\n"
+    echo
+
+  fi
+
+  printf "Alias: l\n"
+  echo
+
+  printf "%s\n" "Usage:"
+  printf "  algo_owls config list\n"
+  printf "  algo_owls config list --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_examples
+    printf "%s\n" "Examples:"
+    printf "  algo_owls config list\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+algo_owls_config_set_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "algo_owls config set - Save a value in the config file\n"
+    echo
+
+  else
+    printf "algo_owls config set - Save a value in the config file\n"
+    echo
+
+  fi
+
+  printf "Alias: s\n"
+  echo
+
+  printf "%s\n" "Usage:"
+  printf "  algo_owls config set KEY VALUE\n"
+  printf "  algo_owls config set --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "KEY"
+    printf "    Config key\n"
+    echo
+
+    # :argument.usage
+    printf "  %s\n" "VALUE"
+    printf "    Config value\n"
+    echo
+
+    # :command.usage_examples
+    printf "%s\n" "Examples:"
+    printf "  algo_owls config set TODO\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+algo_owls_fmt_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "algo_owls fmt - Format the target solution from the 'options.solutions_dir' directory\n"
+    echo
+
+  else
+    printf "algo_owls fmt - Format the target solution from the 'options.solutions_dir' directory\n"
+    echo
+
+  fi
+
+  printf "Alias: f\n"
+  echo
+
+  printf "%s\n" "Usage:"
+  printf "  algo_owls fmt SOLUTION [OPTIONS]\n"
+  printf "  algo_owls fmt --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--fmt_cmd, -x COMMAND"
+    printf "    The command to format the target solution\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--fmt_flags, -I FLAGS"
+    printf "    The flags to use when formatting the program\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--ext, -e EXTENSION"
+    printf "    The file extension to use for the solution file\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--no_ext, -n"
+    printf "    Ignore file extensions when formatting the program\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "SOLUTION"
+    printf "    The name of the target solution in the 'options.solutions_dir' directory\n"
+    echo
+
+    # :command.usage_examples
+    printf "%s\n" "Examples:"
+    printf "  algo_owls fmt TODO\n"
     echo
 
   fi
@@ -182,6 +407,11 @@ algo_owls_init_usage() {
     echo
 
     # :flag.usage
+    printf "  %s\n" "--no_ext, -n"
+    printf "    Ignore file extensions when initializing the solution file\n"
+    echo
+
+    # :flag.usage
     printf "  %s\n" "--template, -t TEMPLATE"
     printf "    The path to the target template relative to the CWD (default: ./hello)\n"
     printf "    Default: ./hello\n"
@@ -202,15 +432,78 @@ algo_owls_init_usage() {
 
     # :argument.usage
     printf "  %s\n" "SOLUTION"
-    printf "    The path to the target solution relative to the 'ALGO_SOLUTIONS' directory\n"
+    printf "    The path to the target solution relative to the 'options.solutions_dir'\n    directory\n"
     echo
 
     # :command.usage_examples
     printf "%s\n" "Examples:"
-    printf "  algo_owls init icpc/nar2022/fading_wind\n"
-    printf "  algo_owls init icpc/nar2022/hunt_the_wumpus --template\n  ./solutions/icpc/nar2022/fading_wind\n"
-    printf "  algo_owls init --ext .java icpc/nar2022/champernowne_count\n"
-    printf "  algo_owls init --touch icpc/nar2022/streets_ahead\n"
+    printf "  algo_owls init TODO\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+algo_owls_quest_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "algo_owls quest - Run target solution against each input file in 'options.test_dir' comparing results to adjacent answers\n"
+    echo
+
+  else
+    printf "algo_owls quest - Run target solution against each input file in 'options.test_dir' comparing results to adjacent answers\n"
+    echo
+
+  fi
+
+  printf "Alias: q\n"
+  echo
+
+  printf "%s\n" "Usage:"
+  printf "  algo_owls quest SOLUTION [OPTIONS]\n"
+  printf "  algo_owls quest --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--ext, -e EXTENSION"
+    printf "    The file extension to use for the target solution\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--local, -l"
+    printf "    Use the 'options.target_dir' directory as the runtime source\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--no_ext, -n"
+    printf "    Ignore extensions when executing the target solution\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--use_source, -u"
+    printf "    Use the 'options.solutions_dir' directory as the runtime source\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "SOLUTION"
+    printf "    The name of the target solution from the 'options.solutions_dir' directory\n"
+    echo
+
+    # :command.usage_examples
+    printf "%s\n" "Examples:"
+    printf "  algo_owls quest TODO\n"
     echo
 
   fi
@@ -252,23 +545,33 @@ algo_owls_run_usage() {
     echo
 
     # :flag.usage
-    printf "  %s\n" "--no_ext"
+    printf "  %s\n" "--local, -l"
+    printf "    Use the 'options.target_dir' directory as the runtime source\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--no_ext, -n"
     printf "    Ignore extensions when executing the target solution\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--run_cmd COMMAND"
+    printf "  %s\n" "--run_cmd, -x COMMAND"
     printf "    The run command to use to execute the solution\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--run_flag FLAG"
-    printf "    The flag to use to specify 'ALGO_TARGET' as the target source directory\n"
+    printf "  %s\n" "--run_flags, -I FLAGS"
+    printf "    The runtime flags to use when executing the program\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--use_source"
-    printf "    Execute the target solution from within the 'ALGO_SOLUTIONS' directory\n"
+    printf "  %s\n" "--run_sources, -s FLAG"
+    printf "    The runtime flag to include sources in the execution (can pattern match on\n    'options.target_dir')\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--use_source, -u"
+    printf "    Use the 'options.solutions_dir' directory as the runtime source\n"
     echo
 
     # :command.usage_fixed_flags
@@ -281,30 +584,117 @@ algo_owls_run_usage() {
 
     # :argument.usage
     printf "  %s\n" "SOLUTION"
-    printf "    The name of the target solution from the 'ALGO_SOLUTIONS' directory\n"
-    echo
-
-    # :command.usage_environment_variables
-    printf "%s\n" "Environment Variables:"
-
-    # :environment_variable.usage
-    printf "  %s\n" "ALGO_RUN_CMD"
-    printf "    Set the default run command if no other run command is provided\n"
-    echo
-
-    # :environment_variable.usage
-    printf "  %s\n" "ALGO_RUN_FLAG"
-    printf "    Set the default source flag to use when executing solutions in the\n    'ALGO_TARGET' directory\n"
+    printf "    The name of the target solution from the 'options.solutions_dir' directory\n"
     echo
 
     # :command.usage_examples
     printf "%s\n" "Examples:"
-    printf "  algo_owls run fading_wind\n"
-    printf "  algo_owls run --build hunt_the_wumpus\n"
-    printf "  algo_owls run --no_ext champernowne_count\n"
-    printf "  algo_owls run --ext .py streets_ahead.py\n"
-    printf "  algo_owls build --no_ext --run_cmd java --run_flag --source restaurant_opening\n"
-    printf "  algo_owls run --use_source --ext .py color_tubes\n"
+    printf "  algo_owls run TODO\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+algo_owls_submit_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "algo_owls submit - Commits and pushes target solution using git\n"
+    echo
+
+  else
+    printf "algo_owls submit - Commits and pushes target solution using git\n"
+    echo
+
+  fi
+
+  printf "Alias: s\n"
+  echo
+
+  printf "%s\n" "Usage:"
+  printf "  algo_owls submit SOLUTION [OPTIONS]\n"
+  printf "  algo_owls submit --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--branch, -b BRANCH"
+    printf "    The branch to commit to\n"
+    printf "    Default: main\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--fmt, -p"
+    printf "    Apply default formatting to target solution before committing\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--message, -m"
+    printf "    Provide custom commit message\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--remote, -r REMOTE"
+    printf "    The remote to push to\n"
+    printf "    Default: origin\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "SOLUTION"
+    printf "    The name of the target solution from the 'options.solutions_dir' directory\n"
+    echo
+
+    # :command.usage_examples
+    printf "%s\n" "Examples:"
+    printf "  algo_owls submit TODO\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+algo_owls_wipe_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "algo_owls wipe - Wipes all build files from the 'options.target_dir'\n"
+    echo
+
+  else
+    printf "algo_owls wipe - Wipes all build files from the 'options.target_dir'\n"
+    echo
+
+  fi
+
+  printf "Alias: w\n"
+  echo
+
+  printf "%s\n" "Usage:"
+  printf "  algo_owls wipe\n"
+  printf "  algo_owls wipe --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_examples
+    printf "%s\n" "Examples:"
+    printf "  algo_owls wipe TODO\n"
     echo
 
   fi
@@ -362,6 +752,83 @@ inspect_args() {
 
 }
 
+# :command.user_lib
+# src/lib/ini.sh
+
+ini_load() {
+  declare -gA ini
+
+  local ini_file="$1"
+
+  local section=""
+  local key=""
+  local value=""
+  local section_regex="^\[(.+)\]"
+  local key_regex="^([^ =]+) *= *(.*) *$"
+  local comment_regex="^;"
+
+  while IFS= read -r line; do
+    if [[ $line =~ $comment_regex ]]; then
+      continue
+    elif [[ $line =~ $section_regex ]]; then
+      section="${BASH_REMATCH[1]}."
+    elif [[ $line =~ $key_regex ]]; then
+      key="${BASH_REMATCH[1]}"
+      value="${BASH_REMATCH[2]}"
+      ini["${section}${key}"]="$value"
+    fi
+  done <"$ini_file"
+}
+
+ini_save() {
+  declare -gA ini
+
+  local ini_file="$1"
+
+  local current_section=""
+  local has_free_keys=false
+
+  rm -f "$ini_file"
+
+  for key in $(ini_keys); do
+    [[ $key == *.* ]] && continue
+    has_free_keys=true
+    value="${ini[$key]}"
+    echo "$key = $value" >>"$ini_file"
+  done
+
+  [[ "${has_free_keys}" == "true" ]] && echo >>"$ini_file"
+
+  for key in $(ini_keys); do
+    [[ $key == *.* ]] || continue
+    value="${ini[$key]}"
+    IFS="." read -r section_name key_name <<<"$key"
+
+    if [[ "$current_section" != "$section_name" ]]; then
+      [[ $current_section ]] && echo >>"$ini_file"
+      echo "[$section_name]" >>"$ini_file"
+      current_section="$section_name"
+    fi
+
+    echo "$key_name = $value" >>"$ini_file"
+  done
+}
+
+ini_show() {
+  declare -gA ini
+
+  for key in $(ini_keys); do
+    echo "$key = ${ini[$key]}"
+  done
+}
+
+ini_keys() {
+  declare -gA ini
+
+  local keys=("${!ini[@]}")
+  for a in "${keys[@]}"; do echo "$a"; done | sort
+}
+
 # :command.command_functions
 # :command.function
 algo_owls_build_command() {
@@ -403,6 +870,54 @@ algo_owls_build_command() {
 }
 
 # :command.function
+algo_owls_config_get_command() {
+  # src/config_get_command.sh
+  ini_load .algo_owls.ini
+
+  KEY="${args[key]}"
+  VALUE=${ini[$KEY]}
+
+  if [[ -z $VALUE ]]; then
+      echo "algo_owls: $KEY: No such key" 1>&2
+      exit 1
+  fi
+
+  echo "$KEY = $VALUE"
+
+}
+
+# :command.function
+algo_owls_config_list_command() {
+  # src/config_list_command.sh
+  ini_load .algo_owls.ini
+  ini_show
+
+}
+
+# :command.function
+algo_owls_config_set_command() {
+  # src/config_set_command.sh
+  ini_load .algo_owls.ini
+
+  KEY="${args[key]}"
+  VALUE="${args[value]}"
+
+  ini["$KEY"]="$VALUE"
+  ini_save .algo_owls.ini
+
+}
+
+# :command.function
+algo_owls_fmt_command() {
+  # src/fmt_command.sh
+  echo "# this file is located in 'src/fmt_command.sh'"
+  echo "# code for 'algo_owls fmt' goes here"
+  echo "# you can edit it freely and regenerate (it will not be overwritten)"
+  inspect_args
+
+}
+
+# :command.function
 algo_owls_init_command() {
   # src/init_command.sh
   EXT="$ALGO_EXT"
@@ -436,6 +951,16 @@ algo_owls_init_command() {
 
   mkdir -p ${SOLUTION%/*}
   cp $TEMPLATE $SOLUTION
+
+}
+
+# :command.function
+algo_owls_quest_command() {
+  # src/quest_command.sh
+  echo "# this file is located in 'src/quest_command.sh'"
+  echo "# code for 'algo_owls quest' goes here"
+  echo "# you can edit it freely and regenerate (it will not be overwritten)"
+  inspect_args
 
 }
 
@@ -499,6 +1024,26 @@ algo_owls_run_command() {
 
 }
 
+# :command.function
+algo_owls_submit_command() {
+  # src/submit_command.sh
+  echo "# this file is located in 'src/submit_command.sh'"
+  echo "# code for 'algo_owls submit' goes here"
+  echo "# you can edit it freely and regenerate (it will not be overwritten)"
+  inspect_args
+
+}
+
+# :command.function
+algo_owls_wipe_command() {
+  # src/wipe_command.sh
+  echo "# this file is located in 'src/wipe_command.sh'"
+  echo "# code for 'algo_owls wipe' goes here"
+  echo "# you can edit it freely and regenerate (it will not be overwritten)"
+  inspect_args
+
+}
+
 # :command.parse_requirements
 parse_requirements() {
   # :command.fixed_flags_filter
@@ -522,12 +1067,6 @@ parse_requirements() {
     esac
   done
 
-  # :command.environment_variables_filter
-  # :command.environment_variables_default
-  export ALGO_EXT="${ALGO_EXT:-.txt}"
-  export ALGO_SOLUTIONS="${ALGO_SOLUTIONS:-./solutions}"
-  export ALGO_TARGET="${ALGO_TARGET:-./target}"
-
   # :command.command_filter
   action=${1:-}
 
@@ -541,6 +1080,20 @@ parse_requirements() {
       shift $#
       ;;
 
+    config | c)
+      action="config"
+      shift
+      algo_owls_config_parse_requirements "$@"
+      shift $#
+      ;;
+
+    fmt | f)
+      action="fmt"
+      shift
+      algo_owls_fmt_parse_requirements "$@"
+      shift $#
+      ;;
+
     init | i)
       action="init"
       shift
@@ -548,10 +1101,31 @@ parse_requirements() {
       shift $#
       ;;
 
+    quest | q)
+      action="quest"
+      shift
+      algo_owls_quest_parse_requirements "$@"
+      shift $#
+      ;;
+
     run | r)
       action="run"
       shift
       algo_owls_run_parse_requirements "$@"
+      shift $#
+      ;;
+
+    submit | s)
+      action="submit"
+      shift
+      algo_owls_submit_parse_requirements "$@"
+      shift $#
+      ;;
+
+    wipe | w)
+      action="wipe"
+      shift
+      algo_owls_wipe_parse_requirements "$@"
       shift $#
       ;;
 
@@ -617,7 +1191,7 @@ algo_owls_build_parse_requirements() {
     key="$1"
     case "$key" in
       # :flag.case
-      --build_cmd)
+      --build_cmd | -x)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
@@ -626,22 +1200,52 @@ algo_owls_build_parse_requirements() {
           shift
           shift
         else
-          printf "%s\n" "--build_cmd requires an argument: --build_cmd COMMAND" >&2
+          printf "%s\n" "--build_cmd requires an argument: --build_cmd, -x COMMAND" >&2
           exit 1
         fi
         ;;
 
       # :flag.case
-      --build_flag)
+      --build_flags | -I)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--build_flag']="$2"
+          args['--build_flags']="$2"
           shift
           shift
         else
-          printf "%s\n" "--build_flag requires an argument: --build_flag FLAG" >&2
+          printf "%s\n" "--build_flags requires an argument: --build_flags, -I FLAGS" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --build_out | -o)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--build_out']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--build_out requires an argument: --build_out, -o FLAG" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --build_sources | -s)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--build_sources']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--build_sources requires an argument: --build_sources, -s FLAG" >&2
           exit 1
         fi
         ;;
@@ -659,6 +1263,22 @@ algo_owls_build_parse_requirements() {
           printf "%s\n" "--ext requires an argument: --ext, -e EXTENSION" >&2
           exit 1
         fi
+        ;;
+
+      # :flag.case
+      --local | -l)
+
+        # :flag.case_no_arg
+        args['--local']=1
+        shift
+        ;;
+
+      # :flag.case
+      --no_ext | -n)
+
+        # :flag.case_no_arg
+        args['--no_ext']=1
+        shift
         ;;
 
       -?*)
@@ -686,6 +1306,359 @@ algo_owls_build_parse_requirements() {
   # :command.required_args_filter
   if [[ -z ${args['solution']+x} ]]; then
     printf "missing required argument: SOLUTION\nusage: algo_owls build SOLUTION [OPTIONS]\n" >&2
+    exit 1
+  fi
+
+}
+
+# :command.parse_requirements
+algo_owls_config_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        algo_owls_config_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action=${1:-}
+
+  case $action in
+    -*) ;;
+
+    get | g)
+      action="get"
+      shift
+      algo_owls_config_get_parse_requirements "$@"
+      shift $#
+      ;;
+
+    list | l)
+      action="list"
+      shift
+      algo_owls_config_list_parse_requirements "$@"
+      shift $#
+      ;;
+
+    set | s)
+      action="set"
+      shift
+      algo_owls_config_set_parse_requirements "$@"
+      shift $#
+      ;;
+
+    # :command.command_fallback
+    "")
+      algo_owls_config_usage >&2
+      exit 1
+      ;;
+
+    *)
+      printf "invalid command: %s\n" "$action" >&2
+      exit 1
+      ;;
+
+  esac
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
+
+}
+
+# :command.parse_requirements
+algo_owls_config_get_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        algo_owls_config_get_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="config get"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        if [[ -z ${args['key']+x} ]]; then
+
+          args['key']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['key']+x} ]]; then
+    printf "missing required argument: KEY\nusage: algo_owls config get KEY\n" >&2
+    exit 1
+  fi
+
+}
+
+# :command.parse_requirements
+algo_owls_config_list_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        algo_owls_config_list_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="config list"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
+
+}
+
+# :command.parse_requirements
+algo_owls_config_set_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        algo_owls_config_set_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="config set"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        if [[ -z ${args['key']+x} ]]; then
+
+          args['key']=$1
+          shift
+        elif [[ -z ${args['value']+x} ]]; then
+
+          args['value']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['key']+x} ]]; then
+    printf "missing required argument: KEY\nusage: algo_owls config set KEY VALUE\n" >&2
+    exit 1
+  fi
+  if [[ -z ${args['value']+x} ]]; then
+    printf "missing required argument: VALUE\nusage: algo_owls config set KEY VALUE\n" >&2
+    exit 1
+  fi
+
+}
+
+# :command.parse_requirements
+algo_owls_fmt_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        algo_owls_fmt_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="fmt"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --fmt_cmd | -x)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--fmt_cmd']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--fmt_cmd requires an argument: --fmt_cmd, -x COMMAND" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --fmt_flags | -I)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--fmt_flags']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--fmt_flags requires an argument: --fmt_flags, -I FLAGS" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --ext | -e)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--ext']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--ext requires an argument: --ext, -e EXTENSION" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --no_ext | -n)
+
+        # :flag.case_no_arg
+        args['--no_ext']=1
+        shift
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        if [[ -z ${args['solution']+x} ]]; then
+
+          args['solution']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['solution']+x} ]]; then
+    printf "missing required argument: SOLUTION\nusage: algo_owls fmt SOLUTION [OPTIONS]\n" >&2
     exit 1
   fi
 
@@ -729,6 +1702,14 @@ algo_owls_init_parse_requirements() {
           printf "%s\n" "--ext requires an argument: --ext, -e EXTENSION" >&2
           exit 1
         fi
+        ;;
+
+      # :flag.case
+      --no_ext | -n)
+
+        # :flag.case_no_arg
+        args['--no_ext']=1
+        shift
         ;;
 
       # :flag.case
@@ -788,6 +1769,100 @@ algo_owls_init_parse_requirements() {
 }
 
 # :command.parse_requirements
+algo_owls_quest_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        algo_owls_quest_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="quest"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --ext | -e)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--ext']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--ext requires an argument: --ext, -e EXTENSION" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --local | -l)
+
+        # :flag.case_no_arg
+        args['--local']=1
+        shift
+        ;;
+
+      # :flag.case
+      --no_ext | -n)
+
+        # :flag.case_no_arg
+        args['--no_ext']=1
+        shift
+        ;;
+
+      # :flag.case
+      --use_source | -u)
+
+        # :flag.case_no_arg
+        args['--use_source']=1
+        shift
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        if [[ -z ${args['solution']+x} ]]; then
+
+          args['solution']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['solution']+x} ]]; then
+    printf "missing required argument: SOLUTION\nusage: algo_owls quest SOLUTION [OPTIONS]\n" >&2
+    exit 1
+  fi
+
+}
+
+# :command.parse_requirements
 algo_owls_run_parse_requirements() {
   # :command.fixed_flags_filter
   while [[ $# -gt 0 ]]; do
@@ -836,7 +1911,15 @@ algo_owls_run_parse_requirements() {
         ;;
 
       # :flag.case
-      --no_ext)
+      --local | -l)
+
+        # :flag.case_no_arg
+        args['--local']=1
+        shift
+        ;;
+
+      # :flag.case
+      --no_ext | -n)
 
         # :flag.case_no_arg
         args['--no_ext']=1
@@ -844,7 +1927,7 @@ algo_owls_run_parse_requirements() {
         ;;
 
       # :flag.case
-      --run_cmd)
+      --run_cmd | -x)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
@@ -853,28 +1936,43 @@ algo_owls_run_parse_requirements() {
           shift
           shift
         else
-          printf "%s\n" "--run_cmd requires an argument: --run_cmd COMMAND" >&2
+          printf "%s\n" "--run_cmd requires an argument: --run_cmd, -x COMMAND" >&2
           exit 1
         fi
         ;;
 
       # :flag.case
-      --run_flag)
+      --run_flags | -I)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--run_flag']="$2"
+          args['--run_flags']="$2"
           shift
           shift
         else
-          printf "%s\n" "--run_flag requires an argument: --run_flag FLAG" >&2
+          printf "%s\n" "--run_flags requires an argument: --run_flags, -I FLAGS" >&2
           exit 1
         fi
         ;;
 
       # :flag.case
-      --use_source)
+      --run_sources | -s)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--run_sources']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--run_sources requires an argument: --run_sources, -s FLAG" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --use_source | -u)
 
         # :flag.case_no_arg
         args['--use_source']=1
@@ -911,16 +2009,160 @@ algo_owls_run_parse_requirements() {
 
 }
 
+# :command.parse_requirements
+algo_owls_submit_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        algo_owls_submit_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="submit"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --branch | -b)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--branch']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--branch requires an argument: --branch, -b BRANCH" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --fmt | -p)
+
+        # :flag.case_no_arg
+        args['--fmt']=1
+        shift
+        ;;
+
+      # :flag.case
+      --message | -m)
+
+        # :flag.case_no_arg
+        args['--message']=1
+        shift
+        ;;
+
+      # :flag.case
+      --remote | -r)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--remote']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--remote requires an argument: --remote, -r REMOTE" >&2
+          exit 1
+        fi
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        if [[ -z ${args['solution']+x} ]]; then
+
+          args['solution']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['solution']+x} ]]; then
+    printf "missing required argument: SOLUTION\nusage: algo_owls submit SOLUTION [OPTIONS]\n" >&2
+    exit 1
+  fi
+
+  # :command.default_assignments
+  [[ -n ${args['--branch']:-} ]] || args['--branch']="main"
+  [[ -n ${args['--remote']:-} ]] || args['--remote']="origin"
+
+}
+
+# :command.parse_requirements
+algo_owls_wipe_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        algo_owls_wipe_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="wipe"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
+
+}
+
 # :command.initialize
 initialize() {
-  version="0.1.0"
+  version="0.2.0"
   long_usage=''
   set -e
-
-  # :command.environment_variables_default
-  export ALGO_EXT="${ALGO_EXT:-.txt}"
-  export ALGO_SOLUTIONS="${ALGO_SOLUTIONS:-./solutions}"
-  export ALGO_TARGET="${ALGO_TARGET:-./target}"
 
 }
 
@@ -935,8 +2177,16 @@ run() {
 
   case "$action" in
     "build") algo_owls_build_command ;;
+    "config") algo_owls_config_command ;;
+    "config get") algo_owls_config_get_command ;;
+    "config list") algo_owls_config_list_command ;;
+    "config set") algo_owls_config_set_command ;;
+    "fmt") algo_owls_fmt_command ;;
     "init") algo_owls_init_command ;;
+    "quest") algo_owls_quest_command ;;
     "run") algo_owls_run_command ;;
+    "submit") algo_owls_submit_command ;;
+    "wipe") algo_owls_wipe_command ;;
   esac
 }
 

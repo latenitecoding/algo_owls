@@ -1,53 +1,47 @@
 name: algo_owls
 help: Use to create, execute, and test solutions to competitive programming problems
-version: 0.1.0
-
-environment_variables:
-- name: algo_ext
-  help: Set the default file extension to use for solution files if no other extension is provided
-  default: .txt
-- name: algo_solutions
-  help: Set the default location for the solutions directory
-  default: ./solutions
-- name: algo_target
-  help: Set the default location for the target build directory
-  default: ./target
-- name: algo_tests
-  help: Set the default location for the tests directory
-  default: ./tests
+version: 0.2.0
 
 commands:
 - name: build
   alias: b
-  help: Compile target solution into the 'ALGO_TARGET' directory
+  help: Compile target solution from the 'options.solutions_dir' directory
 
   args:
   - name: solution
     required: true
-    help: "The name of the target solution inside the 'ALGO_SOLUTIONS' directory"
+    help: "The name of the target solution in the 'options.solutions_dir' directory"
 
   flags:
   - long: --build_cmd
+    short: -x
     arg: command
-    help: The build command to use compile the program into the 'ALGO_TARGET' directory
-  - long: --build_flag
+    help: The build command to compile the program 
+  - long: --build_flags
+    short: -I
+    arg: flags
+    help: The compiler flags to use when compiling the program
+  - long: --build_out
+    short: -o
     arg: flag
-    help: The compiler flag to use to specify 'ALGO_TARGET' as the target build directory
+    help: The compiler flag to specify the output directory (can pattern match on 'options.target_dir')
+  - long: --build_sources
+    short: -s
+    arg: flag
+    help: The compiler flag to include sources in the build (can pattern match on 'options.solutions_dir')
   - long: --ext
     short: -e
     arg: extension
     help: The file extension to use for the solution file
+  - long: --local
+    short: -l
+    help: Use the target solution directory as the build source
+  - long: --no_ext
+    short: -n
+    help: Ignore file extensions when compiling the program
 
   examples:
-  - algo_owls build fading_wind
-  - algo_owls build --ext .java champernowne_count
-  - algo_owls build --ext .java --build_cmd javac --build_flag -d streets_ahead
-
-  environment_variables:
-  - name: algo_build_cmd
-    help: Set the default build command if no other build command is provided
-  - name: algo_build_flag
-    help: Set the default compiler flag to use when compiling solutions into the 'ALGO_TARGET' directory
+  - algo_owls build TODO
 
 - name: config
   alias: c
@@ -64,9 +58,7 @@ commands:
       help: Config key
 
     examples:
-    - algo_owls config get options.file_ext
-    - algo_owls config get build.cmd
-    - algo_owls config get run.cmd
+    - algo_owls config get TODO
 
   - name: list
     alias: l
@@ -88,12 +80,36 @@ commands:
       help: Config value
 
     examples:
-    - algo_owls config set options.file_ext .java
-    - algo_owls config set build.cmd javac
-    - algo_owls config set build.flags "--encoding UTF-8"
-    - algo_owls config set build.include_flag "-d"
-    - algo_owls config set run.cmd java
-    - algo_owls config set run.include_flag "-cp"
+    - algo_owls config set TODO
+
+- name: fmt
+  alias: f
+  help: Format the target solution from the 'options.solutions_dir' directory
+
+  args:
+  - name: solution
+    required: true
+    help: "The name of the target solution in the 'options.solutions_dir' directory"
+
+  flags:
+  - long: --fmt_cmd
+    short: -x
+    arg: command
+    help: The command to format the target solution 
+  - long: --fmt_flags
+    short: -I
+    arg: flags
+    help: The flags to use when formatting the program
+  - long: --ext
+    short: -e
+    arg: extension
+    help: The file extension to use for the solution file
+  - long: --no_ext
+    short: -n
+    help: Ignore file extensions when formatting the program
+
+  examples:
+  - algo_owls fmt TODO
 
 - name: init
   alias: i
@@ -102,13 +118,16 @@ commands:
   args:
   - name: solution
     required: true
-    help: "The path to the target solution relative to the 'ALGO_SOLUTIONS' directory"
+    help: "The path to the target solution relative to the 'options.solutions_dir' directory"
 
   flags:
   - long: --ext
     short: -e
     arg: extension
     help: The file extension to use for the solution and template files
+  - long: --no_ext
+    short: -n
+    help: Ignore file extensions when initializing the solution file
   - long: --template
     short: -t
     arg: template
@@ -119,10 +138,34 @@ commands:
     help: Create a blank solution instead of copying from a template file
 
   examples:
-  - algo_owls init icpc/nar2022/fading_wind
-  - algo_owls init icpc/nar2022/hunt_the_wumpus --template ./solutions/icpc/nar2022/fading_wind
-  - algo_owls init --ext .java icpc/nar2022/champernowne_count
-  - algo_owls init --touch icpc/nar2022/streets_ahead
+  - algo_owls init TODO
+
+- name: quest
+  alias: q
+  help: Run target solution against each input file in 'options.test_dir' comparing results to adjacent answers
+
+  args:
+  - name: solution
+    required: true
+    help: "The name of the target solution from the 'options.solutions_dir' directory"
+
+  flags:
+  - long: --ext
+    short: -e
+    arg: extension
+    help: The file extension to use for the target solution
+  - long: --local
+    short: -l
+    help: Use the 'options.target_dir' directory as the runtime source
+  - long: --no_ext
+    short: -n
+    help: Ignore extensions when executing the target solution
+  - long: --use_source
+    short: -u
+    help: Use the 'options.solutions_dir' directory as the runtime source
+
+  examples:
+  - algo_owls quest TODO
 
 - name: run
   alias: r
@@ -131,7 +174,7 @@ commands:
   args:
   - name: solution
     required: true
-    help: "The name of the target solution from the 'ALGO_SOLUTIONS' directory"
+    help: "The name of the target solution from the 'options.solutions_dir' directory"
 
   flags:
   - long: --build
@@ -141,63 +184,64 @@ commands:
     short: -e
     arg: extension
     help: The file extension to use for the solution
+  - long: --local
+    short: -l
+    help: Use the 'options.target_dir' directory as the runtime source
   - long: --no_ext
+    short: -n
     help: Ignore extensions when executing the target solution
   - long: --run_cmd
+    short: -x
     arg: command
     help: The run command to use to execute the solution
-  - long: --run_flag
+  - long: --run_flags
+    short: -I
+    arg: flags
+    help: The runtime flags to use when executing the program
+  - long: --run_sources
+    short: -s
     arg: flag
-    help: The flag to use to specify 'ALGO_TARGET' as the target source directory
+    help: The runtime flag to include sources in the execution (can pattern match on 'options.target_dir')
   - long: --use_source
-    help: Execute the target solution from within the 'ALGO_SOLUTIONS' directory
+    short: -u
+    help: Use the 'options.solutions_dir' directory as the runtime source
 
   examples:
-  - algo_owls run fading_wind
-  - algo_owls run --build hunt_the_wumpus
-  - algo_owls run --no_ext champernowne_count
-  - algo_owls run --ext .py streets_ahead.py
-  - algo_owls build --no_ext --run_cmd java --run_flag --source restaurant_opening
-  - algo_owls run --use_source --ext .py color_tubes
+  - algo_owls run TODO
 
-  environment_variables:
-  - name: algo_run_cmd
-    help: Set the default run command if no other run command is provided
-  - name: algo_run_flag
-    help: Set the default source flag to use when executing solutions in the 'ALGO_TARGET' directory
-
-- name: quest
-  alias: q
-  help: Run target solution against each input file in 'ALGO_TESTS' comparing results to provided answers
+- name: submit
+  alias: s
+  help: Commits and pushes target solution using git
 
   args:
   - name: solution
     required: true
-    help: "The name of the target solution from the 'ALGO_SOLUTIONS' directory"
+    help: "The name of the target solution from the 'options.solutions_dir' directory"
 
   flags:
-  - long: --build
+  - long: --branch
     short: -b
-    help: Execute the default build command prior to running the target solution
-  - long: --ext
-    short: -e
-    arg: extension
-    help: The file extension to use for the solution
-  - long: --no_ext
-    help: Ignore extensions when executing the target solution
-  - long: --run_cmd
-    arg: command
-    help: The run command to use to execute the solution
-  - long: --run_flag
-    arg: flag
-    help: The flag to use to specify 'ALGO_TARGET' as the target source directory
-  - long: --use_source
-    help: Execute the target solution from within the 'ALGO_SOLUTIONS' directory
+    arg: branch
+    default: main
+    help: The branch to commit to
+  - long: --fmt
+    short: -p
+    help: Apply default formatting to target solution before committing
+  - long: --message
+    short: -m
+    help: Provide custom commit message
+  - long: --remote
+    short: -r
+    arg: remote
+    default: origin
+    help: The remote to push to
 
   examples:
-  - algo_owls run fading_wind
-  - algo_owls run --build hunt_the_wumpus
-  - algo_owls run --no_ext champernowne_count
-  - algo_owls run --ext .py streets_ahead.py
-  - algo_owls build --no_ext --run_cmd java --run_flag --source restaurant_opening
-  - algo_owls run --use_source --ext .py color_tubes
+  - algo_owls submit TODO
+
+- name: wipe
+  alias: w
+  help: Wipes all build files from the 'options.target_dir'
+
+  examples:
+  - algo_owls wipe TODO
