@@ -221,18 +221,23 @@ commands:
   - long: --branch
     short: -b
     arg: branch
-    default: main
     help: The branch to commit to
+  - long: --ext
+    short: -e
+    arg: extension
+    help: The file extension to use for the solution
   - long: --fmt
     short: -p
     help: Apply default formatting to target solution before committing
   - long: --message
     short: -m
     help: Provide custom commit message
+  - long: --no_ext
+    short: -n
+    help: Ignore extensions when executing the target solution
   - long: --remote
     short: -r
     arg: remote
-    default: origin
     help: The remote to push to
 
   examples:
