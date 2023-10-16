@@ -62,7 +62,7 @@ algo_owls_usage() {
     # :environment_variable.usage
     printf "  %s\n" "ALGO_SOLUTIONS"
     printf "    Set the default location for the solutions directory\n"
-    printf "    Default: ./src/solutions\n"
+    printf "    Default: ./solutions\n"
     echo
 
     # :environment_variable.usage
@@ -200,7 +200,7 @@ algo_owls_init_usage() {
     # :command.usage_examples
     printf "%s\n" "Examples:"
     printf "  algo_owls init icpc/nar2022/fading_wind\n"
-    printf "  algo_owls init icpc/nar2022/hunt_the_wumpus --template\n  ./src/solutions/icpc/nar2022/fading_wind\n"
+    printf "  algo_owls init icpc/nar2022/hunt_the_wumpus --template\n  ./solutions/icpc/nar2022/fading_wind\n"
     printf "  algo_owls init --ext .java icpc/nar2022/champernowne_count\n"
     printf "  algo_owls init --touch icpc/nar2022/streets_ahead\n"
     echo
@@ -358,7 +358,7 @@ parse_requirements() {
   # :command.environment_variables_filter
   # :command.environment_variables_default
   export ALGO_EXT="${ALGO_EXT:-.txt}"
-  export ALGO_SOLUTIONS="${ALGO_SOLUTIONS:-./src/solutions}"
+  export ALGO_SOLUTIONS="${ALGO_SOLUTIONS:-./solutions}"
   export ALGO_TARGET="${ALGO_TARGET:-./target}"
 
   # :command.command_filter
@@ -621,7 +621,7 @@ initialize() {
 
   # :command.environment_variables_default
   export ALGO_EXT="${ALGO_EXT:-.txt}"
-  export ALGO_SOLUTIONS="${ALGO_SOLUTIONS:-./src/solutions}"
+  export ALGO_SOLUTIONS="${ALGO_SOLUTIONS:-./solutions}"
   export ALGO_TARGET="${ALGO_TARGET:-./target}"
 
 }

@@ -1,17 +1,13 @@
-TEMPLATE="${args[--template]}"
-SOLUTION="$ALGO_SOLUTIONS/${args[solution]}"
 EXT="$ALGO_EXT"
-
 if [[ ! -z ${args[--ext]} ]]; then
     EXT="${args[--ext]}"
 fi
-
 if [[ ${EXT:0:1} != "." ]]; then
     EXT=".$EXT"
 fi
 
-TEMPLATE="$TEMPLATE$EXT"
-SOLUTION="$SOLUTION$EXT"
+TEMPLATE="${args[--template]}$EXT"
+SOLUTION="$ALGO_SOLUTIONS/${args[solution]}$EXT"
 
 if [[ ! -z ${args[--touch]} && ${args[--touch]} == 1 ]]; then
     mkdir -p ${SOLUTION%/*}
