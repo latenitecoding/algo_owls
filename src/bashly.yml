@@ -12,6 +12,9 @@ environment_variables:
 - name: algo_target
   help: Set the default location for the target build directory
   default: ./target
+- name: algo_tests
+  help: Set the default location for the tests directory
+  default: ./tests
 
 commands:
 - name: build
@@ -117,4 +120,38 @@ commands:
   - name: algo_run_flag
     help: Set the default source flag to use when executing solutions in the 'ALGO_TARGET' directory
 
+- name: quest
+  alias: q
+  help: Run target solution against each input file in 'ALGO_TESTS' comparing results to provided answers
 
+  args:
+  - name: solution
+    required: true
+    help: "The name of the target solution from the 'ALGO_SOLUTIONS' directory"
+
+  flags:
+  - long: --build
+    short: -b
+    help: Execute the default build command prior to running the target solution
+  - long: --ext
+    short: -e
+    arg: extension
+    help: The file extension to use for the solution
+  - long: --no_ext
+    help: Ignore extensions when executing the target solution
+  - long: --run_cmd
+    arg: command
+    help: The run command to use to execute the solution
+  - long: --run_flag
+    arg: flag
+    help: The flag to use to specify 'ALGO_TARGET' as the target source directory
+  - long: --use_source
+    help: Execute the target solution from within the 'ALGO_SOLUTIONS' directory
+
+  examples:
+  - algo_owls run fading_wind
+  - algo_owls run --build hunt_the_wumpus
+  - algo_owls run --no_ext champernowne_count
+  - algo_owls run --ext .py streets_ahead.py
+  - algo_owls build --no_ext --run_cmd java --run_flag --source restaurant_opening
+  - algo_owls run --use_source --ext .py color_tubes
