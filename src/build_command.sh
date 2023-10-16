@@ -16,12 +16,17 @@ if [[ -z $TARGET_FILE ]]; then
     exit 1
 fi
 
+BUILD_FLAG="${ALGO_BUILD_FLAG}"
+if [[ ! -z ${args[--build_flag]} ]]; then
+    BUILD_FLAG="${args[--build_flag]}"
+fi
+
 BUILD_CMD="${ALGO_BUILD_CMD}"
 if [[ ! -z ${args[--build_cmd]} ]]; then
     BUILD_CMD="${args[--build_cmd]}"
 fi
-if [[ ! -z ${args[--build_flag]} ]]; then
-    BUILD_CMD="$BUILD_CMD ${args[--build_flag]} \$ALGO_TARGET"
+if [[ ! -z $BUILD_FLAG ]]; then
+    BUILD_CMD="$BUILD_CMD $BUILD_FLAG $ALGO_TARGET"
 fi
 BUILD_CMD="$BUILD_CMD $TARGET_FILE"
 
