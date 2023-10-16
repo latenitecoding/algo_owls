@@ -49,6 +49,52 @@ commands:
   - name: algo_build_flag
     help: Set the default compiler flag to use when compiling solutions into the 'ALGO_TARGET' directory
 
+- name: config
+  alias: c
+  help: Manage the algo_owls config file
+
+  commands:
+  - name: get
+    alias: g
+    help: Read a value from the config file
+
+    args:
+    - name: key
+      required: true
+      help: Config key
+
+    examples:
+    - algo_owls config get options.file_ext
+    - algo_owls config get build.cmd
+    - algo_owls config get run.cmd
+
+  - name: list
+    alias: l
+    help: Show entire config file
+
+    examples:
+    - algo_owls config list
+
+  - name: set
+    alias: s
+    help: Save a value in the config file
+
+    args:
+    - name: key
+      required: true
+      help: Config key
+    - name: value
+      required: true
+      help: Config value
+
+    examples:
+    - algo_owls config set options.file_ext .java
+    - algo_owls config set build.cmd javac
+    - algo_owls config set build.flags "--encoding UTF-8"
+    - algo_owls config set build.include_flag "-d"
+    - algo_owls config set run.cmd java
+    - algo_owls config set run.include_flag "-cp"
+
 - name: init
   alias: i
   help: Create solution file from a template (if desired)
