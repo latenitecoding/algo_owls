@@ -34,8 +34,8 @@ algo_owls_usage() {
   echo
   # :command.usage_commands
   printf "%s\n" "Commands:"
-  printf "  %s   Create solution file from a template (if desired)\n" "init  "
-  printf "  %s   Upload a file\n" "upload"
+  printf "  %s   Compile target solution into the 'ALGO_TARGET' directory\n" "build"
+  printf "  %s   Create solution file from a template (if desired)\n" "init "
   echo
 
   # :command.long_usage
@@ -55,7 +55,7 @@ algo_owls_usage() {
 
     # :environment_variable.usage
     printf "  %s\n" "ALGO_EXT"
-    printf "    Set the default file extension to use for solution files if no extension is\n    provided\n"
+    printf "    Set the default file extension to use for solution files if no other\n    extension is provided\n"
     printf "    Default: .txt\n"
     echo
 
@@ -63,6 +63,81 @@ algo_owls_usage() {
     printf "  %s\n" "ALGO_SOLUTIONS"
     printf "    Set the default location for the solutions directory\n"
     printf "    Default: ./src/solutions\n"
+    echo
+
+    # :environment_variable.usage
+    printf "  %s\n" "ALGO_TARGET"
+    printf "    Set the default location for the target build directory\n"
+    printf "    Default: ./target\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+algo_owls_build_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "algo_owls build - Compile target solution into the 'ALGO_TARGET' directory\n"
+    echo
+
+  else
+    printf "algo_owls build - Compile target solution into the 'ALGO_TARGET' directory\n"
+    echo
+
+  fi
+
+  printf "Alias: b\n"
+  echo
+
+  printf "%s\n" "Usage:"
+  printf "  algo_owls build SOLUTION [OPTIONS]\n"
+  printf "  algo_owls build --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--build_cmd COMMAND"
+    printf "    The build command to use compile the program into the 'ALGO_TARGET'\n    directory\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--build_flag FLAG"
+    printf "    The compiler flag to use to specify 'ALGO_TARGET' as the target build\n    directory\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--ext, -e EXTENSION"
+    printf "    The file extension to use for the solution and template files\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "SOLUTION"
+    printf "    The name of the target solution inside the 'ALGO_SOLUTIONS' directory\n"
+    echo
+
+    # :command.usage_environment_variables
+    printf "%s\n" "Environment Variables:"
+
+    # :environment_variable.usage
+    printf "  %s\n" "ALGO_BUILD_CMD"
+    printf "    Set the default build command if no other build command is provided\n"
+    echo
+
+    # :environment_variable.usage
+    printf "  %s\n" "ALGO_BUILD_FLAG"
+    printf "    Set the default compiler flag to use when compiling solutions into the\n    'ALGO_TARGET' directory\n"
     echo
 
   fi
@@ -133,57 +208,6 @@ algo_owls_init_usage() {
   fi
 }
 
-# :command.usage
-algo_owls_upload_usage() {
-  if [[ -n $long_usage ]]; then
-    printf "algo_owls upload - Upload a file\n"
-    echo
-
-  else
-    printf "algo_owls upload - Upload a file\n"
-    echo
-
-  fi
-
-  printf "Alias: u\n"
-  echo
-
-  printf "%s\n" "Usage:"
-  printf "  algo_owls upload SOURCE [OPTIONS]\n"
-  printf "  algo_owls upload --help | -h\n"
-  echo
-
-  # :command.long_usage
-  if [[ -n $long_usage ]]; then
-    printf "%s\n" "Options:"
-
-    # :command.usage_flags
-    # :flag.usage
-    printf "  %s\n" "--user, -u USER (required)"
-    printf "    Username to use for logging in\n"
-    echo
-
-    # :flag.usage
-    printf "  %s\n" "--password, -p PASSWORD"
-    printf "    Password to use for logging in\n"
-    echo
-
-    # :command.usage_fixed_flags
-    printf "  %s\n" "--help, -h"
-    printf "    Show this help\n"
-    echo
-
-    # :command.usage_args
-    printf "%s\n" "Arguments:"
-
-    # :argument.usage
-    printf "  %s\n" "SOURCE"
-    printf "    File to upload\n"
-    echo
-
-  fi
-}
-
 # :command.normalize_input
 normalize_input() {
   local arg flags
@@ -238,25 +262,52 @@ inspect_args() {
 
 # :command.command_functions
 # :command.function
-algo_owls_init_command() {
-  # src/init_command.sh
-  TEMPLATE="${args[--template]}"
-  SOLUTION="$ALGO_SOLUTIONS/${args[solution]}"
+algo_owls_build_command() {
+  # src/build_command.sh
   EXT="$ALGO_EXT"
-
   if [[ ! -z ${args[--ext]} ]]; then
       EXT="${args[--ext]}"
   fi
-
   if [[ ${EXT:0:1} != "." ]]; then
       EXT=".$EXT"
   fi
 
-  TEMPLATE="$TEMPLATE$EXT"
-  SOLUTION="$SOLUTION$EXT"
+  SOLUTION="${args[solution]}$EXT"
 
-  echo $TEMPLATE
-  echo $SOLUTION
+  TARGET_FILE=$(find $ALGO_SOLUTIONS -name $SOLUTION)
+
+  if [[ -z $TARGET_FILE ]]; then
+      echo "algo_owls: $SOLUTION: No such file or directory" 1>&2
+      echo "Try using: ./algo_owls init $ALGO_SOLUTIONS/$SOLUTION"
+      exit 1
+  fi
+
+  BUILD_CMD="${ALGO_BUILD_CMD}"
+  if [[ ! -z ${args[--build_cmd]} ]]; then
+      BUILD_CMD="${args[--build_cmd]}"
+  fi
+  if [[ ! -z ${args[--build_flag]} ]]; then
+      BUILD_CMD="$BUILD_CMD ${args[--build_flag]} \$ALGO_TARGET"
+  fi
+  BUILD_CMD="$BUILD_CMD $TARGET_FILE"
+
+  eval $BUILD_CMD
+
+}
+
+# :command.function
+algo_owls_init_command() {
+  # src/init_command.sh
+  EXT="$ALGO_EXT"
+  if [[ ! -z ${args[--ext]} ]]; then
+      EXT="${args[--ext]}"
+  fi
+  if [[ ${EXT:0:1} != "." ]]; then
+      EXT=".$EXT"
+  fi
+
+  TEMPLATE="${args[--template]}$EXT"
+  SOLUTION="$ALGO_SOLUTIONS/${args[solution]}$EXT"
 
   if [[ ! -z ${args[--touch]} && ${args[--touch]} == 1 ]]; then
       mkdir -p ${SOLUTION%/*}
@@ -278,16 +329,6 @@ algo_owls_init_command() {
 
   mkdir -p ${SOLUTION%/*}
   cp $TEMPLATE $SOLUTION
-
-}
-
-# :command.function
-algo_owls_upload_command() {
-  # src/upload_command.sh
-  echo "# this file is located in 'src/upload_command.sh'"
-  echo "# code for 'cli upload' goes here"
-  echo "# you can edit it freely and regenerate (it will not be overwritten)"
-  inspect_args
 
 }
 
@@ -318,6 +359,7 @@ parse_requirements() {
   # :command.environment_variables_default
   export ALGO_EXT="${ALGO_EXT:-.txt}"
   export ALGO_SOLUTIONS="${ALGO_SOLUTIONS:-./src/solutions}"
+  export ALGO_TARGET="${ALGO_TARGET:-./target}"
 
   # :command.command_filter
   action=${1:-}
@@ -325,17 +367,17 @@ parse_requirements() {
   case $action in
     -*) ;;
 
+    build | b)
+      action="build"
+      shift
+      algo_owls_build_parse_requirements "$@"
+      shift $#
+      ;;
+
     init | i)
       action="init"
       shift
       algo_owls_init_parse_requirements "$@"
-      shift $#
-      ;;
-
-    upload | u)
-      action="upload"
-      shift
-      algo_owls_upload_parse_requirements "$@"
       shift $#
       ;;
 
@@ -372,6 +414,106 @@ parse_requirements() {
 
     esac
   done
+
+}
+
+# :command.parse_requirements
+algo_owls_build_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        algo_owls_build_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="build"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --build_cmd)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--build_cmd']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--build_cmd requires an argument: --build_cmd COMMAND" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --build_flag)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--build_flag']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--build_flag requires an argument: --build_flag FLAG" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --ext | -e)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--ext']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--ext requires an argument: --ext, -e EXTENSION" >&2
+          exit 1
+        fi
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        if [[ -z ${args['solution']+x} ]]; then
+
+          args['solution']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['solution']+x} ]]; then
+    printf "missing required argument: SOLUTION\nusage: algo_owls build SOLUTION [OPTIONS]\n" >&2
+    exit 1
+  fi
 
 }
 
@@ -471,97 +613,6 @@ algo_owls_init_parse_requirements() {
 
 }
 
-# :command.parse_requirements
-algo_owls_upload_parse_requirements() {
-  # :command.fixed_flags_filter
-  while [[ $# -gt 0 ]]; do
-    case "${1:-}" in
-      --help | -h)
-        long_usage=yes
-        algo_owls_upload_usage
-        exit
-        ;;
-
-      *)
-        break
-        ;;
-
-    esac
-  done
-
-  # :command.command_filter
-  action="upload"
-
-  # :command.parse_requirements_while
-  while [[ $# -gt 0 ]]; do
-    key="$1"
-    case "$key" in
-      # :flag.case
-      --user | -u)
-
-        # :flag.case_arg
-        if [[ -n ${2+x} ]]; then
-
-          args['--user']="$2"
-          shift
-          shift
-        else
-          printf "%s\n" "--user requires an argument: --user, -u USER" >&2
-          exit 1
-        fi
-        ;;
-
-      # :flag.case
-      --password | -p)
-
-        # :flag.case_arg
-        if [[ -n ${2+x} ]]; then
-
-          args['--password']="$2"
-          shift
-          shift
-        else
-          printf "%s\n" "--password requires an argument: --password, -p PASSWORD" >&2
-          exit 1
-        fi
-        ;;
-
-      -?*)
-        printf "invalid option: %s\n" "$key" >&2
-        exit 1
-        ;;
-
-      *)
-        # :command.parse_requirements_case
-        # :command.parse_requirements_case_simple
-        if [[ -z ${args['source']+x} ]]; then
-
-          args['source']=$1
-          shift
-        else
-          printf "invalid argument: %s\n" "$key" >&2
-          exit 1
-        fi
-
-        ;;
-
-    esac
-  done
-
-  # :command.required_args_filter
-  if [[ -z ${args['source']+x} ]]; then
-    printf "missing required argument: SOURCE\nusage: algo_owls upload SOURCE [OPTIONS]\n" >&2
-    exit 1
-  fi
-
-  # :command.required_flags_filter
-  if [[ -z ${args['--user']+x} ]]; then
-    printf "missing required flag: --user, -u USER\n" >&2
-    exit 1
-  fi
-
-}
-
 # :command.initialize
 initialize() {
   version="0.1.0"
@@ -571,6 +622,7 @@ initialize() {
   # :command.environment_variables_default
   export ALGO_EXT="${ALGO_EXT:-.txt}"
   export ALGO_SOLUTIONS="${ALGO_SOLUTIONS:-./src/solutions}"
+  export ALGO_TARGET="${ALGO_TARGET:-./target}"
 
 }
 
@@ -584,8 +636,8 @@ run() {
   parse_requirements "${input[@]}"
 
   case "$action" in
+    "build") algo_owls_build_command ;;
     "init") algo_owls_init_command ;;
-    "upload") algo_owls_upload_command ;;
   esac
 }
 

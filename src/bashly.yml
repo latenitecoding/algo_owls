@@ -4,13 +4,43 @@ version: 0.1.0
 
 environment_variables:
 - name: algo_ext
-  help: Set the default file extension to use for solution files if no extension is provided
+  help: Set the default file extension to use for solution files if no other extension is provided
   default: .txt
 - name: algo_solutions
   help: Set the default location for the solutions directory
   default: ./src/solutions
+- name: algo_target
+  help: Set the default location for the target build directory
+  default: ./target
 
 commands:
+- name: build
+  alias: b
+  help: Compile target solution into the 'ALGO_TARGET' directory
+
+  args:
+  - name: solution
+    required: true
+    help: "The name of the target solution inside the 'ALGO_SOLUTIONS' directory"
+
+  flags:
+  - long: --build_cmd
+    arg: command
+    help: The build command to use compile the program into the 'ALGO_TARGET' directory
+  - long: --build_flag
+    arg: flag
+    help: The compiler flag to use to specify 'ALGO_TARGET' as the target build directory
+  - long: --ext
+    short: -e
+    arg: extension
+    help: The file extension to use for the solution and template files
+
+  environment_variables:
+  - name: algo_build_cmd
+    help: Set the default build command if no other build command is provided
+  - name: algo_build_flag
+    help: Set the default compiler flag to use when compiling solutions into the 'ALGO_TARGET' directory
+
 - name: init
   alias: i
   help: Create solution file from a template (if desired)
@@ -39,22 +69,3 @@ commands:
   - algo_owls init icpc/nar2022/hunt_the_wumpus --template ./src/solutions/icpc/nar2022/fading_wind
   - algo_owls init --ext .java icpc/nar2022/champernowne_count
   - algo_owls init --touch icpc/nar2022/streets_ahead
-
-- name: upload
-  alias: u
-  help: Upload a file
-  args:
-  - name: source
-    required: true
-    help: File to upload
-
-  flags:
-  - long: --user
-    short: -u
-    arg: user
-    help: Username to use for logging in
-    required: true
-  - long: --password
-    short: -p
-    arg: password
-    help: Password to use for logging in
