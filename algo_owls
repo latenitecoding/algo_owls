@@ -140,6 +140,13 @@ algo_owls_build_usage() {
     printf "    Set the default compiler flag to use when compiling solutions into the\n    'ALGO_TARGET' directory\n"
     echo
 
+    # :command.usage_examples
+    printf "%s\n" "Examples:"
+    printf "  algo_owls build fading_wind\n"
+    printf "  algo_owls build --ext .java champernowne_count\n"
+    printf "  algo_owls build --ext .java --build_cmd javac --build_flag -d streets_ahead\n"
+    echo
+
   fi
 }
 

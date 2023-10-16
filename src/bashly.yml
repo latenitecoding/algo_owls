@@ -35,6 +35,11 @@ commands:
     arg: extension
     help: The file extension to use for the solution and template files
 
+  examples:
+  - algo_owls build fading_wind
+  - algo_owls build --ext .java champernowne_count
+  - algo_owls build --ext .java --build_cmd javac --build_flag -d streets_ahead
+
   environment_variables:
   - name: algo_build_cmd
     help: Set the default build command if no other build command is provided
