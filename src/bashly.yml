@@ -131,8 +131,7 @@ commands:
   - long: --template
     short: -t
     arg: template
-    default: ./hello
-    help: "The path to the target template relative to the CWD (default: ./hello)"
+    help: "The path to the target template relative to the CWD"
   - long: --touch
     short: -o
     help: Create a blank solution instead of copying from a template file

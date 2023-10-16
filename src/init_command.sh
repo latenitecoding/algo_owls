@@ -1,4 +1,6 @@
-EXT="$ALGO_EXT"
+ini_load .algo_owls.ini
+
+EXT="${ini[options.file_ext]}"
 if [[ ! -z ${args[--ext]} ]]; then
     EXT="${args[--ext]}"
 fi
@@ -6,8 +8,17 @@ if [[ ${EXT:0:1} != "." ]]; then
     EXT=".$EXT"
 fi
 
-TEMPLATE="${args[--template]}$EXT"
-SOLUTION="$ALGO_SOLUTIONS/${args[solution]}$EXT"
+TEMPLATE="${ini[options.template_file]}"
+if [[ ! -z ${args[--template]} ]]; then
+    TEMPLATE="${args[--template]}"
+fi
+
+SOLUTION="${ini[options.solutions_dir]}/${args[solution]}"
+
+if [[ -z ${args[--no_ext]} || ${args[--no_ext]} == 0 ]]; then
+    TEMPLATE="$TEMPLATE$EXT"
+    SOLUTION="$SOLUTION$EXT"
+fi
 
 if [[ ! -z ${args[--touch]} && ${args[--touch]} == 1 ]]; then
     mkdir -p ${SOLUTION%/*}
