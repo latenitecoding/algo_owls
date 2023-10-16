@@ -33,7 +33,7 @@ commands:
   - long: --ext
     short: -e
     arg: extension
-    help: The file extension to use for the solution and template files
+    help: The file extension to use for the solution file
 
   examples:
   - algo_owls build fading_wind
@@ -74,3 +74,47 @@ commands:
   - algo_owls init icpc/nar2022/hunt_the_wumpus --template ./solutions/icpc/nar2022/fading_wind
   - algo_owls init --ext .java icpc/nar2022/champernowne_count
   - algo_owls init --touch icpc/nar2022/streets_ahead
+
+- name: run
+  alias: r
+  help: Run target solution
+
+  args:
+  - name: solution
+    required: true
+    help: "The name of the target solution from the 'ALGO_SOLUTIONS' directory"
+
+  flags:
+  - long: --build
+    short: -b
+    help: Execute the default build command prior to running the target solution
+  - long: --ext
+    short: -e
+    arg: extension
+    help: The file extension to use for the solution
+  - long: --no_ext
+    help: Ignore extensions when executing the target solution
+  - long: --run_cmd
+    arg: command
+    help: The run command to use to execute the solution
+  - long: --run_flag
+    arg: flag
+    help: The flag to use to specify 'ALGO_TARGET' as the target source directory
+  - long: --use_source
+    help: Execute the target solution from within the 'ALGO_SOLUTIONS' directory
+
+  examples:
+  - algo_owls run fading_wind
+  - algo_owls run --build hunt_the_wumpus
+  - algo_owls run --no_ext champernowne_count
+  - algo_owls run --ext .py streets_ahead.py
+  - algo_owls build --no_ext --run_cmd java --run_flag --source restaurant_opening
+  - algo_owls run --use_source --ext .py color_tubes
+
+  environment_variables:
+  - name: algo_run_cmd
+    help: Set the default run command if no other run command is provided
+  - name: algo_run_flag
+    help: Set the default source flag to use when executing solutions in the 'ALGO_TARGET' directory
+
+
