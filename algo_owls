@@ -1047,10 +1047,9 @@ algo_owls_submit_command() {
 # :command.function
 algo_owls_wipe_command() {
   # src/wipe_command.sh
-  echo "# this file is located in 'src/wipe_command.sh'"
-  echo "# code for 'algo_owls wipe' goes here"
-  echo "# you can edit it freely and regenerate (it will not be overwritten)"
-  inspect_args
+  ini_load .algo_owls.ini
+
+  rm -r ${ini[options.target_dir]}/*
 
 }
 
