@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.util.stream.*;
 
 public class Hello {
   
@@ -26,6 +27,7 @@ public class Hello {
   //========================================================
 
   public static void main(String[] args) throws IOException {
-    System.out.print("Hello, World!");
+    String line = reader.readLine();
+    System.out.println(line);
   }
 }
