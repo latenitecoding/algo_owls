@@ -196,7 +196,7 @@ algo_owls_config_get_usage() {
   echo
 
   printf "%s\n" "Usage:"
-  printf "  algo_owls config get KEY\n"
+  printf "  algo_owls config get KEY...\n"
   printf "  algo_owls config get --help | -h\n"
   echo
 
@@ -213,8 +213,8 @@ algo_owls_config_get_usage() {
     printf "%s\n" "Arguments:"
 
     # :argument.usage
-    printf "  %s\n" "KEY"
-    printf "    Config key\n"
+    printf "  %s\n" "KEY..."
+    printf "    One or more config keys\n"
     echo
 
     # :command.usage_examples
@@ -278,7 +278,7 @@ algo_owls_config_set_usage() {
   echo
 
   printf "%s\n" "Usage:"
-  printf "  algo_owls config set KEY VALUE\n"
+  printf "  algo_owls config set ENTRY...\n"
   printf "  algo_owls config set --help | -h\n"
   echo
 
@@ -295,13 +295,8 @@ algo_owls_config_set_usage() {
     printf "%s\n" "Arguments:"
 
     # :argument.usage
-    printf "  %s\n" "KEY"
-    printf "    Config key\n"
-    echo
-
-    # :argument.usage
-    printf "  %s\n" "VALUE"
-    printf "    Config value\n"
+    printf "  %s\n" "ENTRY..."
+    printf "    One or more config key-value pairs\n"
     echo
 
     # :command.usage_examples
@@ -950,15 +945,18 @@ algo_owls_config_get_command() {
   # src/config_get_command.sh
   ini_load .algo_owls.ini
 
-  KEY="${args[key]}"
-  VALUE=${ini[$KEY]}
+  eval "keys=(${args[key]})"
 
-  if [[ -z $VALUE ]]; then
-      echo "algo_owls: $KEY: No such key" 1>&2
-      exit 1
-  fi
+  for idx in "${!keys[@]}"; do
+      key="${keys[idx]}"
+      value="${ini[$key]}"
 
-  echo "$KEY = $VALUE"
+      if [[ -n $value ]]; then
+          echo "$key = $value"
+      else
+          echo "algo_owls: $key: No such key" 1>&2
+      fi
+  done
 
 }
 
@@ -975,10 +973,20 @@ algo_owls_config_set_command() {
   # src/config_set_command.sh
   ini_load .algo_owls.ini
 
-  KEY="${args[key]}"
-  VALUE="${args[value]}"
+  eval "entries=(${args[entry]})"
 
-  ini["$KEY"]="$VALUE"
+  for idx in "${!entries[@]}"; do
+      entry="${entries[idx]}"
+      key="${entry%%=*}"
+      value="${entry#*=}"
+
+      if [[ -n $value ]]; then
+          ini["$key"]="$value"
+      else
+          echo "algo_owls: '' is not a valid value" 1>&2
+      fi
+  done
+
   ini_save .algo_owls.ini
 
 }
@@ -1608,14 +1616,14 @@ algo_owls_config_get_parse_requirements() {
 
       *)
         # :command.parse_requirements_case
-        # :command.parse_requirements_case_simple
-        if [[ -z ${args['key']+x} ]]; then
+        # :command.parse_requirements_case_repeatable
 
-          args['key']=$1
+        if [[ -z ${args['key']+x} ]]; then
+          args['key']="\"$1\""
           shift
         else
-          printf "invalid argument: %s\n" "$key" >&2
-          exit 1
+          args['key']="${args[key]} \"$1\""
+          shift
         fi
 
         ;;
@@ -1625,7 +1633,7 @@ algo_owls_config_get_parse_requirements() {
 
   # :command.required_args_filter
   if [[ -z ${args['key']+x} ]]; then
-    printf "missing required argument: KEY\nusage: algo_owls config get KEY\n" >&2
+    printf "missing required argument: KEY\nusage: algo_owls config get KEY...\n" >&2
     exit 1
   fi
 
@@ -1708,18 +1716,14 @@ algo_owls_config_set_parse_requirements() {
 
       *)
         # :command.parse_requirements_case
-        # :command.parse_requirements_case_simple
-        if [[ -z ${args['key']+x} ]]; then
+        # :command.parse_requirements_case_repeatable
 
-          args['key']=$1
-          shift
-        elif [[ -z ${args['value']+x} ]]; then
-
-          args['value']=$1
+        if [[ -z ${args['entry']+x} ]]; then
+          args['entry']="\"$1\""
           shift
         else
-          printf "invalid argument: %s\n" "$key" >&2
-          exit 1
+          args['entry']="${args[entry]} \"$1\""
+          shift
         fi
 
         ;;
@@ -1728,12 +1732,8 @@ algo_owls_config_set_parse_requirements() {
   done
 
   # :command.required_args_filter
-  if [[ -z ${args['key']+x} ]]; then
-    printf "missing required argument: KEY\nusage: algo_owls config set KEY VALUE\n" >&2
-    exit 1
-  fi
-  if [[ -z ${args['value']+x} ]]; then
-    printf "missing required argument: VALUE\nusage: algo_owls config set KEY VALUE\n" >&2
+  if [[ -z ${args['entry']+x} ]]; then
+    printf "missing required argument: ENTRY\nusage: algo_owls config set ENTRY...\n" >&2
     exit 1
   fi
 

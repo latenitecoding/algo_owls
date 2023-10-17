@@ -59,7 +59,8 @@ commands:
     args:
     - name: key
       required: true
-      help: Config key
+      help: One or more config keys
+      repeatable: true
 
     examples:
     - algo_owls config get TODO
@@ -76,12 +77,10 @@ commands:
     help: Save a value in the config file
 
     args:
-    - name: key
+    - name: entry
       required: true
-      help: Config key
-    - name: value
-      required: true
-      help: Config value
+      help: One or more config key-value pairs
+      repeatable: true
 
     examples:
     - algo_owls config set TODO
