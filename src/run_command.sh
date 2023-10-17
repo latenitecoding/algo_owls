@@ -14,11 +14,8 @@ solution_file="${args[solution]}"
 if [[ -n $file_ext && -n ${args[--ext]} ]]; then
     solution_file="$solution_file$file_ext"
 elif [[ -z ${args[--no_ext]} || ${args[--no_ext]} -eq 0 ]]; then
-    if [[ -n ${ini[run.file_ext]} ]]; then
-        file_ext="${ini[run.file_ext]}"
-        if [[ -n $file_ext && ${file_ext:0:1} != "." ]]; then
-            file_ext=".$file_ext"
-        fi
+    if [[ ${ini[run.file_ext]} != false ]]; then
+        file_ext="$(dot_file_ext ${ini[run.file_ext]})"
     fi
     if [[ -n $file_ext && ${ini[run.no_ext]} == false ]]; then
         solution_file="$solution_file$file_ext"
@@ -70,6 +67,21 @@ for key in "${!ini[@]}"; do
     fi
 done
 
+if [[ ${ini[run.local]} == true ]]; then
+    target_dir="${target_file%/*}"
+    run_cmd="${run_cmd//.../$target_dir}"
+elif [[ ${ini[run.use_source]} == true ]]; then
+    target_dir="${target_file%/*}"
+    run_cmd="${run_cmd//.../$target_dir}"
+fi
+
+if [[ -n ${args[--name_only]} && ${args[--name_only]} -eq 1 ]]; then
+    target_file="${args[solution]}"
+elif [[ ${ini[run.name_only]} == true ]]; then
+    target_file="${args[solution]}"
+fi
+
 run_cmd="$run_cmd $target_file"
 
+echo $run_cmd
 eval $run_cmd
