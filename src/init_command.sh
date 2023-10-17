@@ -7,7 +7,16 @@ if [[ -n $file_ext ]]; then
     solution_file="$solution_file$file_ext"
 fi
 
+if [[ -z ${args[--overwrite]} || ${args[--overwrite]} -eq 0 ]]; then
+    if [[ -f $solution_file ]]; then
+        echo "algo_owls: $solution_file: File already exists" 1>&2
+        echo "Try using: ./algo_owls init --overwrite ${args[solution]}" 1>&2
+        exit 1
+    fi
+fi
+
 if [[ -n ${args[--touch]} && ${args[--touch]} -eq 1 ]]; then
+    echo "touch $solution_file"
     mkdir -p ${solution_file%/*}
     touch $solution_file
     exit 0
@@ -33,5 +42,6 @@ if [[ ! -f $template_file ]]; then
     exit 1
 fi
 
+echo "cp $template_file $solution_file"
 mkdir -p ${solution_file%/*}
 cp $template_file $solution_file
