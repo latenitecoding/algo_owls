@@ -26,13 +26,13 @@ fi
 echo "git add $target_file"
 git add $target_file
 
-commit_message="\"completes ${args[solution]}\""
+commit_message="completes ${args[solution]}"
 if [[ -n ${args[--message]} ]]; then
-    commit_message="\"${args[--message]}\""
+    commit_message="${args[--message]}"
 fi
 
-echo "git commit -m $commit_message"
-git commit -m $commit_message
+echo "git commit -m \"$commit_message\""
+git commit -m "\"$commit_message\""
 
 branch="${ini[git.branch]}"
 if [[ -n ${args[--branch]} ]]; then
