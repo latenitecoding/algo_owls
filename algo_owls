@@ -39,7 +39,7 @@ algo_owls_usage() {
   printf "  %s   Format the target solution from the 'options.solutions_dir' directory\n" "fmt   "
   printf "  %s   Create solution file from a template (if desired)\n" "init  "
   printf "  %s   Run target solution against each input file in 'options.test_dir' comparing results to adjacent answers\n" "quest "
-  printf "  %s   Run target solution\n" "run   "
+  printf "  %s   Run target program\n" "run   "
   printf "  %s   Commits and pushes target solution using git\n" "submit"
   printf "  %s   Wipes all build files from the 'options.target_dir'\n" "wipe  "
   echo
@@ -134,9 +134,9 @@ algo_owls_build_usage() {
 
     # :command.usage_examples
     printf "%s\n" "Examples:"
-    printf "  algo_owls build fading_wind\n"
-    printf "  algo_owls build fading_wind --ext .java --build_cmd javac --build_out \"-d\n  options.target_dir\" --build_sources \"-cp options.solutions_dir\"\n"
-    printf "  algo_owls build fading_wind --ext .java --build_cmd javac --build_out \"-d\n  options.target_dir\" --build_sources \"-cp ...\" --local\n"
+    printf "  algo_owls build fadingwind\n"
+    printf "  algo_owls build streetsahead --ext .java --build_cmd javac --build_out \"-d\n  options.target_dir\" --build_sources \"-cp options.solutions_dir\"\n"
+    printf "  algo_owls build restaurantopening --ext .java --build_cmd javac --build_out\n  \"-d options.target_dir\" --build_sources \"-cp ...\" --local\n"
     echo
 
   fi
@@ -516,11 +516,11 @@ algo_owls_quest_usage() {
 # :command.usage
 algo_owls_run_usage() {
   if [[ -n $long_usage ]]; then
-    printf "algo_owls run - Run target solution\n"
+    printf "algo_owls run - Run target program\n"
     echo
 
   else
-    printf "algo_owls run - Run target solution\n"
+    printf "algo_owls run - Run target program\n"
     echo
 
   fi
@@ -540,27 +540,32 @@ algo_owls_run_usage() {
     # :command.usage_flags
     # :flag.usage
     printf "  %s\n" "--build, -b"
-    printf "    Execute the default build command prior to running the target solution\n"
+    printf "    Execute the default build command prior to running the target program\n"
     echo
 
     # :flag.usage
     printf "  %s\n" "--ext, -e EXTENSION"
-    printf "    The file extension to use for the solution\n"
+    printf "    The file extension to use for the target program\n"
     echo
 
     # :flag.usage
     printf "  %s\n" "--local, -l"
-    printf "    Use the 'options.target_dir' directory as the runtime source\n"
+    printf "    Use the target program's local directory from 'options.target_dir' in the\n    runtime source\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--no_build, -d"
+    printf "    Ignore the default build command prior to running the target program\n"
     echo
 
     # :flag.usage
     printf "  %s\n" "--no_ext, -n"
-    printf "    Ignore extensions when executing the target solution\n"
+    printf "    Ignore extensions when executing the target program\n"
     echo
 
     # :flag.usage
     printf "  %s\n" "--run_cmd, -x COMMAND"
-    printf "    The run command to use to execute the solution\n"
+    printf "    The run command to use to execute the program\n"
     echo
 
     # :flag.usage
@@ -570,12 +575,12 @@ algo_owls_run_usage() {
 
     # :flag.usage
     printf "  %s\n" "--run_sources, -s FLAG"
-    printf "    The runtime flag to include sources in the execution (can pattern match on\n    'options.target_dir')\n"
+    printf "    The runtime flag to include sources in the execution\n"
     echo
 
     # :flag.usage
     printf "  %s\n" "--use_source, -u"
-    printf "    Use the 'options.solutions_dir' directory as the runtime source\n"
+    printf "    Use the target program's local directory from 'options.solutions_dir' in the\n    runtime source\n"
     echo
 
     # :command.usage_fixed_flags
@@ -588,12 +593,15 @@ algo_owls_run_usage() {
 
     # :argument.usage
     printf "  %s\n" "SOLUTION"
-    printf "    The name of the target solution from the 'options.solutions_dir' directory\n"
+    printf "    The name of the target program from the 'options.solutions_dir' directory\n"
     echo
 
     # :command.usage_examples
     printf "%s\n" "Examples:"
-    printf "  algo_owls run TODO\n"
+    printf "  algo_owls run fadingwind\n"
+    printf "  algo_owls run streetsahead --ext .class --run_cmd java --run_flags\n  \"-XX:+UseSerialGC\" --run_sources \"-cp options.target_dir\"\n"
+    printf "  algo_owls run restaurantopening --ext .class --run_cmd java --run_flags\n  \"-XX:+UseSerialGC\" --run_sources \"-cp ...\" --local\n"
+    printf "  algo_owls run huntthewumpus --ext .py --run_cmd python3 --use_source\n"
     echo
 
   fi
@@ -877,7 +885,7 @@ algo_owls_build_command() {
   file_ext="$(handle_file_ext)"
 
   solution_file="${args[solution]}"
-  if [[ -n $file_ext ]]; then
+  if [[ -n $file_ext && ${ini[build.no_ext]} == false ]]; then
       solution_file="$solution_file$file_ext"
   fi
 
@@ -1034,58 +1042,70 @@ algo_owls_quest_command() {
 # :command.function
 algo_owls_run_command() {
   # src/run_command.sh
-  echo "# this file is located in 'src/run_command.sh'"
-  echo "# code for 'algo_owls run' goes here"
-  echo "# you can edit it freely and regenerate (it will not be overwritten)"
-  inspect_args
+  ini_load .algo_owls.ini
 
-  if [[ ! -z ${args[--build]} && ${args[--build]} == 1 ]]; then
-      if [[ ! -z ${args[--ext]} ]]; then
-          ./algo_owls build --ext ${args[--ext]} ${args[solution]}
-      else
+  if [[ -z ${args[--no_build]} || ${args[--no_build]} -eq 0 ]]; then
+      if [[ ${ini[settings.auto_build]} == true ]]; then
+          ./algo_owls build ${args[solution]}
+      elif [[ -n ${args[--build]} && ${args[--build]} -eq 1 ]]; then
           ./algo_owls build ${args[solution]}
       fi
   fi
 
-  EXT="$ALGO_EXT"
-  if [[ ! -z ${args[--ext]} ]]; then
-      EXT="${args[--ext]}"
-  fi
-  if [[ ${EXT:0:1} != "." ]]; then
-      EXT=".$EXT"
-  fi
+  file_ext="$(handle_file_ext)"
 
-  SOLUTION="${args[solution]}"
-  if [[ -z ${args[--no_ext]} || ${args[--no_ext]} == 0 ]]; then
-      SOLUTION="$SOLUTION$EXT"
+  solution_file="${args[solution]}"
+  if [[ -n $file_ext && ${ini[run.no_ext]} == false ]]; then
+      solution_file="$solution_file$file_ext"
   fi
 
-  TARGET_DIR="$ALGO_TARGET"
-  if [[ ! -z ${args[--use_source]} && ${args[--use_source]} == 1 ]]; then
-      TARGET_DIR="$ALGO_SOLUTIONS"
+  if [[ -n ${args[--use_source]} && ${args[--use_source]} -eq 1 ]]; then
+      target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
+  else
+      target_file="$(find ${ini[options.target_dir]} -name $solution_file)"
   fi
 
-  TARGET_FILE=$(find $TARGET_DIR -name $SOLUTION)
-
-  if [[ -z $TARGET_FILE ]]; then
-      echo "algo_owls: $SOLUTION: No such file or directory" 1>&2
-      echo "Try using: ./algo_owls run --build $SOLUTION"
+  if [[ -z $target_file ]]; then
+      echo "algo_owls: $solution_file: No such file or directory" 1>&2
+      target_file="${ini[options.solutions_dir]}/${args[solution]}"
+      echo "Try using: ./algo_owls init $target_file" 1>&2
       exit 1
   fi
 
-  RUN_FLAG="${ALGO_RUN_FLAG}"
-  if [[ ! -z ${args[--run_flag]} ]]; then
-      RUN_FLAG="${args[--run_flag]}"
+  run_cmd="${ini[run.cmd]}"
+  if [[ -n ${args[--run_cmd]} ]]; then
+      run_cmd="${args[--run_cmd]}"
   fi
 
-  RUN_CMD="${ALGO_RUN_CMD}"
-  if [[ ! -z ${args[--run_cmd]} ]]; then
-      RUN_CMD="${args[--run_cmd]}"
+  if [[ -n ${args[--run_flags]} ]]; then
+      run_cmd="$run_cmd ${args[--run_flags]}"
+  else
+      for key in "${!ini[@]}"; do
+          if [[ $key == run_flags.* ]]; then
+              run_cmd="$run_cmd ${ini[$key]}"
+          fi
+      done
   fi
-  if [[ ! -z $RUN_FLAG ]]; then
-      RUN_CMD="$RUN_CMD $RUN_FLAG $TARGET_DIR"
+
+  if [[ -n ${args[--run_sources]} ]]; then
+      run_sources="${args[--run_sources]}"
+      if [[ -n ${args[--local]} && ${args[--local]} -eq 1 ]]; then
+          target_dir="${target_file%/*}"
+          run_sources="${run_sources//.../$target_dir}"
+      elif [[ -n ${args[--use_source]} && ${args[--use_source]} -eq 1 ]]; then
+          target_dir="${target_file%/*}"
+          run_sources="${run_sources//.../$target_dir}"
+      fi
+      run_cmd="$run_cmd $run_sources"
   fi
-  RUN_CMD="$RUN_CMD $TARGET_FILE"
+
+  for key in "${!ini[@]}"; do
+      if [[ $key == options.* ]]; then
+          run_cmd="${run_cmd//$key/${ini[$key]}}"
+      fi
+  done
+
+  run_cmd="$run_cmd $target_file"
 
   eval $RUN_CMD
 
@@ -2036,6 +2056,11 @@ algo_owls_run_parse_requirements() {
     case "$key" in
       # :flag.case
       --build | -b)
+        # :flag.conflicts
+        if [[ -n "${args['--no_build']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_build" >&2
+          exit 1
+        fi
 
         # :flag.case_no_arg
         args['--build']=1
@@ -2044,6 +2069,11 @@ algo_owls_run_parse_requirements() {
 
       # :flag.case
       --ext | -e)
+        # :flag.conflicts
+        if [[ -n "${args['--no_ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_ext" >&2
+          exit 1
+        fi
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
@@ -2059,6 +2089,11 @@ algo_owls_run_parse_requirements() {
 
       # :flag.case
       --local | -l)
+        # :flag.conflicts
+        if [[ -n "${args['--use_source']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--use_source" >&2
+          exit 1
+        fi
 
         # :flag.case_no_arg
         args['--local']=1
@@ -2066,7 +2101,25 @@ algo_owls_run_parse_requirements() {
         ;;
 
       # :flag.case
+      --no_build | -d)
+        # :flag.conflicts
+        if [[ -n "${args['--build']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--build" >&2
+          exit 1
+        fi
+
+        # :flag.case_no_arg
+        args['--no_build']=1
+        shift
+        ;;
+
+      # :flag.case
       --no_ext | -n)
+        # :flag.conflicts
+        if [[ -n "${args['--ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--ext" >&2
+          exit 1
+        fi
 
         # :flag.case_no_arg
         args['--no_ext']=1
@@ -2120,6 +2173,11 @@ algo_owls_run_parse_requirements() {
 
       # :flag.case
       --use_source | -u)
+        # :flag.conflicts
+        if [[ -n "${args['--local']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--local" >&2
+          exit 1
+        fi
 
         # :flag.case_no_arg
         args['--use_source']=1

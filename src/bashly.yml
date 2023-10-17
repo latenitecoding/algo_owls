@@ -43,9 +43,9 @@ commands:
     conflicts: [--ext]
 
   examples:
-  - algo_owls build fading_wind
-  - algo_owls build fading_wind --ext .java --build_cmd javac --build_out "-d options.target_dir" --build_sources "-cp options.solutions_dir"
-  - algo_owls build fading_wind --ext .java --build_cmd javac --build_out "-d options.target_dir" --build_sources "-cp ..." --local
+  - algo_owls build fadingwind
+  - algo_owls build streetsahead --ext .java --build_cmd javac --build_out "-d options.target_dir" --build_sources "-cp options.solutions_dir"
+  - algo_owls build restaurantopening --ext .java --build_cmd javac --build_out "-d options.target_dir" --build_sources "-cp ..." --local
 
 - name: config
   alias: c
@@ -157,7 +157,7 @@ commands:
   args:
   - name: solution
     required: true
-    help: "The name of the target solution from the 'options.solutions_dir' directory"
+    help: The name of the target solution from the 'options.solutions_dir' directory
 
   flags:
   - long: --ext
@@ -179,31 +179,39 @@ commands:
 
 - name: run
   alias: r
-  help: Run target solution
+  help: Run target program
 
   args:
   - name: solution
     required: true
-    help: "The name of the target solution from the 'options.solutions_dir' directory"
+    help: The name of the target program from the 'options.solutions_dir' directory
 
   flags:
   - long: --build
     short: -b
-    help: Execute the default build command prior to running the target solution
+    help: Execute the default build command prior to running the target program
+    conflicts: [--no_build]
   - long: --ext
     short: -e
     arg: extension
-    help: The file extension to use for the solution
+    help: The file extension to use for the target program
+    conflicts: [--no_ext]
   - long: --local
     short: -l
-    help: Use the 'options.target_dir' directory as the runtime source
+    help: Use the target program's local directory from 'options.target_dir' in the runtime source
+    conflicts: [--use_source]
+  - long: --no_build
+    short: -d
+    help: Ignore the default build command prior to running the target program
+    conflicts: [--build]
   - long: --no_ext
     short: -n
-    help: Ignore extensions when executing the target solution
+    help: Ignore extensions when executing the target program
+    conflicts: [--ext]
   - long: --run_cmd
     short: -x
     arg: command
-    help: The run command to use to execute the solution
+    help: The run command to use to execute the program
   - long: --run_flags
     short: -I
     arg: flags
@@ -211,13 +219,17 @@ commands:
   - long: --run_sources
     short: -s
     arg: flag
-    help: The runtime flag to include sources in the execution (can pattern match on 'options.target_dir')
+    help: The runtime flag to include sources in the execution
   - long: --use_source
     short: -u
-    help: Use the 'options.solutions_dir' directory as the runtime source
+    help: Use the target program's local directory from 'options.solutions_dir' in the runtime source
+    conflicts: [--local]
 
   examples:
-  - algo_owls run TODO
+  - algo_owls run fadingwind
+  - algo_owls run streetsahead --ext .class --run_cmd java --run_flags "-XX:+UseSerialGC" --run_sources "-cp options.target_dir"
+  - algo_owls run restaurantopening --ext .class --run_cmd java --run_flags "-XX:+UseSerialGC" --run_sources "-cp ..." --local
+  - algo_owls run huntthewumpus --ext .py --run_cmd python3 --use_source
 
 - name: submit
   alias: s

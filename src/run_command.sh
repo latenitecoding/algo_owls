@@ -1,54 +1,66 @@
-echo "# this file is located in 'src/run_command.sh'"
-echo "# code for 'algo_owls run' goes here"
-echo "# you can edit it freely and regenerate (it will not be overwritten)"
-inspect_args
+ini_load .algo_owls.ini
 
-if [[ ! -z ${args[--build]} && ${args[--build]} == 1 ]]; then
-    if [[ ! -z ${args[--ext]} ]]; then
-        ./algo_owls build --ext ${args[--ext]} ${args[solution]}
-    else
+if [[ -z ${args[--no_build]} || ${args[--no_build]} -eq 0 ]]; then
+    if [[ ${ini[settings.auto_build]} == true ]]; then
+        ./algo_owls build ${args[solution]}
+    elif [[ -n ${args[--build]} && ${args[--build]} -eq 1 ]]; then
         ./algo_owls build ${args[solution]}
     fi
 fi
 
-EXT="$ALGO_EXT"
-if [[ ! -z ${args[--ext]} ]]; then
-    EXT="${args[--ext]}"
-fi
-if [[ ${EXT:0:1} != "." ]]; then
-    EXT=".$EXT"
-fi
+file_ext="$(handle_file_ext)"
 
-SOLUTION="${args[solution]}"
-if [[ -z ${args[--no_ext]} || ${args[--no_ext]} == 0 ]]; then
-    SOLUTION="$SOLUTION$EXT"
+solution_file="${args[solution]}"
+if [[ -n $file_ext && ${ini[run.no_ext]} == false ]]; then
+    solution_file="$solution_file$file_ext"
 fi
 
-TARGET_DIR="$ALGO_TARGET"
-if [[ ! -z ${args[--use_source]} && ${args[--use_source]} == 1 ]]; then
-    TARGET_DIR="$ALGO_SOLUTIONS"
+if [[ -n ${args[--use_source]} && ${args[--use_source]} -eq 1 ]]; then
+    target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
+else
+    target_file="$(find ${ini[options.target_dir]} -name $solution_file)"
 fi
 
-TARGET_FILE=$(find $TARGET_DIR -name $SOLUTION)
-
-if [[ -z $TARGET_FILE ]]; then
-    echo "algo_owls: $SOLUTION: No such file or directory" 1>&2
-    echo "Try using: ./algo_owls run --build $SOLUTION"
+if [[ -z $target_file ]]; then
+    echo "algo_owls: $solution_file: No such file or directory" 1>&2
+    target_file="${ini[options.solutions_dir]}/${args[solution]}"
+    echo "Try using: ./algo_owls init $target_file" 1>&2
     exit 1
 fi
 
-RUN_FLAG="${ALGO_RUN_FLAG}"
-if [[ ! -z ${args[--run_flag]} ]]; then
-    RUN_FLAG="${args[--run_flag]}"
+run_cmd="${ini[run.cmd]}"
+if [[ -n ${args[--run_cmd]} ]]; then
+    run_cmd="${args[--run_cmd]}"
 fi
 
-RUN_CMD="${ALGO_RUN_CMD}"
-if [[ ! -z ${args[--run_cmd]} ]]; then
-    RUN_CMD="${args[--run_cmd]}"
+if [[ -n ${args[--run_flags]} ]]; then
+    run_cmd="$run_cmd ${args[--run_flags]}"
+else
+    for key in "${!ini[@]}"; do
+        if [[ $key == run_flags.* ]]; then
+            run_cmd="$run_cmd ${ini[$key]}"
+        fi
+    done
 fi
-if [[ ! -z $RUN_FLAG ]]; then
-    RUN_CMD="$RUN_CMD $RUN_FLAG $TARGET_DIR"
+
+if [[ -n ${args[--run_sources]} ]]; then
+    run_sources="${args[--run_sources]}"
+    if [[ -n ${args[--local]} && ${args[--local]} -eq 1 ]]; then
+        target_dir="${target_file%/*}"
+        run_sources="${run_sources//.../$target_dir}"
+    elif [[ -n ${args[--use_source]} && ${args[--use_source]} -eq 1 ]]; then
+        target_dir="${target_file%/*}"
+        run_sources="${run_sources//.../$target_dir}"
+    fi
+    run_cmd="$run_cmd $run_sources"
 fi
-RUN_CMD="$RUN_CMD $TARGET_FILE"
+
+for key in "${!ini[@]}"; do
+    if [[ $key == options.* ]]; then
+        run_cmd="${run_cmd//$key/${ini[$key]}}"
+    fi
+done
+
+run_cmd="$run_cmd $target_file"
 
 eval $RUN_CMD
