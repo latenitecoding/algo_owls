@@ -16,10 +16,7 @@ handle_file_ext() {
     if [[ -n $args_ext ]]; then
         file_ext="$args_ext"
     fi
-    if [[ -n $file_ext && ${file_ext:0:1} != "." ]]; then
-        file_ext=".$file_ext"
-    fi
 
-    echo "$file_ext"
+    echo "$(dot_file_ext $file_ext)"
     return
 }
