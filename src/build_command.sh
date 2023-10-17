@@ -3,7 +3,7 @@ ini_load .algo_owls.ini
 file_ext="$(handle_file_ext)"
 
 solution_file="${args[solution]}"
-if [[ -n $file_ext ]]; then
+if [[ -n $file_ext && ${ini[build.no_ext]} == false ]]; then
     solution_file="$solution_file$file_ext"
 fi
 
