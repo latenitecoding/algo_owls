@@ -63,4 +63,4 @@ done
 
 run_cmd="$run_cmd $target_file"
 
-eval $RUN_CMD
+eval $run_cmd
