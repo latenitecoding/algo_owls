@@ -11,8 +11,18 @@ fi
 file_ext="$(handle_file_ext)"
 
 solution_file="${args[solution]}"
-if [[ -n $file_ext && ${ini[run.no_ext]} == false ]]; then
+if [[ -n $file_ext && -n ${args[--ext]} ]]; then
     solution_file="$solution_file$file_ext"
+elif [[ -z ${args[--no_ext]} || ${args[--no_ext]} -eq 0 ]]; then
+    if [[ -n ${ini[run.file_ext]} ]]; then
+        file_ext="${ini[run.file_ext]}"
+        if [[ -n $file_ext && ${file_ext:0:1} != "." ]]; then
+            file_ext=".$file_ext"
+        fi
+    fi
+    if [[ -n $file_ext && ${ini[run.no_ext]} == false ]]; then
+        solution_file="$solution_file$file_ext"
+    fi
 fi
 
 if [[ -n ${args[--use_source]} && ${args[--use_source]} -eq 1 ]]; then

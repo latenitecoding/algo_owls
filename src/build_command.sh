@@ -3,8 +3,18 @@ ini_load .algo_owls.ini
 file_ext="$(handle_file_ext)"
 
 solution_file="${args[solution]}"
-if [[ -n $file_ext && ${ini[build.no_ext]} == false ]]; then
+if [[ -n $file_ext && -n ${args[--ext]} ]]; then
     solution_file="$solution_file$file_ext"
+elif [[ -z ${args[--no_ext]} || ${args[--no_ext]} -eq 0 ]]; then
+    if [[ -n ${ini[build.file_ext]} ]]; then
+        file_ext="${ini[build.file_ext]}"
+        if [[ -n $file_ext && ${file_ext:0:1} != "." ]]; then
+            file_ext=".$file_ext"
+        fi
+    fi
+    if [[ -n $file_ext && ${ini[build.no_ext]} == false ]]; then
+        solution_file="$solution_file$file_ext"
+    fi
 fi
 
 target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
