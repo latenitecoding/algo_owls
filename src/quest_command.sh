@@ -20,33 +20,43 @@ fi
 
 file_ext="$(handle_file_ext)"
 
-solution_file="${args[solution]}"
-if [[ -n $file_ext ]]; then
-    solution_file="$solution_file$file_ext"
-fi
-
-run_cmd="./algo_owls run ${args[solution]}"
+run_cmd="./algo_owls run ${args[solution]} --quiet"
 if [[ -n ${args[--ext]} ]]; then
     run_cmd="$run_cmd --ext ${args[--ext]}"
 elif [[ -n ${args[--no_ext]} ]]; then
     run_cmd="$run_cmd --no_ext"
 fi
 
+in_ext="${ini[settings.in_ext]}"
+if [[ -n ${args[--in_ext]} ]]; then
+    in_ext="${args[--in_ext]}"
+fi
+in_ext="$(dot_file_ext $in_ext)"
+
+ans_ext="${ini[settings.ans_ext]}"
+if [[ -n ${args[--ans_ext]} ]]; then
+    ans_ext="${args[--ans_ext]}"
+fi
+ans_ext="$(dot_file_ext $ans_ext)"
+
 all_tests_pass=true
-for in_file in $(find $target_dir -name "*.${ini[settings.in_ext]}"); do
-    ans_file="${in_file%.*}.${ini[settings.ans_ext]}"
-    if diff -u --suppress-common-lines --label $ans_file --label $solution_file --strip-trailing-cr -d --speed-large-files --color $ans_file <(eval $run_cmd < $in_file); then
+for in_file in $(find $target_dir -name "*$in_ext"); do
+    ans_file="${in_file%.*}$ans_ext"
+    if diff -u --suppress-common-lines --label $ans_file --label ${args[solution]} --strip-trailing-cr -d --speed-large-files --color $ans_file <((eval $run_cmd) < $in_file); then
         echo -e "\033[0;32m$in_file aye!\033[0m"
     else
         echo -e "\033[0;31m$in_file nay!\033[0m"
         all_tests_pass=false
+        if [[ -z ${args[--all]} || ${args[--all]} -eq 0 ]]; then
+            break
+        fi
     fi
 done
 
 echo ""
 
 if [[ $all_tests_pass == true ]]; then
-    echo -e "\033[0;32m$solution_file passes!\033[0m"
+    echo -e "\033[0;32m${args[solution]} passes!\033[0m"
 else
-    echo -e "\033[0;31m$solution_file vetoed!\033[0m"
+    echo -e "\033[0;31m${args[solution]} vetoed!\033[0m"
 fi

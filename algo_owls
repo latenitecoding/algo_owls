@@ -547,6 +547,16 @@ algo_owls_quest_usage() {
 
     # :command.usage_flags
     # :flag.usage
+    printf "  %s\n" "--all"
+    printf "    Run all tests regardless of failures\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--ans_ext, -a EXTENSION"
+    printf "    The file extension of the provided answers\n"
+    echo
+
+    # :flag.usage
     printf "  %s\n" "--build, -b"
     printf "    Execute the default build command prior to questing the target program\n"
     echo
@@ -554,6 +564,11 @@ algo_owls_quest_usage() {
     # :flag.usage
     printf "  %s\n" "--ext, -e EXTENSION"
     printf "    The file extension to use for the target solution\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--in_ext, -i EXTENSION"
+    printf "    The file extension of the input test cases\n"
     echo
 
     # :flag.usage
@@ -582,7 +597,9 @@ algo_owls_quest_usage() {
     # :command.usage_examples
     printf "%s\n" "Examples:"
     printf "  algo_owls quest fadingwind\n"
-    printf "  algo_owls quest fadingwind -ext .class\n"
+    printf "  algo_owls quest streetsahead -ext .class\n"
+    printf "  algo_owls quest restaurantopening --in_ext .in --ans_ext .ans\n"
+    printf "  algo_owls quest huntthewumpus --all\n"
     echo
 
   fi
@@ -644,6 +661,11 @@ algo_owls_run_usage() {
     echo
 
     # :flag.usage
+    printf "  %s\n" "--quiet, -q"
+    printf "    Suppress all output from algo_owls when executing the target program\n"
+    echo
+
+    # :flag.usage
     printf "  %s\n" "--run_cmd, -x COMMAND"
     printf "    The run command to use to execute the program\n"
     echo
@@ -682,6 +704,7 @@ algo_owls_run_usage() {
     printf "  algo_owls run streetsahead --ext .class --run_cmd java --run_flags\n  \"-XX:+UseSerialGC\" --run_sources \"-cp options.target_dir\"\n"
     printf "  algo_owls run restaurantopening --ext .class --run_cmd java --run_flags\n  \"-XX:+UseSerialGC\" --run_sources \"-cp ...\" --local\n"
     printf "  algo_owls run huntthewumpus --ext .py --run_cmd python3 --use_source\n"
+    printf "  algo_owls run colortubes --quiet\n"
     echo
 
   fi
@@ -1303,35 +1326,45 @@ algo_owls_quest_command() {
 
   file_ext="$(handle_file_ext)"
 
-  solution_file="${args[solution]}"
-  if [[ -n $file_ext ]]; then
-      solution_file="$solution_file$file_ext"
-  fi
-
-  run_cmd="./algo_owls run ${args[solution]}"
+  run_cmd="./algo_owls run ${args[solution]} --quiet"
   if [[ -n ${args[--ext]} ]]; then
       run_cmd="$run_cmd --ext ${args[--ext]}"
   elif [[ -n ${args[--no_ext]} ]]; then
       run_cmd="$run_cmd --no_ext"
   fi
 
+  in_ext="${ini[settings.in_ext]}"
+  if [[ -n ${args[--in_ext]} ]]; then
+      in_ext="${args[--in_ext]}"
+  fi
+  in_ext="$(dot_file_ext $in_ext)"
+
+  ans_ext="${ini[settings.ans_ext]}"
+  if [[ -n ${args[--ans_ext]} ]]; then
+      ans_ext="${args[--ans_ext]}"
+  fi
+  ans_ext="$(dot_file_ext $ans_ext)"
+
   all_tests_pass=true
-  for in_file in $(find $target_dir -name "*.${ini[settings.in_ext]}"); do
-      ans_file="${in_file%.*}.${ini[settings.ans_ext]}"
-      if diff -u --suppress-common-lines --label $ans_file --label $solution_file --strip-trailing-cr -d --speed-large-files --color $ans_file <(eval $run_cmd < $in_file); then
+  for in_file in $(find $target_dir -name "*$in_ext"); do
+      ans_file="${in_file%.*}$ans_ext"
+      if diff -u --suppress-common-lines --label $ans_file --label ${args[solution]} --strip-trailing-cr -d --speed-large-files --color $ans_file <((eval $run_cmd) < $in_file); then
           echo -e "\033[0;32m$in_file aye!\033[0m"
       else
           echo -e "\033[0;31m$in_file nay!\033[0m"
           all_tests_pass=false
+          if [[ -z ${args[--all]} || ${args[--all]} -eq 0 ]]; then
+              break
+          fi
       fi
   done
 
   echo ""
 
   if [[ $all_tests_pass == true ]]; then
-      echo -e "\033[0;32m$solution_file passes!\033[0m"
+      echo -e "\033[0;32m${args[solution]} passes!\033[0m"
   else
-      echo -e "\033[0;31m$solution_file vetoed!\033[0m"
+      echo -e "\033[0;31m${args[solution]} vetoed!\033[0m"
   fi
 
 }
@@ -1424,7 +1457,10 @@ algo_owls_run_command() {
 
   run_cmd="$run_cmd $target_file"
 
-  echo $run_cmd
+  if [[ -z ${args[--quiet]} || ${args[--quiet]} -eq 0 ]]; then
+      echo $run_cmd
+  fi
+
   eval $run_cmd
 
 }
@@ -2429,6 +2465,29 @@ algo_owls_quest_parse_requirements() {
     key="$1"
     case "$key" in
       # :flag.case
+      --all)
+
+        # :flag.case_no_arg
+        args['--all']=1
+        shift
+        ;;
+
+      # :flag.case
+      --ans_ext | -a)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--ans_ext']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--ans_ext requires an argument: --ans_ext, -a EXTENSION" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
       --build | -b)
         # :flag.conflicts
         if [[ -n "${args['--no_build']:-}" ]]; then
@@ -2457,6 +2516,21 @@ algo_owls_quest_parse_requirements() {
           shift
         else
           printf "%s\n" "--ext requires an argument: --ext, -e EXTENSION" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --in_ext | -i)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--in_ext']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--in_ext requires an argument: --in_ext, -i EXTENSION" >&2
           exit 1
         fi
         ;;
@@ -2619,6 +2693,14 @@ algo_owls_run_parse_requirements() {
 
         # :flag.case_no_arg
         args['--no_ext']=1
+        shift
+        ;;
+
+      # :flag.case
+      --quiet | -q)
+
+        # :flag.case_no_arg
+        args['--quiet']=1
         shift
         ;;
 
