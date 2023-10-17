@@ -344,7 +344,7 @@ algo_owls_fmt_usage() {
 
     # :flag.usage
     printf "  %s\n" "--fmt_flags, -I FLAGS"
-    printf "    The flags to use when formatting the program\n"
+    printf "    The flags to use when formatting the target solution\n"
     echo
 
     # :flag.usage
@@ -658,6 +658,11 @@ algo_owls_submit_usage() {
     echo
 
     # :flag.usage
+    printf "  %s\n" "--no_fmt, -q"
+    printf "    Ignore any formatting of target solution before committing\n"
+    echo
+
+    # :flag.usage
     printf "  %s\n" "--remote, -r REMOTE"
     printf "    The remote to push to\n"
     echo
@@ -677,7 +682,9 @@ algo_owls_submit_usage() {
 
     # :command.usage_examples
     printf "%s\n" "Examples:"
-    printf "  algo_owls submit TODO\n"
+    printf "  algo_owls submit fadingwind\n"
+    printf "  algo_owls submit streetsahead --ext .java --branch hotjava --remote origin\n"
+    printf "  algo_owls submit restaurantopening --ext .java --fmt\n"
     echo
 
   fi
@@ -979,10 +986,48 @@ algo_owls_config_set_command() {
 # :command.function
 algo_owls_fmt_command() {
   # src/fmt_command.sh
-  echo "# this file is located in 'src/fmt_command.sh'"
-  echo "# code for 'algo_owls fmt' goes here"
-  echo "# you can edit it freely and regenerate (it will not be overwritten)"
-  inspect_args
+  ini_load .algo_owls.ini
+
+  file_ext="$(handle_file_ext)"
+
+  solution_file="${args[solution]}"
+  if [[ -n $file_ext && ${ini[fmt.no_ext]} == false ]]; then
+      solution_file="$solution_file$file_ext"
+  fi
+
+  target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
+
+  if [[ -z $target_file ]]; then
+      echo "algo_owls: $solution_file: No such file or directory" 1>&2
+      target_file="${ini[options.solutions_dir]}/${args[solution]}"
+      echo "Try using: ./algo_owls init $target_file" 1>&2
+      exit 1
+  fi
+
+  fmt_cmd="${ini[fmt.cmd]}"
+  if [[ -n ${args[--fmt_cmd]} ]]; then
+      fmt_cmd="${args[--fmt_cmd]}"
+  fi
+
+  if [[ -n ${args[--fmt_flags]} ]]; then
+      fmt_cmd="$fmt_cmd ${args[--fmt_flags]}"
+  else
+      for key in "${!ini[@]}"; do
+          if [[ $key == fmt_flags.* ]]; then
+              fmt_cmd="$fmt_cmd ${ini[$key]}"
+          fi
+      done
+  fi
+
+  for key in "${!ini[@]}"; do
+      if [[ $key == options.* ]]; then
+          fmt_cmd="${fmt_cmd//$key/${ini[$key]}}"
+      fi
+  done
+
+  fmt_cmd="$fmt_cmd $target_file"
+
+  eval $fmt_cmd
 
 }
 
@@ -1107,7 +1152,7 @@ algo_owls_run_command() {
 
   run_cmd="$run_cmd $target_file"
 
-  eval $RUN_CMD
+  eval $run_cmd
 
 }
 
@@ -1116,62 +1161,50 @@ algo_owls_submit_command() {
   # src/submit_command.sh
   ini_load .algo_owls.ini
 
-  EXT="${ini[options.file_ext]}"
-  if [[ ! -z ${args[--ext]} ]]; then
-      EXT="${args[--ext]}"
-  fi
-  if [[ ${EXT:0:1} != "." ]]; then
-      EXT=".$EXT"
-  fi
+  file_ext="$(handle_file_ext)"
 
-  SOLUTION="${args[solution]}"
-  if [[ -z ${args[--no_ext]} || ${args[--no_ext]} == 0 ]]; then
-      SOLUTION="$SOLUTION$EXT"
+  solution_file="${args[solution]}"
+  if [[ -n $file_ext ]]; then
+      solution_file="$solution_file$file_ext"
   fi
 
-  TARGET_FILE=$(find ${ini[options.solutions_dir]} -name $SOLUTION)
+  target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
 
-  if [[ -z $TARGET_FILE ]]; then
-      echo "algo_owls: $SOLUTION: No such file or directory" 1>&2
-      echo "Try using: ./algo_owls init ${ini[options.solutions_dir]}$SOLUTION"
+  if [[ -z $target_file ]]; then
+      echo "algo_owls: $solution_file: No such file or directory" 1>&2
+      target_file="${ini[options.solutions_dir]}/${args[solution]}"
+      echo "Try using: ./algo_owls init $target_file" 1>&2
       exit 1
   fi
 
-  if [[ ! -z ${args[--fmt]} && ${args[--fmt]} == 1 ]]; then
-      FLAGS=""
-      if [[ ! -z ${args[--ext]} ]]; then
-          FLAGS="--ext ${args[--ext]}"
-      fi
-      if [[ ! -z ${args[--no_ext]} && ${args[--no_ext]} == 1 ]]; then
-          FLAGS="--no_ext"
-      fi
-      if [[ -z $FLAGS ]]; then
+  if [[ -z ${args[--no_fmt]} || ${args[--no_fmt]} -eq 0 ]]; then
+      if [[ ${ini[settings.auto_fmt]} == true ]]; then
           ./algo_owls fmt ${args[solution]}
-      else
-          ./algo_owls fmt ${args[solution]} $FLAGS
+      elif [[ -n ${args[--fmt]} && ${args[--fmt]} -eq 1 ]]; then
+          ./algo_owls fmt ${args[solution]}
       fi
   fi
 
-  git add $TARGET_FILE
+  git add $target_file
 
-  MESSAGE="completes ${args[solution]}"
-  if [[ ! -z ${args[--message]} ]]; then
-      MESSAGE="${args[--message]}"
+  commit_message="completes ${args[solution]}"
+  if [[ -n ${args[--message]} ]]; then
+      commit_message="${args[--message]}"
   fi
 
-  git commit -m $MESSAGE
+  git commit -m $commit_message
 
-  BRANCH="${ini[options.branch]}"
-  if [[ ! -z ${args[--branch]} ]]; then
-      BRANCH="${args[--branch]}"
+  branch="${ini[git.branch]}"
+  if [[ -n ${args[--branch]} ]]; then
+      branch="${args[--branch]}"
   fi
 
-  REMOTE="${ini[options.remote]}"
-  if [[ ! -z ${args[--remote]} ]]; then
-      REMOTE="${args[--remote]}"
+  remote="${ini[git.remote]}"
+  if [[ -n ${args[--remote]} ]]; then
+      remote="${args[--remote]}"
   fi
 
-  git push $REMOTE $BRANCH
+  git push $remote $branch
 
 }
 
@@ -1763,6 +1796,11 @@ algo_owls_fmt_parse_requirements() {
 
       # :flag.case
       --ext | -e)
+        # :flag.conflicts
+        if [[ -n "${args['--no_ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_ext" >&2
+          exit 1
+        fi
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
@@ -1778,6 +1816,11 @@ algo_owls_fmt_parse_requirements() {
 
       # :flag.case
       --no_ext | -n)
+        # :flag.conflicts
+        if [[ -n "${args['--ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--ext" >&2
+          exit 1
+        fi
 
         # :flag.case_no_arg
         args['--no_ext']=1
@@ -2256,6 +2299,11 @@ algo_owls_submit_parse_requirements() {
 
       # :flag.case
       --ext | -e)
+        # :flag.conflicts
+        if [[ -n "${args['--no_ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_ext" >&2
+          exit 1
+        fi
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
@@ -2271,6 +2319,11 @@ algo_owls_submit_parse_requirements() {
 
       # :flag.case
       --fmt | -p)
+        # :flag.conflicts
+        if [[ -n "${args['--no_fmt']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_fmt" >&2
+          exit 1
+        fi
 
         # :flag.case_no_arg
         args['--fmt']=1
@@ -2287,9 +2340,27 @@ algo_owls_submit_parse_requirements() {
 
       # :flag.case
       --no_ext | -n)
+        # :flag.conflicts
+        if [[ -n "${args['--ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--ext" >&2
+          exit 1
+        fi
 
         # :flag.case_no_arg
         args['--no_ext']=1
+        shift
+        ;;
+
+      # :flag.case
+      --no_fmt | -q)
+        # :flag.conflicts
+        if [[ -n "${args['--fmt']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--fmt" >&2
+          exit 1
+        fi
+
+        # :flag.case_no_arg
+        args['--no_fmt']=1
         shift
         ;;
 

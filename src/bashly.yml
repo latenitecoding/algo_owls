@@ -93,7 +93,7 @@ commands:
   args:
   - name: solution
     required: true
-    help: "The name of the target solution in the 'options.solutions_dir' directory"
+    help: The name of the target solution in the 'options.solutions_dir' directory
 
   flags:
   - long: --fmt_cmd
@@ -103,14 +103,16 @@ commands:
   - long: --fmt_flags
     short: -I
     arg: flags
-    help: The flags to use when formatting the program
+    help: The flags to use when formatting the target solution
   - long: --ext
     short: -e
     arg: extension
     help: The file extension to use for the solution file
+    conflicts: [--no_ext]
   - long: --no_ext
     short: -n
     help: Ignore file extensions when formatting the program
+    conflicts: [--ext]
 
   examples:
   - algo_owls fmt TODO
@@ -238,7 +240,7 @@ commands:
   args:
   - name: solution
     required: true
-    help: "The name of the target solution from the 'options.solutions_dir' directory"
+    help: The name of the target solution from the 'options.solutions_dir' directory
 
   flags:
   - long: --branch
@@ -249,22 +251,31 @@ commands:
     short: -e
     arg: extension
     help: The file extension to use for the solution
+    conflicts: [--no_ext]
   - long: --fmt
     short: -p
     help: Apply default formatting to target solution before committing
+    conflicts: [--no_fmt]
   - long: --message
     short: -m
     help: Provide custom commit message
   - long: --no_ext
     short: -n
     help: Ignore extensions when executing the target solution
+    conflicts: [--ext]
+  - long: --no_fmt
+    short: -q
+    help: Ignore any formatting of target solution before committing
+    conflicts: [--fmt]
   - long: --remote
     short: -r
     arg: remote
     help: The remote to push to
 
   examples:
-  - algo_owls submit TODO
+  - algo_owls submit fadingwind
+  - algo_owls submit streetsahead --ext .java --branch hotjava --remote origin
+  - algo_owls submit restaurantopening --ext .java --fmt
 
 - name: wipe
   alias: w
