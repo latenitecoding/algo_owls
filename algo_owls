@@ -96,12 +96,12 @@ algo_owls_build_usage() {
 
     # :flag.usage
     printf "  %s\n" "--build_out, -o FLAG"
-    printf "    The compiler flag to specify the output directory (can pattern match on\n    'options.target_dir')\n"
+    printf "    The compiler flag to specify the output directory\n"
     echo
 
     # :flag.usage
     printf "  %s\n" "--build_sources, -s FLAG"
-    printf "    The compiler flag to include sources in the build (can pattern match on\n    'options.solutions_dir')\n"
+    printf "    The compiler flag to include sources in the build\n"
     echo
 
     # :flag.usage
@@ -111,7 +111,7 @@ algo_owls_build_usage() {
 
     # :flag.usage
     printf "  %s\n" "--local, -l"
-    printf "    Use the target solution directory as the build source\n"
+    printf "    Use target solution's local directory in build source\n"
     echo
 
     # :flag.usage
@@ -134,7 +134,9 @@ algo_owls_build_usage() {
 
     # :command.usage_examples
     printf "%s\n" "Examples:"
-    printf "  algo_owls build TODO\n"
+    printf "  algo_owls build fading_wind\n"
+    printf "  algo_owls build fading_wind --ext .java --build_cmd javac --build_out \"-d\n  options.target_dir\" --build_sources \"-cp options.solutions_dir\"\n"
+    printf "  algo_owls build fading_wind --ext .java --build_cmd javac --build_out \"-d\n  options.target_dir\" --build_sources \"-cp ...\" --local\n"
     echo
 
   fi
@@ -436,7 +438,10 @@ algo_owls_init_usage() {
 
     # :command.usage_examples
     printf "%s\n" "Examples:"
-    printf "  algo_owls init TODO\n"
+    printf "  algo_owls init fadingwind\n"
+    printf "  algo_owls init fadingwind --ext .java\n"
+    printf "  algo_owls init streetsahead --ext .java --template ./solutions/fadingwind\n"
+    printf "  algo_owls init restaurantopening --touch\n"
     echo
 
   fi
@@ -760,6 +765,33 @@ inspect_args() {
 }
 
 # :command.user_lib
+# src/lib/handle_file_ext.sh
+handle_file_ext() {
+    local settings_ext="${ini[settings.file_ext]}"
+    local settings_no_ext="${ini[settings.no_ext]}"
+    local args_ext="${args[--ext]}"
+    local args_no_ext="${args[--no_ext]}"
+
+    if [[ -n $args_no_ext && $args_no_ext -eq 1 ]]; then
+        echo ""
+        return
+    fi
+
+    local file_ext="$settings_ext"
+    if [[ -n $settings_no_ext && $settings_no_ext == true ]]; then
+        file_ext=""
+    fi
+    if [[ -n $args_ext ]]; then
+        file_ext="$args_ext"
+    fi
+    if [[ -n $file_ext && ${file_ext:0:1} != "." ]]; then
+        file_ext=".$file_ext"
+    fi
+
+    echo "$file_ext"
+    return
+}
+
 # src/lib/ini.sh
 
 ini_load() {
@@ -840,39 +872,61 @@ ini_keys() {
 # :command.function
 algo_owls_build_command() {
   # src/build_command.sh
-  EXT="$ALGO_EXT"
-  if [[ ! -z ${args[--ext]} ]]; then
-      EXT="${args[--ext]}"
+  ini_load .algo_owls.ini
+
+  file_ext="$(handle_file_ext)"
+
+  solution_file="${args[solution]}"
+  if [[ -n $file_ext ]]; then
+      solution_file="$solution_file$file_ext"
   fi
-  if [[ ${EXT:0:1} != "." ]]; then
-      EXT=".$EXT"
-  fi
 
-  SOLUTION="${args[solution]}$EXT"
+  target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
 
-  TARGET_FILE=$(find $ALGO_SOLUTIONS -name $SOLUTION)
-
-  if [[ -z $TARGET_FILE ]]; then
-      echo "algo_owls: $SOLUTION: No such file or directory" 1>&2
-      echo "Try using: ./algo_owls init $ALGO_SOLUTIONS/$SOLUTION"
+  if [[ -z $target_file ]]; then
+      echo "algo_owls: $solution_file: No such file or directory" 1>&2
+      target_file="${ini[options.solutions_dir]}/${args[solution]}"
+      echo "Try using: ./algo_owls init $target_file" 1>&2
       exit 1
   fi
 
-  BUILD_FLAG="${ALGO_BUILD_FLAG}"
-  if [[ ! -z ${args[--build_flag]} ]]; then
-      BUILD_FLAG="${args[--build_flag]}"
+  build_cmd="${ini[build.cmd]}"
+  if [[ -n ${args[--build_cmd]} ]]; then
+      build_cmd="${args[--build_cmd]}"
   fi
 
-  BUILD_CMD="${ALGO_BUILD_CMD}"
-  if [[ ! -z ${args[--build_cmd]} ]]; then
-      BUILD_CMD="${args[--build_cmd]}"
+  if [[ -n ${args[--build_flags]} ]]; then
+      build_cmd="$build_cmd ${args[--build_flags]}"
+  else
+      for key in "${!ini[@]}"; do
+          if [[ $key == build_flags.* ]]; then
+              build_cmd="$build_cmd ${ini[$key]}"
+          fi
+      done
   fi
-  if [[ ! -z $BUILD_FLAG ]]; then
-      BUILD_CMD="$BUILD_CMD $BUILD_FLAG $ALGO_TARGET"
-  fi
-  BUILD_CMD="$BUILD_CMD $TARGET_FILE"
 
-  eval $BUILD_CMD
+  if [[ -n ${args[--build_out]} ]]; then
+      build_cmd="$build_cmd ${args[--build_out]}"
+  fi
+
+  if [[ -n ${args[--build_sources]} ]]; then
+      build_sources="${args[--build_sources]}"
+      if [[ -n ${args[--local]} && ${args[--local]} -eq 1 ]]; then
+          target_dir="${target_file%/*}"
+          build_sources="${build_sources//.../$target_dir}"
+      fi
+      build_cmd="$build_cmd $build_sources"
+  fi
+
+  for key in "${!ini[@]}"; do
+      if [[ $key == options.* ]]; then
+          build_cmd="${build_cmd//$key/${ini[$key]}}"
+      fi
+  done
+
+  build_cmd="$build_cmd $target_file"
+
+  eval $build_cmd
 
 }
 
@@ -929,46 +983,41 @@ algo_owls_init_command() {
   # src/init_command.sh
   ini_load .algo_owls.ini
 
-  EXT="${ini[options.file_ext]}"
-  if [[ ! -z ${args[--ext]} ]]; then
-      EXT="${args[--ext]}"
-  fi
-  if [[ ${EXT:0:1} != "." ]]; then
-      EXT=".$EXT"
-  fi
+  file_ext="$(handle_file_ext)"
 
-  TEMPLATE="${ini[options.template_file]}"
-  if [[ ! -z ${args[--template]} ]]; then
-      TEMPLATE="${args[--template]}"
+  solution_file="${ini[options.solutions_dir]}/${args[solution]}"
+  if [[ -n $file_ext ]]; then
+      solution_file="$solution_file$file_ext"
   fi
 
-  SOLUTION="${ini[options.solutions_dir]}/${args[solution]}"
-
-  if [[ -z ${args[--no_ext]} || ${args[--no_ext]} == 0 ]]; then
-      TEMPLATE="$TEMPLATE$EXT"
-      SOLUTION="$SOLUTION$EXT"
-  fi
-
-  if [[ ! -z ${args[--touch]} && ${args[--touch]} == 1 ]]; then
-      mkdir -p ${SOLUTION%/*}
-      touch $SOLUTION
+  if [[ -n ${args[--touch]} && ${args[--touch]} -eq 1 ]]; then
+      mkdir -p ${solution_file%/*}
+      touch $solution_file
       exit 0
   fi
 
-  if [[ -z $TEMPLATE ]]; then
+  template_file="${ini[options.template_file]}"
+  if [[ -n ${args[--template]} ]]; then
+      template_file="${args[--template]}"
+  fi
+  if [[ -n $file_ext ]]; then
+      template_file="$template_file$file_ext"
+  fi
+
+  if [[ -z $template_file ]]; then
       echo "algo_owls: Cannot use '' as a template file" 1>&2
-      echo "Try using: ./algo_owls init --touch $SOLUTION"
+      echo "Try using: ./algo_owls init --touch $solution_file" 1>&2
       exit 1
   fi
 
-  if [[ ! -f $TEMPLATE ]]; then
-      echo "algo_owls: $TEMPLATE: No such file or directory" 1>&2
-      echo "Try using: ./algo_owls init --touch $SOLUTION"
+  if [[ ! -f $template_file ]]; then
+      echo "algo_owls: $template_file: No such file or directory" 1>&2
+      echo "Try using: ./algo_owls init --touch $solution_file" 1>&2
       exit 1
   fi
 
-  mkdir -p ${SOLUTION%/*}
-  cp $TEMPLATE $SOLUTION
+  mkdir -p ${solution_file%/*}
+  cp $template_file $solution_file
 
 }
 
@@ -1323,6 +1372,11 @@ algo_owls_build_parse_requirements() {
 
       # :flag.case
       --ext | -e)
+        # :flag.conflicts
+        if [[ -n "${args['--no_ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_ext" >&2
+          exit 1
+        fi
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
@@ -1346,6 +1400,11 @@ algo_owls_build_parse_requirements() {
 
       # :flag.case
       --no_ext | -n)
+        # :flag.conflicts
+        if [[ -n "${args['--ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--ext" >&2
+          exit 1
+        fi
 
         # :flag.case_no_arg
         args['--no_ext']=1
@@ -1762,6 +1821,11 @@ algo_owls_init_parse_requirements() {
     case "$key" in
       # :flag.case
       --ext | -e)
+        # :flag.conflicts
+        if [[ -n "${args['--no_ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_ext" >&2
+          exit 1
+        fi
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
@@ -1777,6 +1841,11 @@ algo_owls_init_parse_requirements() {
 
       # :flag.case
       --no_ext | -n)
+        # :flag.conflicts
+        if [[ -n "${args['--ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--ext" >&2
+          exit 1
+        fi
 
         # :flag.case_no_arg
         args['--no_ext']=1
@@ -1785,6 +1854,11 @@ algo_owls_init_parse_requirements() {
 
       # :flag.case
       --template | -t)
+        # :flag.conflicts
+        if [[ -n "${args['--touch']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--touch" >&2
+          exit 1
+        fi
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
@@ -1800,6 +1874,11 @@ algo_owls_init_parse_requirements() {
 
       # :flag.case
       --touch | -o)
+        # :flag.conflicts
+        if [[ -n "${args['--template']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--template" >&2
+          exit 1
+        fi
 
         # :flag.case_no_arg
         args['--touch']=1

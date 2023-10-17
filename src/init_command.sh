@@ -1,42 +1,37 @@
 ini_load .algo_owls.ini
 
-EXT="${ini[options.file_ext]}"
-if [[ ! -z ${args[--ext]} ]]; then
-    EXT="${args[--ext]}"
-fi
-if [[ ${EXT:0:1} != "." ]]; then
-    EXT=".$EXT"
-fi
+file_ext="$(handle_file_ext)"
 
-TEMPLATE="${ini[options.template_file]}"
-if [[ ! -z ${args[--template]} ]]; then
-    TEMPLATE="${args[--template]}"
+solution_file="${ini[options.solutions_dir]}/${args[solution]}"
+if [[ -n $file_ext ]]; then
+    solution_file="$solution_file$file_ext"
 fi
 
-SOLUTION="${ini[options.solutions_dir]}/${args[solution]}"
-
-if [[ -z ${args[--no_ext]} || ${args[--no_ext]} == 0 ]]; then
-    TEMPLATE="$TEMPLATE$EXT"
-    SOLUTION="$SOLUTION$EXT"
-fi
-
-if [[ ! -z ${args[--touch]} && ${args[--touch]} == 1 ]]; then
-    mkdir -p ${SOLUTION%/*}
-    touch $SOLUTION
+if [[ -n ${args[--touch]} && ${args[--touch]} -eq 1 ]]; then
+    mkdir -p ${solution_file%/*}
+    touch $solution_file
     exit 0
 fi
 
-if [[ -z $TEMPLATE ]]; then
+template_file="${ini[options.template_file]}"
+if [[ -n ${args[--template]} ]]; then
+    template_file="${args[--template]}"
+fi
+if [[ -n $file_ext ]]; then
+    template_file="$template_file$file_ext"
+fi
+
+if [[ -z $template_file ]]; then
     echo "algo_owls: Cannot use '' as a template file" 1>&2
-    echo "Try using: ./algo_owls init --touch $SOLUTION"
+    echo "Try using: ./algo_owls init --touch $solution_file" 1>&2
     exit 1
 fi
 
-if [[ ! -f $TEMPLATE ]]; then
-    echo "algo_owls: $TEMPLATE: No such file or directory" 1>&2
-    echo "Try using: ./algo_owls init --touch $SOLUTION"
+if [[ ! -f $template_file ]]; then
+    echo "algo_owls: $template_file: No such file or directory" 1>&2
+    echo "Try using: ./algo_owls init --touch $solution_file" 1>&2
     exit 1
 fi
 
-mkdir -p ${SOLUTION%/*}
-cp $TEMPLATE $SOLUTION
+mkdir -p ${solution_file%/*}
+cp $template_file $solution_file

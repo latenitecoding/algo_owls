@@ -10,7 +10,7 @@ commands:
   args:
   - name: solution
     required: true
-    help: "The name of the target solution in the 'options.solutions_dir' directory"
+    help: The name of the target solution in the 'options.solutions_dir' directory
 
   flags:
   - long: --build_cmd
@@ -24,24 +24,28 @@ commands:
   - long: --build_out
     short: -o
     arg: flag
-    help: The compiler flag to specify the output directory (can pattern match on 'options.target_dir')
+    help: The compiler flag to specify the output directory
   - long: --build_sources
     short: -s
     arg: flag
-    help: The compiler flag to include sources in the build (can pattern match on 'options.solutions_dir')
+    help: The compiler flag to include sources in the build
   - long: --ext
     short: -e
     arg: extension
     help: The file extension to use for the solution file
+    conflicts: [--no_ext]
   - long: --local
     short: -l
-    help: Use the target solution directory as the build source
+    help: Use target solution's local directory in build source
   - long: --no_ext
     short: -n
     help: Ignore file extensions when compiling the program
+    conflicts: [--ext]
 
   examples:
-  - algo_owls build TODO
+  - algo_owls build fading_wind
+  - algo_owls build fading_wind --ext .java --build_cmd javac --build_out "-d options.target_dir" --build_sources "-cp options.solutions_dir"
+  - algo_owls build fading_wind --ext .java --build_cmd javac --build_out "-d options.target_dir" --build_sources "-cp ..." --local
 
 - name: config
   alias: c
@@ -118,26 +122,33 @@ commands:
   args:
   - name: solution
     required: true
-    help: "The path to the target solution relative to the 'options.solutions_dir' directory"
+    help: The path to the target solution relative to the 'options.solutions_dir' directory
 
   flags:
   - long: --ext
     short: -e
     arg: extension
     help: The file extension to use for the solution and template files
+    conflicts: [--no_ext]
   - long: --no_ext
     short: -n
     help: Ignore file extensions when initializing the solution file
+    conflicts: [--ext]
   - long: --template
     short: -t
     arg: template
     help: "The path to the target template relative to the CWD"
+    conflicts: [--touch]
   - long: --touch
     short: -o
     help: Create a blank solution instead of copying from a template file
+    conflicts: [--template]
 
   examples:
-  - algo_owls init TODO
+  - algo_owls init fadingwind
+  - algo_owls init fadingwind --ext .java
+  - algo_owls init streetsahead --ext .java --template ./solutions/fadingwind
+  - algo_owls init restaurantopening --touch
 
 - name: quest
   alias: q
