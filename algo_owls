@@ -42,7 +42,7 @@ algo_owls_usage() {
   printf "  %s   Run target solution against each input file in 'options.test_dir' comparing results to adjacent answers\n" "quest "
   printf "  %s   Run target program\n" "run   "
   printf "  %s   Commits and pushes target solution using git\n" "submit"
-  printf "  %s   Wipes all build files from the 'options.target_dir'\n" "wipe  "
+  printf "  %s   Wipes all files from the 'options.target_dir' and/or 'options.tests_dir'\n" "wipe  "
   echo
 
   # :command.long_usage
@@ -773,11 +773,11 @@ algo_owls_submit_usage() {
 # :command.usage
 algo_owls_wipe_usage() {
   if [[ -n $long_usage ]]; then
-    printf "algo_owls wipe - Wipes all build files from the 'options.target_dir'\n"
+    printf "algo_owls wipe - Wipes all files from the 'options.target_dir' and/or 'options.tests_dir'\n"
     echo
 
   else
-    printf "algo_owls wipe - Wipes all build files from the 'options.target_dir'\n"
+    printf "algo_owls wipe - Wipes all files from the 'options.target_dir' and/or 'options.tests_dir'\n"
     echo
 
   fi
@@ -786,13 +786,24 @@ algo_owls_wipe_usage() {
   echo
 
   printf "%s\n" "Usage:"
-  printf "  algo_owls wipe\n"
+  printf "  algo_owls wipe [OPTIONS]\n"
   printf "  algo_owls wipe --help | -h\n"
   echo
 
   # :command.long_usage
   if [[ -n $long_usage ]]; then
     printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--all, -a"
+    printf "    Wipes all files from the 'options.target_dir' and 'options.tests_dir'\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--tests, -t"
+    printf "    Wipes only the files from the 'options.tests_dir'\n"
+    echo
 
     # :command.usage_fixed_flags
     printf "  %s\n" "--help, -h"
@@ -802,6 +813,8 @@ algo_owls_wipe_usage() {
     # :command.usage_examples
     printf "%s\n" "Examples:"
     printf "  algo_owls wipe\n"
+    printf "  algo_owls wipe --tests\n"
+    printf "  algo_owls wipe --all\n"
     echo
 
   fi
@@ -1472,7 +1485,15 @@ algo_owls_wipe_command() {
   # src/wipe_command.sh
   ini_load .algo_owls.ini
 
-  rm -r ${ini[options.target_dir]}/*
+  if [[ -z ${args[--tests]} || ${args[--tests]} -eq 0 ]]; then
+      rm -r ${ini[options.target_dir]}/*
+  fi
+
+  if [[ -n ${args[--tests]} && ${args[--tests]} -eq 1 ]]; then
+      rm -r ${ini[options.tests_dir]}/*
+  elif [[ -n ${args[--all]} && ${args[--all]} -eq 1 ]]; then
+      rm -r ${ini[options.tests_dir]}/*
+  fi
 
 }
 
@@ -2866,6 +2887,31 @@ algo_owls_wipe_parse_requirements() {
   while [[ $# -gt 0 ]]; do
     key="$1"
     case "$key" in
+      # :flag.case
+      --all | -a)
+        # :flag.conflicts
+        if [[ -n "${args['--tests']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--tests" >&2
+          exit 1
+        fi
+
+        # :flag.case_no_arg
+        args['--all']=1
+        shift
+        ;;
+
+      # :flag.case
+      --tests | -t)
+        # :flag.conflicts
+        if [[ -n "${args['--all']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--all" >&2
+          exit 1
+        fi
+
+        # :flag.case_no_arg
+        args['--tests']=1
+        shift
+        ;;
 
       -?*)
         printf "invalid option: %s\n" "$key" >&2

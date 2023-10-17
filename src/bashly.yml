@@ -325,7 +325,19 @@ commands:
 
 - name: wipe
   alias: w
-  help: Wipes all build files from the 'options.target_dir'
+  help: Wipes all files from the 'options.target_dir' and/or 'options.tests_dir'
+
+  flags:
+  - long: --all
+    short: -a
+    help: Wipes all files from the 'options.target_dir' and 'options.tests_dir'
+    conflicts: [--tests]
+  - long: --tests
+    short: -t
+    help: Wipes only the files from the 'options.tests_dir'
+    conflicts: [--all]
 
   examples:
   - algo_owls wipe
+  - algo_owls wipe --tests
+  - algo_owls wipe --all
