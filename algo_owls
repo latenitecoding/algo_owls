@@ -36,6 +36,7 @@ algo_owls_usage() {
   printf "%s\n" "Commands:"
   printf "  %s   Compile target solution from the 'options.solutions_dir' directory\n" "build "
   printf "  %s   Manage the algo_owls config file\n" "config"
+  printf "  %s   Download test cases for target solution to the 'options.tests_dir' directory\n" "fetch "
   printf "  %s   Format the target solution from the 'options.solutions_dir' directory\n" "fmt   "
   printf "  %s   Create solution file from a template (if desired)\n" "init  "
   printf "  %s   Run target solution against each input file in 'options.test_dir' comparing results to adjacent answers\n" "quest "
@@ -309,6 +310,77 @@ algo_owls_config_set_usage() {
 }
 
 # :command.usage
+algo_owls_fetch_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "algo_owls fetch - Download test cases for target solution to the 'options.tests_dir' directory\n"
+    echo
+
+  else
+    printf "algo_owls fetch - Download test cases for target solution to the 'options.tests_dir' directory\n"
+    echo
+
+  fi
+
+  printf "Alias: d\n"
+  echo
+
+  printf "%s\n" "Usage:"
+  printf "  algo_owls fetch SOLUTION [OPTIONS]\n"
+  printf "  algo_owls fetch --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--addr, -s ADDRESS"
+    printf "    The address of the input test cases and provided answers\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--ans_ext, -a EXTENSION"
+    printf "    The file extension of the provided answers\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--in_ext, -i EXTENSION"
+    printf "    The file extension of the input test cases\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--map_ans, -A EXTENSION"
+    printf "    The desired file extension of the provided answers\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--map_in, -I EXTENSION"
+    printf "    The desired file extension of the input test cases\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--no_unzip, -n"
+    printf "    Download data into 'options.tests_dir' directory without unzipping\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "SOLUTION"
+    printf "    The name of the target solution in the 'options.solutions_dir' directory\n"
+    echo
+
+  fi
+}
+
+# :command.usage
 algo_owls_fmt_usage() {
   if [[ -n $long_usage ]]; then
     printf "algo_owls fmt - Format the target solution from the 'options.solutions_dir' directory\n"
@@ -411,12 +483,17 @@ algo_owls_init_usage() {
     echo
 
     # :flag.usage
+    printf "  %s\n" "--overwrite, -o"
+    printf "    Overwrite target solution if it exists\n"
+    echo
+
+    # :flag.usage
     printf "  %s\n" "--template, -t TEMPLATE"
     printf "    The path to the target template relative to the CWD\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--touch, -o"
+    printf "  %s\n" "--touch, -c"
     printf "    Create a blank solution instead of copying from a template file\n"
     echo
 
@@ -549,6 +626,11 @@ algo_owls_run_usage() {
     # :flag.usage
     printf "  %s\n" "--local, -l"
     printf "    Use the target program's local directory from 'options.target_dir' in the\n    runtime source\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--name_only, -N"
+    printf "    Use only the target program's name when executing the program\n"
     echo
 
     # :flag.usage
@@ -778,6 +860,18 @@ inspect_args() {
 }
 
 # :command.user_lib
+# src/lib/dot_file_ext.sh
+dot_file_ext() {
+    file_ext="$1"
+
+    if [[ -n $file_ext && ${file_ext:0:1} != "." ]]; then
+        file_ext=".$file_ext"
+    fi
+
+    echo $file_ext
+    return
+}
+
 # src/lib/handle_file_ext.sh
 handle_file_ext() {
     local settings_ext="${ini[settings.file_ext]}"
@@ -797,11 +891,8 @@ handle_file_ext() {
     if [[ -n $args_ext ]]; then
         file_ext="$args_ext"
     fi
-    if [[ -n $file_ext && ${file_ext:0:1} != "." ]]; then
-        file_ext=".$file_ext"
-    fi
 
-    echo "$file_ext"
+    echo "$(dot_file_ext $file_ext)"
     return
 }
 
@@ -936,8 +1027,14 @@ algo_owls_build_command() {
       fi
   done
 
+  if [[ -z ${args[--build_sources]} && ${ini[build.local]} == true ]]; then
+      target_dir="${target_file%/*}"
+      build_cmd="${build_cmd//.../$target_dir}"
+  fi
+
   build_cmd="$build_cmd $target_file"
 
+  echo $build_cmd
   eval $build_cmd
 
 }
@@ -990,6 +1087,81 @@ algo_owls_config_set_command() {
   done
 
   ini_save .algo_owls.ini
+
+}
+
+# :command.function
+algo_owls_fetch_command() {
+  # src/fetch_command.sh
+  ini_load .algo_owls.ini
+
+  key="tests.${args[solution]}"
+  data_file="${ini[$key]}"
+  if [[ -n ${args[--addr]} ]]; then
+      data_file="${args[--addr]}"
+  fi
+
+  if [[ -z $data_file ]]; then
+      echo "algo_owls: ${args[solution]}: No known address" 1>&2
+      echo "Try using: ./algo_owls config set tests.${args[solution]}=ADDRESS" 1>&2
+      exit 1
+  fi
+
+  data_ext="${data_file##*.}"
+  target_file="${ini[options.tests_dir]}/${args[solution]}.$data_ext"
+
+  echo "curl $data_file --output $target_file"
+  curl $data_file --output $target_file
+
+  if [[ -n ${args[--no_unzip]} && ${args[--no_unzip]} -eq 1 ]]; then
+      exit 0
+  fi
+
+  target_dir="${ini[options.tests_dir]}/${args[solution]}/"
+
+  echo "unzip $target_file -d $target_dir"
+  unzip $target_file -d $target_dir
+
+  echo "rm $target_file"
+  rm $target_file
+
+  if [[ -n ${args[--in_ext]} ]]; then
+      if [[ -n ${args[--map_in]} || ${args[--in_ext]} != ${ini[options.in_ext]} ]]; then
+          file_ext="$(dot_file_ext ${args[--in_ext]})"
+
+          for in_file in $(find $target_dir -name "*$file_ext"); do
+              out_ext="${ini[options.in_ext]}"
+              if [[ -n ${args[--map_in]} ]]; then
+                  out_ext="${args[--map_in]}"
+              fi
+              out_ext="$(dot_file_ext $out_ext)"
+
+              out_file="${in_file%.*}$out_ext"
+
+              echo "mv $in_file $out_file"
+              mv $in_file $out_file
+          done
+      fi
+  fi
+
+  if [[ -n ${args[--ans_ext]} ]]; then
+      if [[ -n ${args[--map_ans]} || ${args[--ans_ext]} != ${ini[options.ans_ext]} ]]; then
+          file_ext="$(dot_file_ext ${args[--ans_ext]})"
+
+          for ans_file in $(find $target_dir -name "*$file_ext"); do
+              out_ext="${ini[options.ans_ext]}"
+              if [[ -n ${args[--map_ans]} ]]; then
+                  out_ext="${args[--map_ans]}"
+              fi
+              out_ext="$(dot_file_ext $out_ext)"
+
+              out_file="${ans_file%.*}$out_ext"
+
+              echo "mv $ans_file $out_file"
+              mv $ans_file $out_file
+          done
+      fi
+  fi
 
 }
 
@@ -1052,7 +1224,16 @@ algo_owls_init_command() {
       solution_file="$solution_file$file_ext"
   fi
 
+  if [[ -z ${args[--overwrite]} || ${args[--overwrite]} -eq 0 ]]; then
+      if [[ -f $solution_file ]]; then
+          echo "algo_owls: $solution_file: File already exists" 1>&2
+          echo "Try using: ./algo_owls init --overwrite ${args[solution]}" 1>&2
+          exit 1
+      fi
+  fi
+
   if [[ -n ${args[--touch]} && ${args[--touch]} -eq 1 ]]; then
+      echo "touch $solution_file"
       mkdir -p ${solution_file%/*}
       touch $solution_file
       exit 0
@@ -1078,6 +1259,7 @@ algo_owls_init_command() {
       exit 1
   fi
 
+  echo "cp $template_file $solution_file"
   mkdir -p ${solution_file%/*}
   cp $template_file $solution_file
 
@@ -1160,11 +1342,8 @@ algo_owls_run_command() {
   if [[ -n $file_ext && -n ${args[--ext]} ]]; then
       solution_file="$solution_file$file_ext"
   elif [[ -z ${args[--no_ext]} || ${args[--no_ext]} -eq 0 ]]; then
-      if [[ -n ${ini[run.file_ext]} ]]; then
-          file_ext="${ini[run.file_ext]}"
-          if [[ -n $file_ext && ${file_ext:0:1} != "." ]]; then
-              file_ext=".$file_ext"
-          fi
+      if [[ ${ini[run.file_ext]} != false ]]; then
+          file_ext="$(dot_file_ext ${ini[run.file_ext]})"
       fi
       if [[ -n $file_ext && ${ini[run.no_ext]} == false ]]; then
           solution_file="$solution_file$file_ext"
@@ -1216,8 +1395,23 @@ algo_owls_run_command() {
       fi
   done
 
+  if [[ ${ini[run.local]} == true ]]; then
+      target_dir="${target_file%/*}"
+      run_cmd="${run_cmd//.../$target_dir}"
+  elif [[ ${ini[run.use_source]} == true ]]; then
+      target_dir="${target_file%/*}"
+      run_cmd="${run_cmd//.../$target_dir}"
+  fi
+
+  if [[ -n ${args[--name_only]} && ${args[--name_only]} -eq 1 ]]; then
+      target_file="${args[solution]}"
+  elif [[ ${ini[run.name_only]} == true ]]; then
+      target_file="${args[solution]}"
+  fi
+
   run_cmd="$run_cmd $target_file"
 
+  echo $run_cmd
   eval $run_cmd
 
 }
@@ -1322,6 +1516,13 @@ parse_requirements() {
       action="config"
       shift
       algo_owls_config_parse_requirements "$@"
+      shift $#
+      ;;
+
+    fetch | d)
+      action="fetch"
+      shift
+      algo_owls_fetch_parse_requirements "$@"
       shift $#
       ;;
 
@@ -1797,6 +1998,144 @@ algo_owls_config_set_parse_requirements() {
 }
 
 # :command.parse_requirements
+algo_owls_fetch_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        algo_owls_fetch_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="fetch"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --addr | -s)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--addr']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--addr requires an argument: --addr, -s ADDRESS" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --ans_ext | -a)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--ans_ext']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--ans_ext requires an argument: --ans_ext, -a EXTENSION" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --in_ext | -i)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--in_ext']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--in_ext requires an argument: --in_ext, -i EXTENSION" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --map_ans | -A)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--map_ans']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--map_ans requires an argument: --map_ans, -A EXTENSION" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --map_in | -I)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--map_in']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--map_in requires an argument: --map_in, -I EXTENSION" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --no_unzip | -n)
+
+        # :flag.case_no_arg
+        args['--no_unzip']=1
+        shift
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        if [[ -z ${args['solution']+x} ]]; then
+
+          args['solution']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['solution']+x} ]]; then
+    printf "missing required argument: SOLUTION\nusage: algo_owls fetch SOLUTION [OPTIONS]\n" >&2
+    exit 1
+  fi
+
+}
+
+# :command.parse_requirements
 algo_owls_fmt_parse_requirements() {
   # :command.fixed_flags_filter
   while [[ $# -gt 0 ]]; do
@@ -1973,6 +2312,14 @@ algo_owls_init_parse_requirements() {
         ;;
 
       # :flag.case
+      --overwrite | -o)
+
+        # :flag.case_no_arg
+        args['--overwrite']=1
+        shift
+        ;;
+
+      # :flag.case
       --template | -t)
         # :flag.conflicts
         if [[ -n "${args['--touch']:-}" ]]; then
@@ -1993,7 +2340,7 @@ algo_owls_init_parse_requirements() {
         ;;
 
       # :flag.case
-      --touch | -o)
+      --touch | -c)
         # :flag.conflicts
         if [[ -n "${args['--template']:-}" ]]; then
           printf "conflicting options: %s cannot be used with %s\n" "$key" "--template" >&2
@@ -2075,6 +2422,11 @@ algo_owls_quest_parse_requirements() {
 
       # :flag.case
       --ext | -e)
+        # :flag.conflicts
+        if [[ -n "${args['--no_ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_ext" >&2
+          exit 1
+        fi
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
@@ -2104,8 +2456,8 @@ algo_owls_quest_parse_requirements() {
       # :flag.case
       --no_ext | -n)
         # :flag.conflicts
-        if [[ -n "${args['--no_ext']:-}" ]]; then
-          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_ext" >&2
+        if [[ -n "${args['--ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--ext" >&2
           exit 1
         fi
 
@@ -2212,6 +2564,14 @@ algo_owls_run_parse_requirements() {
 
         # :flag.case_no_arg
         args['--local']=1
+        shift
+        ;;
+
+      # :flag.case
+      --name_only | -N)
+
+        # :flag.case_no_arg
+        args['--name_only']=1
         shift
         ;;
 
@@ -2548,6 +2908,7 @@ run() {
     "config get") algo_owls_config_get_command ;;
     "config list") algo_owls_config_list_command ;;
     "config set") algo_owls_config_set_command ;;
+    "fetch") algo_owls_fetch_command ;;
     "fmt") algo_owls_fmt_command ;;
     "init") algo_owls_init_command ;;
     "quest") algo_owls_quest_command ;;

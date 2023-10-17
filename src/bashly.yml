@@ -86,6 +86,40 @@ commands:
     - algo_owls config set build.cmd=javac
     - algo_owls config set build_flags.encoding="--encoding UTF-8" build_flags.out="-d options.target_dir"
 
+- name: fetch
+  alias: d
+  help: Download test cases for target solution to the 'options.tests_dir' directory
+
+  args:
+  - name: solution
+    required: true
+    help: The name of the target solution in the 'options.solutions_dir' directory
+
+  flags:
+  - long: --addr
+    short: -s
+    arg: address
+    help: The address of the input test cases and provided answers
+  - long: --ans_ext
+    short: -a
+    arg: extension
+    help: The file extension of the provided answers
+  - long: --in_ext
+    short: -i
+    arg: extension
+    help: The file extension of the input test cases
+  - long: --map_ans
+    short: -A
+    arg: extension
+    help: The desired file extension of the provided answers
+  - long: --map_in
+    short: -I
+    arg: extension
+    help: The desired file extension of the input test cases
+  - long: --no_unzip
+    short: -n
+    help: Download data into 'options.tests_dir' directory without unzipping
+
 - name: fmt
   alias: f
   help: Format the target solution from the 'options.solutions_dir' directory
@@ -137,13 +171,16 @@ commands:
     short: -n
     help: Ignore file extensions when initializing the solution file
     conflicts: [--ext]
+  - long: --overwrite
+    short: -o
+    help: Overwrite target solution if it exists
   - long: --template
     short: -t
     arg: template
     help: "The path to the target template relative to the CWD"
     conflicts: [--touch]
   - long: --touch
-    short: -o
+    short: -c
     help: Create a blank solution instead of copying from a template file
     conflicts: [--template]
 
@@ -171,6 +208,7 @@ commands:
     short: -e
     arg: extension
     help: The file extension to use for the target solution
+    conflicts: [--no_ext]
   - long: --no_build
     short: -d
     help: Ignore the default build command prior to questing the target program
@@ -178,7 +216,7 @@ commands:
   - long: --no_ext
     short: -n
     help: Ignore extensions when questing the target solution
-    conflicts: [--no_ext]
+    conflicts: [--ext]
 
   examples:
   - algo_owls quest fadingwind
@@ -207,6 +245,9 @@ commands:
     short: -l
     help: Use the target program's local directory from 'options.target_dir' in the runtime source
     conflicts: [--use_source]
+  - long: --name_only
+    short: -N
+    help: Use only the target program's name when executing the program
   - long: --no_build
     short: -d
     help: Ignore the default build command prior to running the target program
