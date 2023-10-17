@@ -28,7 +28,7 @@ if [[ -z $template_file ]]; then
 fi
 
 if [[ ! -f $template_file ]]; then
-    echo "algo_owls: $template_file: No such file or directory" 1>&2
+    echo "algo_owls: $template_file: No such file" 1>&2
     echo "Try using: ./algo_owls init --touch $solution_file" 1>&2
     exit 1
 fi

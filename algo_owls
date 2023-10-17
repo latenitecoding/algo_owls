@@ -890,26 +890,15 @@ algo_owls_build_command() {
   file_ext="$(handle_file_ext)"
 
   solution_file="${args[solution]}"
-  if [[ -n $file_ext && -n ${args[--ext]} ]]; then
+  if [[ -n $file_ext ]]; then
       solution_file="$solution_file$file_ext"
-  elif [[ -z ${args[--no_ext]} || ${args[--no_ext]} -eq 0 ]]; then
-      if [[ -n ${ini[build.file_ext]} ]]; then
-          file_ext="${ini[build.file_ext]}"
-          if [[ -n $file_ext && ${file_ext:0:1} != "." ]]; then
-              file_ext=".$file_ext"
-          fi
-      fi
-      if [[ -n $file_ext && ${ini[build.no_ext]} == false ]]; then
-          solution_file="$solution_file$file_ext"
-      fi
   fi
 
   target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
 
   if [[ -z $target_file ]]; then
-      echo "algo_owls: $solution_file: No such file or directory" 1>&2
-      target_file="${ini[options.solutions_dir]}/${args[solution]}"
-      echo "Try using: ./algo_owls init $target_file" 1>&2
+      echo "algo_owls: $solution_file: No such file" 1>&2
+      echo "Try using: ./algo_owls init ${args[solution]}" 1>&2
       exit 1
   fi
 
@@ -1012,16 +1001,15 @@ algo_owls_fmt_command() {
   file_ext="$(handle_file_ext)"
 
   solution_file="${args[solution]}"
-  if [[ -n $file_ext && ${ini[fmt.no_ext]} == false ]]; then
+  if [[ -n $file_ext ]]; then
       solution_file="$solution_file$file_ext"
   fi
 
   target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
 
   if [[ -z $target_file ]]; then
-      echo "algo_owls: $solution_file: No such file or directory" 1>&2
-      target_file="${ini[options.solutions_dir]}/${args[solution]}"
-      echo "Try using: ./algo_owls init $target_file" 1>&2
+      echo "algo_owls: $solution_file: No such file" 1>&2
+      echo "Try using: ./algo_owls init ${args[solution]}" 1>&2
       exit 1
   fi
 
@@ -1085,7 +1073,7 @@ algo_owls_init_command() {
   fi
 
   if [[ ! -f $template_file ]]; then
-      echo "algo_owls: $template_file: No such file or directory" 1>&2
+      echo "algo_owls: $template_file: No such file" 1>&2
       echo "Try using: ./algo_owls init --touch $solution_file" 1>&2
       exit 1
   fi
@@ -1128,11 +1116,13 @@ algo_owls_quest_command() {
   run_cmd="./algo_owls run ${args[solution]}"
   if [[ -n ${args[--ext]} ]]; then
       run_cmd="$run_cmd --ext ${args[--ext]}"
+  elif [[ -n ${args[--no_ext]} ]]; then
+      run_cmd="$run_cmd --no_ext"
   fi
 
   all_tests_pass=true
-  for in_file in $(find $target_dir -name "*.in"); do
-      ans_file="${in_file%.*}.ans"
+  for in_file in $(find $target_dir -name "*.${ini[settings.in_ext]}"); do
+      ans_file="${in_file%.*}.${ini[settings.ans_ext]}"
       if diff -u --suppress-common-lines --label $ans_file --label $solution_file --strip-trailing-cr -d --speed-large-files --color $ans_file <(eval $run_cmd < $in_file); then
           echo -e "\033[0;32m$in_file aye!\033[0m"
       else
@@ -1188,9 +1178,8 @@ algo_owls_run_command() {
   fi
 
   if [[ -z $target_file ]]; then
-      echo "algo_owls: $solution_file: No such file or directory" 1>&2
-      target_file="${ini[options.solutions_dir]}/${args[solution]}"
-      echo "Try using: ./algo_owls init $target_file" 1>&2
+      echo "algo_owls: $solution_file: No such file" 1>&2
+      echo "Try using: ./algo_owls init ${args[solution]}" 1>&2
       exit 1
   fi
 
@@ -1248,9 +1237,8 @@ algo_owls_submit_command() {
   target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
 
   if [[ -z $target_file ]]; then
-      echo "algo_owls: $solution_file: No such file or directory" 1>&2
-      target_file="${ini[options.solutions_dir]}/${args[solution]}"
-      echo "Try using: ./algo_owls init $target_file" 1>&2
+      echo "algo_owls: $solution_file: No such file" 1>&2
+      echo "Try using: ./algo_owls init ${args[soluton]}" 1>&2
       exit 1
   fi
 

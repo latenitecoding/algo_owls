@@ -32,9 +32,8 @@ else
 fi
 
 if [[ -z $target_file ]]; then
-    echo "algo_owls: $solution_file: No such file or directory" 1>&2
-    target_file="${ini[options.solutions_dir]}/${args[solution]}"
-    echo "Try using: ./algo_owls init $target_file" 1>&2
+    echo "algo_owls: $solution_file: No such file" 1>&2
+    echo "Try using: ./algo_owls init ${args[solution]}" 1>&2
     exit 1
 fi
 

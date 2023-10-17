@@ -3,16 +3,15 @@ ini_load .algo_owls.ini
 file_ext="$(handle_file_ext)"
 
 solution_file="${args[solution]}"
-if [[ -n $file_ext && ${ini[fmt.no_ext]} == false ]]; then
+if [[ -n $file_ext ]]; then
     solution_file="$solution_file$file_ext"
 fi
 
 target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
 
 if [[ -z $target_file ]]; then
-    echo "algo_owls: $solution_file: No such file or directory" 1>&2
-    target_file="${ini[options.solutions_dir]}/${args[solution]}"
-    echo "Try using: ./algo_owls init $target_file" 1>&2
+    echo "algo_owls: $solution_file: No such file" 1>&2
+    echo "Try using: ./algo_owls init ${args[solution]}" 1>&2
     exit 1
 fi
 

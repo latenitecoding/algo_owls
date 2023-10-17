@@ -28,11 +28,13 @@ fi
 run_cmd="./algo_owls run ${args[solution]}"
 if [[ -n ${args[--ext]} ]]; then
     run_cmd="$run_cmd --ext ${args[--ext]}"
+elif [[ -n ${args[--no_ext]} ]]; then
+    run_cmd="$run_cmd --no_ext"
 fi
 
 all_tests_pass=true
-for in_file in $(find $target_dir -name "*.in"); do
-    ans_file="${in_file%.*}.ans"
+for in_file in $(find $target_dir -name "*.${ini[settings.in_ext]}"); do
+    ans_file="${in_file%.*}.${ini[settings.ans_ext]}"
     if diff -u --suppress-common-lines --label $ans_file --label $solution_file --strip-trailing-cr -d --speed-large-files --color $ans_file <(eval $run_cmd < $in_file); then
         echo -e "\033[0;32m$in_file aye!\033[0m"
     else
