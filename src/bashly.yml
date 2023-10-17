@@ -69,8 +69,14 @@ commands:
     alias: l
     help: Show entire config file
 
+    flags:
+    - long: --include_tests
+      short: -t
+      help: Show links for known test cases
+
     examples:
     - algo_owls config list
+    - algo_owls config list --include_tests
 
   - name: set
     alias: s

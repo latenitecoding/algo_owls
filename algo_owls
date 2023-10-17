@@ -242,13 +242,19 @@ algo_owls_config_list_usage() {
   echo
 
   printf "%s\n" "Usage:"
-  printf "  algo_owls config list\n"
+  printf "  algo_owls config list [OPTIONS]\n"
   printf "  algo_owls config list --help | -h\n"
   echo
 
   # :command.long_usage
   if [[ -n $long_usage ]]; then
     printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--include_tests, -t"
+    printf "    Show links for known test cases\n"
+    echo
 
     # :command.usage_fixed_flags
     printf "  %s\n" "--help, -h"
@@ -258,6 +264,7 @@ algo_owls_config_list_usage() {
     # :command.usage_examples
     printf "%s\n" "Examples:"
     printf "  algo_owls config list\n"
+    printf "  algo_owls config list --include_tests\n"
     echo
 
   fi
@@ -1106,7 +1113,14 @@ algo_owls_config_get_command() {
 algo_owls_config_list_command() {
   # src/config_list_command.sh
   ini_load .algo_owls.ini
-  ini_show
+
+  for key in $(ini_keys); do
+      if [[ -n ${args[--include_tests]} && ${args[--include_tests]} -eq 1 ]]; then
+          echo "$key=${ini[$key]}"
+      elif [[ $key != tests.* ]]; then
+          echo "$key=${ini[$key]}"
+      fi
+  done
 
 }
 
@@ -2008,6 +2022,13 @@ algo_owls_config_list_parse_requirements() {
   while [[ $# -gt 0 ]]; do
     key="$1"
     case "$key" in
+      # :flag.case
+      --include_tests | -t)
+
+        # :flag.case_no_arg
+        args['--include_tests']=1
+        shift
+        ;;
 
       -?*)
         printf "invalid option: %s\n" "$key" >&2
