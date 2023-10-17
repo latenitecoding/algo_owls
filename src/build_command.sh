@@ -1,33 +1,55 @@
-EXT="$ALGO_EXT"
-if [[ ! -z ${args[--ext]} ]]; then
-    EXT="${args[--ext]}"
+ini_load .algo_owls.ini
+
+file_ext="$(handle_file_ext)"
+
+solution_file="${args[solution]}"
+if [[ -n $file_ext ]]; then
+    solution_file="$solution_file$file_ext"
 fi
-if [[ ${EXT:0:1} != "." ]]; then
-    EXT=".$EXT"
-fi
 
-SOLUTION="${args[solution]}$EXT"
+target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
 
-TARGET_FILE=$(find $ALGO_SOLUTIONS -name $SOLUTION)
-
-if [[ -z $TARGET_FILE ]]; then
-    echo "algo_owls: $SOLUTION: No such file or directory" 1>&2
-    echo "Try using: ./algo_owls init $ALGO_SOLUTIONS/$SOLUTION"
+if [[ -z $target_file ]]; then
+    echo "algo_owls: $solution_file: No such file or directory" 1>&2
+    target_file="${ini[options.solutions_dir]}/${args[solution]}"
+    echo "Try using: ./algo_owls init $target_file" 1>&2
     exit 1
 fi
 
-BUILD_FLAG="${ALGO_BUILD_FLAG}"
-if [[ ! -z ${args[--build_flag]} ]]; then
-    BUILD_FLAG="${args[--build_flag]}"
+build_cmd="${ini[build.cmd]}"
+if [[ -n ${args[--build_cmd]} ]]; then
+    build_cmd="${args[--build_cmd]}"
 fi
 
-BUILD_CMD="${ALGO_BUILD_CMD}"
-if [[ ! -z ${args[--build_cmd]} ]]; then
-    BUILD_CMD="${args[--build_cmd]}"
+if [[ -n ${args[--build_flags]} ]]; then
+    build_cmd="$build_cmd ${args[--build_flags]}"
+else
+    for key in "${!ini[@]}"; do
+        if [[ $key == build_flags.* ]]; then
+            build_cmd="$build_cmd ${ini[$key]}"
+        fi
+    done
 fi
-if [[ ! -z $BUILD_FLAG ]]; then
-    BUILD_CMD="$BUILD_CMD $BUILD_FLAG $ALGO_TARGET"
-fi
-BUILD_CMD="$BUILD_CMD $TARGET_FILE"
 
-eval $BUILD_CMD
+if [[ -n ${args[--build_out]} ]]; then
+    build_cmd="$build_cmd ${args[--build_out]}"
+fi
+
+if [[ -n ${args[--build_sources]} ]]; then
+    build_sources="${args[--build_sources]}"
+    if [[ -n ${args[--local]} && ${args[--local]} -eq 1 ]]; then
+        target_dir="${target_file%/*}"
+        build_sources="${build_sources//.../$target_dir}"
+    fi
+    build_cmd="$build_cmd $build_sources"
+fi
+
+for key in "${!ini[@]}"; do
+    if [[ $key == options.* ]]; then
+        build_cmd="${build_cmd//$key/${ini[$key]}}"
+    fi
+done
+
+build_cmd="$build_cmd $target_file"
+
+eval $build_cmd
