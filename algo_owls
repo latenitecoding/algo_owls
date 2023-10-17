@@ -1008,6 +1008,13 @@ ini_keys() {
   for a in "${keys[@]}"; do echo "$a"; done | sort
 }
 
+# src/lib/to_snake_case.sh
+to_snake_case() {
+    snake_case="$(echo $1 | sed -r 's/([a-z0-9])([A-Z])/\1_\L\2/g' | sed -e 's/\(.*\)/\L\1/')"
+    echo $snake_case
+    return
+}
+
 # :command.command_functions
 # :command.function
 algo_owls_build_command() {
@@ -1131,7 +1138,9 @@ algo_owls_fetch_command() {
   # src/fetch_command.sh
   ini_load .algo_owls.ini
 
-  key="tests.${args[solution]}"
+  solution="$(to_snake_case ${args[solution]})"
+
+  key="tests.$solution"
   data_file="${ini[$key]}"
   if [[ -n ${args[--addr]} ]]; then
       data_file="${args[--addr]}"
@@ -1139,12 +1148,12 @@ algo_owls_fetch_command() {
 
   if [[ -z $data_file ]]; then
       echo "algo_owls: ${args[solution]}: No known address" 1>&2
-      echo "Try using: ./algo_owls config set tests.${args[solution]}=ADDRESS" 1>&2
+      echo "Try using: ./algo_owls config set $key=ADDRESS" 1>&2
       exit 1
   fi
 
   data_ext="${data_file##*.}"
-  target_file="${ini[options.tests_dir]}/${args[solution]}.$data_ext"
+  target_file="${ini[options.tests_dir]}/$solution.$data_ext"
 
   echo "curl $data_file --output $target_file"
   curl $data_file --output $target_file
@@ -1153,10 +1162,17 @@ algo_owls_fetch_command() {
       exit 0
   fi
 
-  target_dir="${ini[options.tests_dir]}/${args[solution]}/"
+  target_dir="${ini[options.tests_dir]}/$solution/"
 
-  echo "unzip $target_file -d $target_dir"
-  unzip $target_file -d $target_dir
+  if [[ $data_ext == "zip" ]]; then
+      mkdir -p $target_dir
+      echo "unzip $target_file -d $target_dir"
+      unzip $target_file -d $target_dir
+  elif [[ $data_ext == "tgz" ]]; then
+      mkdir -p $target_dir
+      echo "tar xf $target_file --directory=$target_dir"
+      tar xvf $target_file --directory=$target_dir
+  fi
 
   echo "rm $target_file"
   rm $target_file
@@ -1314,12 +1330,13 @@ algo_owls_quest_command() {
       fi
   fi
 
-  target_dir="$(find ${ini[options.tests_dir]} -type d -name ${args[solution]})"
+  target_name="$(to_snake_case ${args[solution]})"
+  target_dir="$(find ${ini[options.tests_dir]} -type d -name $target_name)"
 
   if [[ -z $target_dir ]]; then
-      target_dir="${ini[options.tests_dir]}/**/${args[solution]}/"
+      target_dir="${ini[options.tests_dir]}/**/$target_name/"
       echo "algo_owls: $target_dir: No such directory" 1>&2
-      target_dir="${ini[options.tests_dir]}/${args[solution]}"
+      target_dir="${ini[options.tests_dir]}/$target_name"
       echo "Try using: mkdir -p $target_dir" 1>&2
       exit 1
   fi
@@ -1525,13 +1542,22 @@ algo_owls_wipe_command() {
   ini_load .algo_owls.ini
 
   if [[ -z ${args[--tests]} || ${args[--tests]} -eq 0 ]]; then
-      rm -r ${ini[options.target_dir]}/*
+      if [[ $(ls ${ini[options.target_dir]}) ]]; then
+          echo "rm -r ${ini[options.target_dir]}/*"
+          rm -r ${ini[options.target_dir]}/*
+      fi
   fi
 
   if [[ -n ${args[--tests]} && ${args[--tests]} -eq 1 ]]; then
-      rm -r ${ini[options.tests_dir]}/*
+      if [[ $(ls ${ini[options.tests_dir]}) ]]; then
+          echo "rm -r ${ini[options.tests_dir]}/*"
+          rm -r ${ini[options.tests_dir]}/*
+      fi
   elif [[ -n ${args[--all]} && ${args[--all]} -eq 1 ]]; then
-      rm -r ${ini[options.tests_dir]}/*
+      if [[ $(ls ${ini[options.tests_dir]}) ]]; then
+          echo "rm -r ${ini[options.tests_dir]}/*"
+          rm -r ${ini[options.tests_dir]}/*
+      fi
   fi
 
 }
