@@ -52,6 +52,20 @@ commands:
   help: Manage the algo_owls config file
 
   commands:
+  - name: del
+    alias: d
+    help: Remove values from the config file
+
+    args:
+    - name: key
+      required: true
+      help: One or more config keys
+      repeatable: true
+
+    examples:
+    - algo_owls config del user.name
+    - algo_owls config del user.email user.password
+
   - name: get
     alias: g
     help: Read a value from the config file

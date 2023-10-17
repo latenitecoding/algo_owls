@@ -164,6 +164,7 @@ algo_owls_config_usage() {
   echo
   # :command.usage_commands
   printf "%s\n" "Commands:"
+  printf "  %s   Remove values from the config file\n" "del "
   printf "  %s   Read a value from the config file\n" "get "
   printf "  %s   Show entire config file\n" "list"
   printf "  %s   Save a value in the config file\n" "set "
@@ -176,6 +177,52 @@ algo_owls_config_usage() {
     # :command.usage_fixed_flags
     printf "  %s\n" "--help, -h"
     printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+algo_owls_config_del_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "algo_owls config del - Remove values from the config file\n"
+    echo
+
+  else
+    printf "algo_owls config del - Remove values from the config file\n"
+    echo
+
+  fi
+
+  printf "Alias: d\n"
+  echo
+
+  printf "%s\n" "Usage:"
+  printf "  algo_owls config del KEY...\n"
+  printf "  algo_owls config del --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "KEY..."
+    printf "    One or more config keys\n"
+    echo
+
+    # :command.usage_examples
+    printf "%s\n" "Examples:"
+    printf "  algo_owls config del user.name\n"
+    printf "  algo_owls config del user.email user.password\n"
     echo
 
   fi
@@ -1090,6 +1137,22 @@ algo_owls_build_command() {
 }
 
 # :command.function
+algo_owls_config_del_command() {
+  # src/config_del_command.sh
+  ini_load .algo_owls.ini
+
+  eval "keys=(${args[key]})"
+
+  for idx in "${!keys[@]}"; do
+      key="${keys[idx]}"
+      unset "ini[$key]"
+  done
+
+  ini_save .algo_owls.ini
+
+}
+
+# :command.function
 algo_owls_config_get_command() {
   # src/config_get_command.sh
   ini_load .algo_owls.ini
@@ -1357,7 +1420,7 @@ algo_owls_quest_command() {
 
   file_ext="$(handle_file_ext)"
 
-  run_cmd="./algo_owls run ${args[solution]} --quiet"
+  run_cmd="./algo_owls run ${args[solution]} --quiet --no_build"
   if [[ -n ${args[--ext]} ]]; then
       run_cmd="$run_cmd --ext ${args[--ext]}"
   elif [[ -n ${args[--no_ext]} ]]; then
@@ -1884,6 +1947,13 @@ algo_owls_config_parse_requirements() {
   case $action in
     -*) ;;
 
+    del | d)
+      action="del"
+      shift
+      algo_owls_config_del_parse_requirements "$@"
+      shift $#
+      ;;
+
     get | g)
       action="get"
       shift
@@ -1938,6 +2008,62 @@ algo_owls_config_parse_requirements() {
 
     esac
   done
+
+}
+
+# :command.parse_requirements
+algo_owls_config_del_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        algo_owls_config_del_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="config del"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_repeatable
+
+        if [[ -z ${args['key']+x} ]]; then
+          args['key']="\"$1\""
+          shift
+        else
+          args['key']="${args[key]} \"$1\""
+          shift
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['key']+x} ]]; then
+    printf "missing required argument: KEY\nusage: algo_owls config del KEY...\n" >&2
+    exit 1
+  fi
 
 }
 
@@ -3090,6 +3216,7 @@ run() {
   case "$action" in
     "build") algo_owls_build_command ;;
     "config") algo_owls_config_command ;;
+    "config del") algo_owls_config_del_command ;;
     "config get") algo_owls_config_get_command ;;
     "config list") algo_owls_config_list_command ;;
     "config set") algo_owls_config_set_command ;;
