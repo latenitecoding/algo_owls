@@ -49,6 +49,12 @@ for key in "${!ini[@]}"; do
     fi
 done
 
+if [[ -z ${args[--build_sources]} && ${ini[build.local]} == true ]]; then
+    target_dir="${target_file%/*}"
+    build_cmd="${build_cmd//.../$target_dir}"
+fi
+
 build_cmd="$build_cmd $target_file"
 
+echo $build_cmd
 eval $build_cmd
