@@ -1,58 +1,46 @@
 ini_load .algo_owls.ini
 
-EXT="${ini[options.file_ext]}"
-if [[ ! -z ${args[--ext]} ]]; then
-    EXT="${args[--ext]}"
-fi
-if [[ ${EXT:0:1} != "." ]]; then
-    EXT=".$EXT"
-fi
+file_ext="$(handle_file_ext)"
 
-SOLUTION="${args[solution]}"
-if [[ -z ${args[--no_ext]} || ${args[--no_ext]} == 0 ]]; then
-    SOLUTION="$SOLUTION$EXT"
+solution_file="${args[solution]}"
+if [[ -n $file_ext ]]; then
+    solution_file="$solution_file$file_ext"
 fi
 
-TARGET_FILE=$(find ${ini[options.solutions_dir]} -name $SOLUTION)
+target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
 
-if [[ -z $TARGET_FILE ]]; then
-    echo "algo_owls: $SOLUTION: No such file or directory" 1>&2
-    echo "Try using: ./algo_owls init ${ini[options.solutions_dir]}$SOLUTION"
+if [[ -z $target_file ]]; then
+    echo "algo_owls: $solution_file: No such file or directory" 1>&2
+    target_file="${ini[options.solutions_dir]}/${args[solution]}"
+    echo "Try using: ./algo_owls init $target_file" 1>&2
     exit 1
 fi
 
-if [[ ! -z ${args[--fmt]} && ${args[--fmt]} == 1 ]]; then
-    FLAGS=""
-    if [[ ! -z ${args[--ext]} ]]; then
-        FLAGS="--ext ${args[--ext]}"
-    fi
-    if [[ ! -z ${args[--no_ext]} && ${args[--no_ext]} == 1 ]]; then
-        FLAGS="--no_ext"
-    fi
-    if [[ -z $FLAGS ]]; then
+if [[ -z ${args[--no_fmt]} || ${args[--no_fmt]} -eq 0 ]]; then
+    if [[ ${ini[settings.auto_fmt]} == true ]]; then
         ./algo_owls fmt ${args[solution]}
-    else
-        ./algo_owls fmt ${args[solution]} $FLAGS
+    elif [[ -n ${args[--fmt]} && ${args[--fmt]} -eq 1 ]]; then
+        ./algo_owls fmt ${args[solution]}
     fi
 fi
 
-git add $TARGET_FILE
+git add $target_file
 
-MESSAGE="completes ${args[solution]}"
-if [[ ! -z ${args[--message]} ]]; then
-    MESSAGE="${args[--message]}"
+commit_message="completes ${args[solution]}"
+if [[ -n ${args[--message]} ]]; then
+    commit_message="${args[--message]}"
 fi
 
-git commit -m $MESSAGE
+git commit -m $commit_message
 
-BRANCH="${ini[options.branch]}"
-if [[ ! -z ${args[--branch]} ]]; then
-    BRANCH="${args[--branch]}"
+branch="${ini[git.branch]}"
+if [[ -n ${args[--branch]} ]]; then
+    branch="${args[--branch]}"
 fi
 
-REMOTE="${ini[options.remote]}"
-if [[ ! -z ${args[--remote]} ]]; then
-    REMOTE="${args[--remote]}"
+remote="${ini[git.remote]}"
+if [[ -n ${args[--remote]} ]]; then
+    remote="${args[--remote]}"
 fi
 
-git push $REMOTE $BRANCH
+git push $remote $branch
