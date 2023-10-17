@@ -301,7 +301,8 @@ algo_owls_config_set_usage() {
 
     # :command.usage_examples
     printf "%s\n" "Examples:"
-    printf "  algo_owls config set TODO\n"
+    printf "  algo_owls config set build.cmd=javac\n"
+    printf "  algo_owls config set build_flags.encoding=\"--encoding UTF-8\"\n  build_flags.out=\"-d options.target_dir\"\n"
     echo
 
   fi
@@ -367,7 +368,8 @@ algo_owls_fmt_usage() {
 
     # :command.usage_examples
     printf "%s\n" "Examples:"
-    printf "  algo_owls fmt TODO\n"
+    printf "  algo_owls fmt fadingwind\n"
+    printf "  algo_owls fmt streetsahead --ext .java --fmt_cmd \"java -jar\n  lib/google-java-format.jar\" --fmt_flags \"--replace --skip-javadoc-formatting\"\n"
     echo
 
   fi
@@ -434,9 +436,9 @@ algo_owls_init_usage() {
     # :command.usage_examples
     printf "%s\n" "Examples:"
     printf "  algo_owls init fadingwind\n"
-    printf "  algo_owls init fadingwind --ext .java\n"
-    printf "  algo_owls init streetsahead --ext .java --template ./solutions/fadingwind\n"
-    printf "  algo_owls init restaurantopening --touch\n"
+    printf "  algo_owls init streetsahead --ext .java\n"
+    printf "  algo_owls init restaurantopening --ext .java --template\n  ./solutions/streetsahead\n"
+    printf "  algo_owls init huntthewumpus --touch\n"
     echo
 
   fi
@@ -468,23 +470,23 @@ algo_owls_quest_usage() {
 
     # :command.usage_flags
     # :flag.usage
+    printf "  %s\n" "--build, -b"
+    printf "    Execute the default build command prior to questing the target program\n"
+    echo
+
+    # :flag.usage
     printf "  %s\n" "--ext, -e EXTENSION"
     printf "    The file extension to use for the target solution\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--local, -l"
-    printf "    Use the 'options.target_dir' directory as the runtime source\n"
+    printf "  %s\n" "--no_build, -d"
+    printf "    Ignore the default build command prior to questing the target program\n"
     echo
 
     # :flag.usage
     printf "  %s\n" "--no_ext, -n"
-    printf "    Ignore extensions when executing the target solution\n"
-    echo
-
-    # :flag.usage
-    printf "  %s\n" "--use_source, -u"
-    printf "    Use the 'options.solutions_dir' directory as the runtime source\n"
+    printf "    Ignore extensions when questing the target solution\n"
     echo
 
     # :command.usage_fixed_flags
@@ -502,7 +504,8 @@ algo_owls_quest_usage() {
 
     # :command.usage_examples
     printf "%s\n" "Examples:"
-    printf "  algo_owls quest TODO\n"
+    printf "  algo_owls quest fadingwind\n"
+    printf "  algo_owls quest fadingwind -ext .class\n"
     echo
 
   fi
@@ -716,7 +719,7 @@ algo_owls_wipe_usage() {
 
     # :command.usage_examples
     printf "%s\n" "Examples:"
-    printf "  algo_owls wipe TODO\n"
+    printf "  algo_owls wipe\n"
     echo
 
   fi
@@ -1085,10 +1088,56 @@ algo_owls_init_command() {
 # :command.function
 algo_owls_quest_command() {
   # src/quest_command.sh
-  echo "# this file is located in 'src/quest_command.sh'"
-  echo "# code for 'algo_owls quest' goes here"
-  echo "# you can edit it freely and regenerate (it will not be overwritten)"
-  inspect_args
+  ini_load .algo_owls.ini
+
+  if [[ -z ${args[--no_build]} || ${args[--no_build]} -eq 0 ]]; then
+      if [[ ${ini[settings.auto_build]} == true ]]; then
+          ./algo_owls build ${args[solution]}
+      elif [[ -n ${args[--build]} && ${args[--build]} -eq 1 ]]; then
+          ./algo_owls build ${args[solution]}
+      fi
+  fi
+
+  target_dir="$(find ${ini[options.tests_dir]} -type d -name ${args[solution]})"
+
+  if [[ -z $target_dir ]]; then
+      target_dir="${ini[options.tests_dir]}/**/${args[solution]}/"
+      echo "algo_owls: $target_dir: No such directory" 1>&2
+      target_dir="${ini[options.tests_dir]}/${args[solution]}"
+      echo "Try using: mkdir -p $target_dir" 1>&2
+      exit 1
+  fi
+
+  file_ext="$(handle_file_ext)"
+
+  solution_file="${args[solution]}"
+  if [[ -n $file_ext ]]; then
+      solution_file="$solution_file$file_ext"
+  fi
+
+  run_cmd="./algo_owls run ${args[solution]}"
+  if [[ -n ${args[--ext]} ]]; then
+      run_cmd="$run_cmd --ext ${args[--ext]}"
+  fi
+
+  all_tests_pass=true
+  for in_file in $(find $target_dir -name "*.in"); do
+      ans_file="${in_file%.*}.ans"
+      if diff -u --suppress-common-lines --label $ans_file --label $solution_file --strip-trailing-cr -d --speed-large-files --color $ans_file <(eval $run_cmd < $in_file); then
+          echo -e "\033[0;32m$in_file aye!\033[0m"
+      else
+          echo -e "\033[0;31m$in_file nay!\033[0m"
+          all_tests_pass=false
+      fi
+  done
+
+  echo ""
+
+  if [[ $all_tests_pass == true ]]; then
+      echo -e "\033[0;32m$solution_file passes!\033[0m"
+  else
+      echo -e "\033[0;31m$solution_file vetoed!\033[0m"
+  fi
 
 }
 
@@ -2004,6 +2053,19 @@ algo_owls_quest_parse_requirements() {
     key="$1"
     case "$key" in
       # :flag.case
+      --build | -b)
+        # :flag.conflicts
+        if [[ -n "${args['--no_build']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_build" >&2
+          exit 1
+        fi
+
+        # :flag.case_no_arg
+        args['--build']=1
+        shift
+        ;;
+
+      # :flag.case
       --ext | -e)
 
         # :flag.case_arg
@@ -2019,26 +2081,28 @@ algo_owls_quest_parse_requirements() {
         ;;
 
       # :flag.case
-      --local | -l)
+      --no_build | -d)
+        # :flag.conflicts
+        if [[ -n "${args['--build']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--build" >&2
+          exit 1
+        fi
 
         # :flag.case_no_arg
-        args['--local']=1
+        args['--no_build']=1
         shift
         ;;
 
       # :flag.case
       --no_ext | -n)
+        # :flag.conflicts
+        if [[ -n "${args['--no_ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_ext" >&2
+          exit 1
+        fi
 
         # :flag.case_no_arg
         args['--no_ext']=1
-        shift
-        ;;
-
-      # :flag.case
-      --use_source | -u)
-
-        # :flag.case_no_arg
-        args['--use_source']=1
         shift
         ;;
 

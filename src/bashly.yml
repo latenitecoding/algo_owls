@@ -83,7 +83,8 @@ commands:
       repeatable: true
 
     examples:
-    - algo_owls config set TODO
+    - algo_owls config set build.cmd=javac
+    - algo_owls config set build_flags.encoding="--encoding UTF-8" build_flags.out="-d options.target_dir"
 
 - name: fmt
   alias: f
@@ -114,7 +115,8 @@ commands:
     conflicts: [--ext]
 
   examples:
-  - algo_owls fmt TODO
+  - algo_owls fmt fadingwind
+  - algo_owls fmt streetsahead --ext .java --fmt_cmd "java -jar lib/google-java-format.jar" --fmt_flags "--replace --skip-javadoc-formatting" 
 
 - name: init
   alias: i
@@ -147,9 +149,9 @@ commands:
 
   examples:
   - algo_owls init fadingwind
-  - algo_owls init fadingwind --ext .java
-  - algo_owls init streetsahead --ext .java --template ./solutions/fadingwind
-  - algo_owls init restaurantopening --touch
+  - algo_owls init streetsahead --ext .java
+  - algo_owls init restaurantopening --ext .java --template ./solutions/streetsahead
+  - algo_owls init huntthewumpus --touch
 
 - name: quest
   alias: q
@@ -161,22 +163,26 @@ commands:
     help: The name of the target solution from the 'options.solutions_dir' directory
 
   flags:
+  - long: --build
+    short: -b
+    help: Execute the default build command prior to questing the target program
+    conflicts: [--no_build]
   - long: --ext
     short: -e
     arg: extension
     help: The file extension to use for the target solution
-  - long: --local
-    short: -l
-    help: Use the 'options.target_dir' directory as the runtime source
+  - long: --no_build
+    short: -d
+    help: Ignore the default build command prior to questing the target program
+    conflicts: [--build]
   - long: --no_ext
     short: -n
-    help: Ignore extensions when executing the target solution
-  - long: --use_source
-    short: -u
-    help: Use the 'options.solutions_dir' directory as the runtime source
+    help: Ignore extensions when questing the target solution
+    conflicts: [--no_ext]
 
   examples:
-  - algo_owls quest TODO
+  - algo_owls quest fadingwind
+  - algo_owls quest fadingwind -ext .class
 
 - name: run
   alias: r
@@ -281,4 +287,4 @@ commands:
   help: Wipes all build files from the 'options.target_dir'
 
   examples:
-  - algo_owls wipe TODO
+  - algo_owls wipe
