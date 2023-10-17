@@ -83,5 +83,8 @@ fi
 
 run_cmd="$run_cmd $target_file"
 
-echo $run_cmd
+if [[ -z ${args[--quiet]} || ${args[--quiet]} -eq 0 ]]; then
+    echo $run_cmd
+fi
+
 eval $run_cmd
