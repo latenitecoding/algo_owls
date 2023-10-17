@@ -1,6 +1,8 @@
 ini_load .algo_owls.ini
 
-key="tests.${args[solution]}"
+solution="$(to_snake_case ${args[solution]})"
+
+key="tests.$solution"
 data_file="${ini[$key]}"
 if [[ -n ${args[--addr]} ]]; then
     data_file="${args[--addr]}"
@@ -8,12 +10,12 @@ fi
 
 if [[ -z $data_file ]]; then
     echo "algo_owls: ${args[solution]}: No known address" 1>&2
-    echo "Try using: ./algo_owls config set tests.${args[solution]}=ADDRESS" 1>&2
+    echo "Try using: ./algo_owls config set $key=ADDRESS" 1>&2
     exit 1
 fi
 
 data_ext="${data_file##*.}"
-target_file="${ini[options.tests_dir]}/${args[solution]}.$data_ext"
+target_file="${ini[options.tests_dir]}/$solution.$data_ext"
 
 echo "curl $data_file --output $target_file"
 curl $data_file --output $target_file
@@ -22,10 +24,17 @@ if [[ -n ${args[--no_unzip]} && ${args[--no_unzip]} -eq 1 ]]; then
     exit 0
 fi
 
-target_dir="${ini[options.tests_dir]}/${args[solution]}/"
+target_dir="${ini[options.tests_dir]}/$solution/"
 
-echo "unzip $target_file -d $target_dir"
-unzip $target_file -d $target_dir
+if [[ $data_ext == "zip" ]]; then
+    mkdir -p $target_dir
+    echo "unzip $target_file -d $target_dir"
+    unzip $target_file -d $target_dir
+elif [[ $data_ext == "tgz" ]]; then
+    mkdir -p $target_dir
+    echo "tar xf $target_file --directory=$target_dir"
+    tar xvf $target_file --directory=$target_dir
+fi
 
 echo "rm $target_file"
 rm $target_file
