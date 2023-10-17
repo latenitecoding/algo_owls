@@ -21,7 +21,7 @@ fi
 
 file_ext="$(handle_file_ext)"
 
-run_cmd="./algo_owls run ${args[solution]} --quiet"
+run_cmd="./algo_owls run ${args[solution]} --quiet --no_build"
 if [[ -n ${args[--ext]} ]]; then
     run_cmd="$run_cmd --ext ${args[--ext]}"
 elif [[ -n ${args[--no_ext]} ]]; then
