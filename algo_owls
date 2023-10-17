@@ -751,7 +751,7 @@ algo_owls_submit_usage() {
     echo
 
     # :flag.usage
-    printf "  %s\n" "--message, -m"
+    printf "  %s\n" "--message, -m MESSAGE"
     printf "    Provide custom commit message\n"
     echo
 
@@ -1493,13 +1493,15 @@ algo_owls_submit_command() {
       fi
   fi
 
+  echo "git add $target_file"
   git add $target_file
 
-  commit_message="completes ${args[solution]}"
+  commit_message="\"completes ${args[solution]}\""
   if [[ -n ${args[--message]} ]]; then
-      commit_message="${args[--message]}"
+      commit_message="\"${args[--message]}\""
   fi
 
+  echo "git commit -m $commit_message"
   git commit -m $commit_message
 
   branch="${ini[git.branch]}"
@@ -1512,6 +1514,7 @@ algo_owls_submit_command() {
       remote="${args[--remote]}"
   fi
 
+  echo "git push $remote $branch"
   git push $remote $branch
 
 }
@@ -2868,9 +2871,16 @@ algo_owls_submit_parse_requirements() {
       # :flag.case
       --message | -m)
 
-        # :flag.case_no_arg
-        args['--message']=1
-        shift
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--message']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--message requires an argument: --message, -m MESSAGE" >&2
+          exit 1
+        fi
         ;;
 
       # :flag.case

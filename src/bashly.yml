@@ -320,6 +320,7 @@ commands:
     conflicts: [--no_fmt]
   - long: --message
     short: -m
+    arg: message
     help: Provide custom commit message
   - long: --no_ext
     short: -n
