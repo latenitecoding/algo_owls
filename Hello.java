@@ -4,6 +4,7 @@ import java.util.stream.*;
 
 public class Hello {
   
+  private static boolean DEBUG = false;
   private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
   //========================================================
@@ -20,6 +21,24 @@ public class Hello {
     return Arrays.stream(reader.readLine().split(" "))
       .mapToInt(Integer::parseInt)
       .toArray();
+  }
+
+  @SuppressWarnings("unused")
+  private static void print(int[] arr) {
+    if (!DEBUG) return;
+    System.out.println("");
+    System.out.println(Arrays.toString(arr));
+    System.out.println("");
+  }
+
+  @SuppressWarnings("unused")
+  private static void print(int[][] arr) {
+    if (!DEBUG) return;
+    System.out.println("");
+    for (int[] row : arr) {
+      System.out.println(Arrays.toString(row));
+    }
+    System.out.println("");
   }
 
   //========================================================
