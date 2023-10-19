@@ -1278,11 +1278,13 @@ algo_owls_fetch_command() {
   rm $target_file
 
   if [[ -n ${args[--in-ext]} ]]; then
-      if [[ -n ${args[--map-in]} || ${args[--in-ext]} != ${ini[options.in_ext]} ]]; then
+      if [[ -n ${args[--map-in]} || ${args[--in-ext]} != ${ini[settings.in_ext]} ]]; then
           file_ext="$(dot_file_ext ${args[--in-ext]})"
 
           for in_file in $(find $target_dir -name "*$file_ext"); do
-              out_ext="${ini[options.in_ext]}"
+              in_file="${in_file/\/\///}"
+
+              out_ext="${ini[settings.in_ext]}"
               if [[ -n ${args[--map-in]} ]]; then
                   out_ext="${args[--map-in]}"
               fi
@@ -1297,11 +1299,13 @@ algo_owls_fetch_command() {
   fi
 
   if [[ -n ${args[--ans-ext]} ]]; then
-      if [[ -n ${args[--map-ans]} || ${args[--ans-ext]} != ${ini[options.ans_ext]} ]]; then
+      if [[ -n ${args[--map-ans]} || ${args[--ans-ext]} != ${ini[settings.ans_ext]} ]]; then
           file_ext="$(dot_file_ext ${args[--ans-ext]})"
 
           for ans_file in $(find $target_dir -name "*$file_ext"); do
-              out_ext="${ini[options.ans_ext]}"
+              ans_file="${ans_file/\/\///}"
+
+              out_ext="${ini[settings.ans_ext]}"
               if [[ -n ${args[--map-ans]} ]]; then
                   out_ext="${args[--map-ans]}"
               fi
