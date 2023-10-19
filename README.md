@@ -18,64 +18,38 @@ In addition, the source files for the algo owls CLI are included in every branch
 ### C
 For the C branch: `git checkout cfault`
 
-For the C solutions branch: `git checkout cfault-solutions`
-
 ### C++
 For the C++ branch: `git checkout cmypp`
-
-For the C++ solutions branch: `git checkout cmypp-solutions`
 
 ### C#
 For the C# branch: `git checkout dflat`
 
-For the C# solutions branch: `git checkout dflag-solutions`
-
 ### Haskell
 For the Haskell branch: `git checkout hadkell`
-
-For the Haskell solutions branch: `git checkout hadkell-solutions`
 
 ### Go
 For the Go branch: `git checkout gokartz`
 
-For the Go solutions branch: `git checkout gokartz-solutions`
-
 ### Java
 For the Java branch: `git checkout hotjava`
-
-For the Java solutions branch: `git checkout hotjava-solutions`
 
 ### Julia
 For the Julia branch: `git checkout roberts`
 
-For the Julia solutions branch: `git checkout roberts-solutions`
-
 ### Lean
 For the Lean branch: `git checkout leanonme`
-
-For the Lean solutions branch: `git checkout leanonme-solutions`
 
 ### OCaml
 For the OCaml branch: `git checkout humpday`
 
-For the OCaml solutions branch: `git checkout humpday-solutions`
-
 ### Python
 For the Python branch: `git checkout pyday`
-
-For the Python solutions branch: `git checkout pyday-solutions`
 
 ### Rust
 For the Rust branch: `git checkout rusteze`
 
-For the Rust solutions branch: `git checkout rusteze-solutions`
-
 ### TypeScript
 For the TypeScript branch: `git checkout scriptdaddy`
 
-For the TypeScript solutions branch: `git checkout scriptdaddy-solutions`
-
 ### Zig
 For the Zig branch: `git checkout ziggywithit`
-
-For the Zig solutions branch: `git checkout ziggywithit-solutions`
