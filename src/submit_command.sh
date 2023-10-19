@@ -32,7 +32,7 @@ if [[ -n ${args[--message]} ]]; then
 fi
 
 echo "git commit -m \"$commit_message\""
-git commit -m "\"$commit_message\""
+git commit -m "$commit_message"
 
 branch="${ini[git.branch]}"
 if [[ -n ${args[--branch]} ]]; then
