@@ -5,6 +5,6 @@ dot_file_ext() {
         file_ext=".$file_ext"
     fi
 
-    echo $file_ext
+    echo "$file_ext"
     return
 }

@@ -1,8 +1,13 @@
 ini_load .algo_owls.ini
 
-file_ext="$(handle_file_ext)"
+solutions_dir="$(fmt_dir ${ini[options.solutions_dir]})"
 
-solution_file="${ini[options.solutions_dir]}/${args[solution]}"
+solution_file="${args[solution]}"
+if [[ $solution_file != $solutions_dir* ]]; then
+    solution_file="$solutions_dir$solution_file"
+fi
+
+file_ext="$(handle_file_ext)"
 if [[ -n $file_ext ]]; then
     solution_file="$solution_file$file_ext"
 fi

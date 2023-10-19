@@ -958,7 +958,23 @@ dot_file_ext() {
         file_ext=".$file_ext"
     fi
 
-    echo $file_ext
+    echo "$file_ext"
+    return
+}
+
+# src/lib/fmt_dir.sh
+fmt_dir() {
+    target_dir="$1"
+
+    if [[ ${target_dir:0:2} == "./" ]]; then
+        target_dir="${target_dir:2}"
+    fi
+
+    if [[ ${target_dir: -1} != "/" ]]; then
+        target_dir="$target_dir/"
+    fi
+
+    echo "$target_dir"
     return
 }
 
@@ -1230,7 +1246,7 @@ algo_owls_fetch_command() {
   fi
 
   data_ext="${data_file##*.}"
-  target_file="${ini[options.tests_dir]}/$solution.$data_ext"
+  target_file="$(fmt_dir ${ini[options.tests_dir]})$solution.$data_ext"
 
   echo "curl $data_file --output $target_file"
   curl $data_file --output $target_file
@@ -1239,7 +1255,7 @@ algo_owls_fetch_command() {
       exit 0
   fi
 
-  target_dir="${ini[options.tests_dir]}/$solution/"
+  target_dir="$(fmt_dir ${ini[options.tests_dir]})$solution/"
 
   if [[ $data_ext == "zip" ]]; then
       mkdir -p $target_dir
@@ -1347,9 +1363,14 @@ algo_owls_init_command() {
   # src/init_command.sh
   ini_load .algo_owls.ini
 
-  file_ext="$(handle_file_ext)"
+  solutions_dir="$(fmt_dir ${ini[options.solutions_dir]})"
 
-  solution_file="${ini[options.solutions_dir]}/${args[solution]}"
+  solution_file="${args[solution]}"
+  if [[ $solution_file != $solutions_dir* ]]; then
+      solution_file="$solutions_dir$solution_file"
+  fi
+
+  file_ext="$(handle_file_ext)"
   if [[ -n $file_ext ]]; then
       solution_file="$solution_file$file_ext"
   fi
@@ -1412,9 +1433,9 @@ algo_owls_quest_command() {
   target_dir="$(find ${ini[options.tests_dir]} -type d -name $target_name)"
 
   if [[ -z $target_dir ]]; then
-      target_dir="${ini[options.tests_dir]}/**/$target_name/"
+      target_dir="$(fmt_dir ${ini[options.tests_dir]})**/$target_name/"
       echo "algo_owls: $target_dir: No such directory" 1>&2
-      target_dir="${ini[options.tests_dir]}/$target_name"
+      target_dir="$(fmt_dir ${ini[options.tests_dir]})$target_name"
       echo "Try using: mkdir -p $target_dir" 1>&2
       exit 1
   fi
@@ -1621,20 +1642,20 @@ algo_owls_wipe_command() {
 
   if [[ -z ${args[--tests]} || ${args[--tests]} -eq 0 ]]; then
       if [[ $(ls ${ini[options.target_dir]}) ]]; then
-          echo "rm -r ${ini[options.target_dir]}/*"
-          rm -r ${ini[options.target_dir]}/*
+          echo "rm -r $(fmt_dir ${ini[options.target_dir]})*"
+          rm -r $(fmt_dir ${ini[options.target_dir]})*
       fi
   fi
 
   if [[ -n ${args[--tests]} && ${args[--tests]} -eq 1 ]]; then
       if [[ $(ls ${ini[options.tests_dir]}) ]]; then
-          echo "rm -r ${ini[options.tests_dir]}/*"
-          rm -r ${ini[options.tests_dir]}/*
+          echo "rm -r $(fmt_dir ${ini[options.tests_dir]})*"
+          rm -r $(fmt_dir ${ini[options.tests_dir]})*
       fi
   elif [[ -n ${args[--all]} && ${args[--all]} -eq 1 ]]; then
       if [[ $(ls ${ini[options.tests_dir]}) ]]; then
-          echo "rm -r ${ini[options.tests_dir]}/*"
-          rm -r ${ini[options.tests_dir]}/*
+          echo "rm -r $(fmt_dir ${ini[options.tests_dir]})*"
+          rm -r $(fmt_dir ${ini[options.tests_dir]})*
       fi
   fi
 
