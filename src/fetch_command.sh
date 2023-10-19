@@ -15,7 +15,7 @@ if [[ -z $data_file ]]; then
 fi
 
 data_ext="${data_file##*.}"
-target_file="${ini[options.tests_dir]}/$solution.$data_ext"
+target_file="$(fmt_dir ${ini[options.tests_dir]})$solution.$data_ext"
 
 echo "curl $data_file --output $target_file"
 curl $data_file --output $target_file
@@ -24,7 +24,7 @@ if [[ -n ${args[--no_unzip]} && ${args[--no_unzip]} -eq 1 ]]; then
     exit 0
 fi
 
-target_dir="${ini[options.tests_dir]}/$solution/"
+target_dir="$(fmt_dir ${ini[options.tests_dir]})$solution/"
 
 if [[ $data_ext == "zip" ]]; then
     mkdir -p $target_dir

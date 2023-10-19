@@ -12,9 +12,9 @@ target_name="$(to_snake_case ${args[solution]})"
 target_dir="$(find ${ini[options.tests_dir]} -type d -name $target_name)"
 
 if [[ -z $target_dir ]]; then
-    target_dir="${ini[options.tests_dir]}/**/$target_name/"
+    target_dir="$(fmt_dir ${ini[options.tests_dir]})**/$target_name/"
     echo "algo_owls: $target_dir: No such directory" 1>&2
-    target_dir="${ini[options.tests_dir]}/$target_name"
+    target_dir="$(fmt_dir ${ini[options.tests_dir]})$target_name"
     echo "Try using: mkdir -p $target_dir" 1>&2
     exit 1
 fi
