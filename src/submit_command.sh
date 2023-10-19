@@ -15,7 +15,7 @@ if [[ -z $target_file ]]; then
     exit 1
 fi
 
-if [[ -z ${args[--no_fmt]} || ${args[--no_fmt]} -eq 0 ]]; then
+if [[ -z ${args[--no-fmt]} || ${args[--no-fmt]} -eq 0 ]]; then
     if [[ ${ini[settings.auto_fmt]} == true ]]; then
         ./algo_owls fmt ${args[solution]}
     elif [[ -n ${args[--fmt]} && ${args[--fmt]} -eq 1 ]]; then

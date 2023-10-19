@@ -20,7 +20,7 @@ target_file="$(fmt_dir ${ini[options.tests_dir]})$solution.$data_ext"
 echo "curl $data_file --output $target_file"
 curl $data_file --output $target_file
 
-if [[ -n ${args[--no_unzip]} && ${args[--no_unzip]} -eq 1 ]]; then
+if [[ -n ${args[--no-unzip]} && ${args[--no-unzip]} -eq 1 ]]; then
     exit 0
 fi
 
@@ -39,14 +39,14 @@ fi
 echo "rm $target_file"
 rm $target_file
 
-if [[ -n ${args[--in_ext]} ]]; then
-    if [[ -n ${args[--map_in]} || ${args[--in_ext]} != ${ini[options.in_ext]} ]]; then
-        file_ext="$(dot_file_ext ${args[--in_ext]})"
+if [[ -n ${args[--in-ext]} ]]; then
+    if [[ -n ${args[--map-in]} || ${args[--in-ext]} != ${ini[options.in_ext]} ]]; then
+        file_ext="$(dot_file_ext ${args[--in-ext]})"
 
         for in_file in $(find $target_dir -name "*$file_ext"); do
             out_ext="${ini[options.in_ext]}"
-            if [[ -n ${args[--map_in]} ]]; then
-                out_ext="${args[--map_in]}"
+            if [[ -n ${args[--map-in]} ]]; then
+                out_ext="${args[--map-in]}"
             fi
             out_ext="$(dot_file_ext $out_ext)"
 
@@ -58,14 +58,14 @@ if [[ -n ${args[--in_ext]} ]]; then
     fi
 fi
 
-if [[ -n ${args[--ans_ext]} ]]; then
-    if [[ -n ${args[--map_ans]} || ${args[--ans_ext]} != ${ini[options.ans_ext]} ]]; then
-        file_ext="$(dot_file_ext ${args[--ans_ext]})"
+if [[ -n ${args[--ans-ext]} ]]; then
+    if [[ -n ${args[--map-ans]} || ${args[--ans-ext]} != ${ini[options.ans_ext]} ]]; then
+        file_ext="$(dot_file_ext ${args[--ans-ext]})"
 
         for ans_file in $(find $target_dir -name "*$file_ext"); do
             out_ext="${ini[options.ans_ext]}"
-            if [[ -n ${args[--map_ans]} ]]; then
-                out_ext="${args[--map_ans]}"
+            if [[ -n ${args[--map-ans]} ]]; then
+                out_ext="${args[--map-ans]}"
             fi
             out_ext="$(dot_file_ext $out_ext)"
 

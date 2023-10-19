@@ -1,6 +1,6 @@
 name: algo_owls
 help: Use to create, execute, and test solutions to competitive programming problems
-version: 0.2.0
+version: 0.9.0
 
 commands:
 - name: build
@@ -13,19 +13,19 @@ commands:
     help: The name of the target solution in the 'options.solutions_dir' directory
 
   flags:
-  - long: --build_cmd
+  - long: --build-cmd
     short: -x
     arg: command
     help: The build command to compile the program 
-  - long: --build_flags
+  - long: --build-flags
     short: -I
     arg: flags
     help: The compiler flags to use when compiling the program
-  - long: --build_out
+  - long: --build-out
     short: -o
     arg: flag
     help: The compiler flag to specify the output directory
-  - long: --build_sources
+  - long: --build-sources
     short: -s
     arg: flag
     help: The compiler flag to include sources in the build
@@ -33,19 +33,19 @@ commands:
     short: -e
     arg: extension
     help: The file extension to use for the solution file
-    conflicts: [--no_ext]
+    conflicts: [--no-ext]
   - long: --local
     short: -l
     help: Use target solution's local directory in build source
-  - long: --no_ext
+  - long: --no-ext
     short: -n
     help: Ignore file extensions when compiling the program
     conflicts: [--ext]
 
   examples:
   - algo_owls build fadingwind
-  - algo_owls build streetsahead --ext .java --build_cmd javac --build_out "-d options.target_dir" --build_sources "-cp options.solutions_dir"
-  - algo_owls build restaurantopening --ext .java --build_cmd javac --build_out "-d options.target_dir" --build_sources "-cp ..." --local
+  - algo_owls build streetsahead --ext .java --build-cmd javac --build-out "-d options.target_dir" --build-sources "-cp options.solutions_dir"
+  - algo_owls build restaurantopening --ext .java --build-cmd javac --build-out "-d options.target_dir" --build-sources "-cp ..." --local
 
 - name: config
   alias: c
@@ -84,13 +84,13 @@ commands:
     help: Show entire config file
 
     flags:
-    - long: --include_tests
+    - long: --include-tests
       short: -t
       help: Show links for known test cases
 
     examples:
     - algo_owls config list
-    - algo_owls config list --include_tests
+    - algo_owls config list --include-tests
 
   - name: set
     alias: s
@@ -120,25 +120,30 @@ commands:
     short: -s
     arg: address
     help: The address of the input test cases and provided answers
-  - long: --ans_ext
+  - long: --ans-ext
     short: -a
     arg: extension
     help: The file extension of the provided answers
-  - long: --in_ext
+  - long: --in-ext
     short: -i
     arg: extension
     help: The file extension of the input test cases
-  - long: --map_ans
+  - long: --map-ans
     short: -A
     arg: extension
     help: The desired file extension of the provided answers
-  - long: --map_in
+  - long: --map-in
     short: -I
     arg: extension
     help: The desired file extension of the input test cases
-  - long: --no_unzip
+  - long: --no-unzip
     short: -n
     help: Download data into 'options.tests_dir' directory without unzipping
+
+  examples:
+  - algo_owls fetch FadingWind
+  - algo_owls fetch streets_ahead
+  - algo_owls fetch color_tubes --no-unzip
 
 - name: fmt
   alias: f
@@ -150,11 +155,11 @@ commands:
     help: The name of the target solution in the 'options.solutions_dir' directory
 
   flags:
-  - long: --fmt_cmd
+  - long: --fmt-cmd
     short: -x
     arg: command
     help: The command to format the target solution 
-  - long: --fmt_flags
+  - long: --fmt-flags
     short: -I
     arg: flags
     help: The flags to use when formatting the target solution
@@ -162,15 +167,15 @@ commands:
     short: -e
     arg: extension
     help: The file extension to use for the solution file
-    conflicts: [--no_ext]
-  - long: --no_ext
+    conflicts: [--no-ext]
+  - long: --no-ext
     short: -n
     help: Ignore file extensions when formatting the program
     conflicts: [--ext]
 
   examples:
   - algo_owls fmt fadingwind
-  - algo_owls fmt streetsahead --ext .java --fmt_cmd "java -jar lib/google-java-format.jar" --fmt_flags "--replace --skip-javadoc-formatting" 
+  - algo_owls fmt streetsahead --ext .java --fmt-cmd "java -jar lib/google-java-format.jar" --fmt-flags "--replace --skip-javadoc-formatting" 
 
 - name: init
   alias: i
@@ -186,8 +191,8 @@ commands:
     short: -e
     arg: extension
     help: The file extension to use for the solution and template files
-    conflicts: [--no_ext]
-  - long: --no_ext
+    conflicts: [--no-ext]
+  - long: --no-ext
     short: -n
     help: Ignore file extensions when initializing the solution file
     conflicts: [--ext]
@@ -222,28 +227,28 @@ commands:
   flags:
   - long: --all
     help: Run all tests regardless of failures
-  - long: --ans_ext
+  - long: --ans-ext
     short: -a
     arg: extension
     help: The file extension of the provided answers
   - long: --build
     short: -b
     help: Execute the default build command prior to questing the target program
-    conflicts: [--no_build]
+    conflicts: [--no-build]
   - long: --ext
     short: -e
     arg: extension
     help: The file extension to use for the target solution
-    conflicts: [--no_ext]
-  - long: --in_ext
+    conflicts: [--no-ext]
+  - long: --in-ext
     short: -i
     arg: extension
     help: The file extension of the input test cases
-  - long: --no_build
+  - long: --no-build
     short: -d
     help: Ignore the default build command prior to questing the target program
     conflicts: [--build]
-  - long: --no_ext
+  - long: --no-ext
     short: -n
     help: Ignore extensions when questing the target solution
     conflicts: [--ext]
@@ -251,7 +256,7 @@ commands:
   examples:
   - algo_owls quest fadingwind
   - algo_owls quest streetsahead -ext .class
-  - algo_owls quest restaurantopening --in_ext .in --ans_ext .ans
+  - algo_owls quest restaurantopening --in-ext .in --ans-ext .ans
   - algo_owls quest huntthewumpus --all
 
 - name: run
@@ -267,52 +272,52 @@ commands:
   - long: --build
     short: -b
     help: Execute the default build command prior to running the target program
-    conflicts: [--no_build]
+    conflicts: [--no-build]
   - long: --ext
     short: -e
     arg: extension
     help: The file extension to use for the target program
-    conflicts: [--no_ext]
+    conflicts: [--no-ext]
   - long: --local
     short: -l
     help: Use the target program's local directory from 'options.target_dir' in the runtime source
-    conflicts: [--use_source]
-  - long: --name_only
+    conflicts: [--use-source]
+  - long: --name-only
     short: -N
     help: Use only the target program's name when executing the program
-  - long: --no_build
+  - long: --no-build
     short: -d
     help: Ignore the default build command prior to running the target program
     conflicts: [--build]
-  - long: --no_ext
+  - long: --no-ext
     short: -n
     help: Ignore extensions when executing the target program
     conflicts: [--ext]
   - long: --quiet
     short: -q
     help: Suppress all output from algo_owls when executing the target program
-  - long: --run_cmd
+  - long: --run-cmd
     short: -x
     arg: command
     help: The run command to use to execute the program
-  - long: --run_flags
+  - long: --run-flags
     short: -I
     arg: flags
     help: The runtime flags to use when executing the program
-  - long: --run_sources
+  - long: --run-sources
     short: -s
     arg: flag
     help: The runtime flag to include sources in the execution
-  - long: --use_source
+  - long: --use-source
     short: -u
     help: Use the target program's local directory from 'options.solutions_dir' in the runtime source
     conflicts: [--local]
 
   examples:
   - algo_owls run fadingwind
-  - algo_owls run streetsahead --ext .class --run_cmd java --run_flags "-XX:+UseSerialGC" --run_sources "-cp options.target_dir"
-  - algo_owls run restaurantopening --ext .class --run_cmd java --run_flags "-XX:+UseSerialGC" --run_sources "-cp ..." --local
-  - algo_owls run huntthewumpus --ext .py --run_cmd python3 --use_source
+  - algo_owls run streetsahead --ext .class --run-cmd java --run-flags "-XX:+UseSerialGC" --run-sources "-cp options.target_dir"
+  - algo_owls run restaurantopening --ext .class --run-cmd java --run-flags "-XX:+UseSerialGC" --run-sources "-cp ..." --local
+  - algo_owls run huntthewumpus --ext .py --run-cmd python3 --use-source
   - algo_owls run colortubes --quiet
 
 - name: submit
@@ -333,20 +338,20 @@ commands:
     short: -e
     arg: extension
     help: The file extension to use for the solution
-    conflicts: [--no_ext]
+    conflicts: [--no-ext]
   - long: --fmt
     short: -p
     help: Apply default formatting to target solution before committing
-    conflicts: [--no_fmt]
+    conflicts: [--no-fmt]
   - long: --message
     short: -m
     arg: message
     help: Provide custom commit message
-  - long: --no_ext
+  - long: --no-ext
     short: -n
     help: Ignore extensions when executing the target solution
     conflicts: [--ext]
-  - long: --no_fmt
+  - long: --no-fmt
     short: -q
     help: Ignore any formatting of target solution before committing
     conflicts: [--fmt]

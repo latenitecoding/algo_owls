@@ -16,12 +16,12 @@ if [[ -z $target_file ]]; then
 fi
 
 build_cmd="${ini[build.cmd]}"
-if [[ -n ${args[--build_cmd]} ]]; then
-    build_cmd="${args[--build_cmd]}"
+if [[ -n ${args[--build-cmd]} ]]; then
+    build_cmd="${args[--build-cmd]}"
 fi
 
-if [[ -n ${args[--build_flags]} ]]; then
-    build_cmd="$build_cmd ${args[--build_flags]}"
+if [[ -n ${args[--build-flags]} ]]; then
+    build_cmd="$build_cmd ${args[--build-flags]}"
 else
     for key in "${!ini[@]}"; do
         if [[ $key == build_flags.* ]]; then
@@ -30,12 +30,12 @@ else
     done
 fi
 
-if [[ -n ${args[--build_out]} ]]; then
-    build_cmd="$build_cmd ${args[--build_out]}"
+if [[ -n ${args[--build-out]} ]]; then
+    build_cmd="$build_cmd ${args[--build-out]}"
 fi
 
-if [[ -n ${args[--build_sources]} ]]; then
-    build_sources="${args[--build_sources]}"
+if [[ -n ${args[--build-sources]} ]]; then
+    build_sources="${args[--build-sources]}"
     if [[ -n ${args[--local]} && ${args[--local]} -eq 1 ]]; then
         target_dir="${target_file%/*}"
         build_sources="${build_sources//.../$target_dir}"
@@ -49,7 +49,7 @@ for key in "${!ini[@]}"; do
     fi
 done
 
-if [[ -z ${args[--build_sources]} && ${ini[build.local]} == true ]]; then
+if [[ -z ${args[--build-sources]} && ${ini[build.local]} == true ]]; then
     target_dir="${target_file%/*}"
     build_cmd="${build_cmd//.../$target_dir}"
 fi
