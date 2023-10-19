@@ -45,6 +45,11 @@ public class Hello {
   }
 
   @SuppressWarnings("unused")
+  private static String nextLine() throws IOException {
+    return reader.readLine();
+  }
+
+  @SuppressWarnings("unused")
   private static Tuple nextTuple() throws IOException {
     return new Tuple(nextArray());
   }
