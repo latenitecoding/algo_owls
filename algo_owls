@@ -86,22 +86,22 @@ algo_owls_build_usage() {
 
     # :command.usage_flags
     # :flag.usage
-    printf "  %s\n" "--build_cmd, -x COMMAND"
+    printf "  %s\n" "--build-cmd, -x COMMAND"
     printf "    The build command to compile the program\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--build_flags, -I FLAGS"
+    printf "  %s\n" "--build-flags, -I FLAGS"
     printf "    The compiler flags to use when compiling the program\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--build_out, -o FLAG"
+    printf "  %s\n" "--build-out, -o FLAG"
     printf "    The compiler flag to specify the output directory\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--build_sources, -s FLAG"
+    printf "  %s\n" "--build-sources, -s FLAG"
     printf "    The compiler flag to include sources in the build\n"
     echo
 
@@ -116,7 +116,7 @@ algo_owls_build_usage() {
     echo
 
     # :flag.usage
-    printf "  %s\n" "--no_ext, -n"
+    printf "  %s\n" "--no-ext, -n"
     printf "    Ignore file extensions when compiling the program\n"
     echo
 
@@ -136,8 +136,8 @@ algo_owls_build_usage() {
     # :command.usage_examples
     printf "%s\n" "Examples:"
     printf "  algo_owls build fadingwind\n"
-    printf "  algo_owls build streetsahead --ext .java --build_cmd javac --build_out \"-d\n  options.target_dir\" --build_sources \"-cp options.solutions_dir\"\n"
-    printf "  algo_owls build restaurantopening --ext .java --build_cmd javac --build_out\n  \"-d options.target_dir\" --build_sources \"-cp ...\" --local\n"
+    printf "  algo_owls build streetsahead --ext .java --build-cmd javac --build-out \"-d\n  options.target_dir\" --build-sources \"-cp options.solutions_dir\"\n"
+    printf "  algo_owls build restaurantopening --ext .java --build-cmd javac --build-out\n  \"-d options.target_dir\" --build-sources \"-cp ...\" --local\n"
     echo
 
   fi
@@ -299,7 +299,7 @@ algo_owls_config_list_usage() {
 
     # :command.usage_flags
     # :flag.usage
-    printf "  %s\n" "--include_tests, -t"
+    printf "  %s\n" "--include-tests, -t"
     printf "    Show links for known test cases\n"
     echo
 
@@ -311,7 +311,7 @@ algo_owls_config_list_usage() {
     # :command.usage_examples
     printf "%s\n" "Examples:"
     printf "  algo_owls config list\n"
-    printf "  algo_owls config list --include_tests\n"
+    printf "  algo_owls config list --include-tests\n"
     echo
 
   fi
@@ -394,27 +394,27 @@ algo_owls_fetch_usage() {
     echo
 
     # :flag.usage
-    printf "  %s\n" "--ans_ext, -a EXTENSION"
+    printf "  %s\n" "--ans-ext, -a EXTENSION"
     printf "    The file extension of the provided answers\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--in_ext, -i EXTENSION"
+    printf "  %s\n" "--in-ext, -i EXTENSION"
     printf "    The file extension of the input test cases\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--map_ans, -A EXTENSION"
+    printf "  %s\n" "--map-ans, -A EXTENSION"
     printf "    The desired file extension of the provided answers\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--map_in, -I EXTENSION"
+    printf "  %s\n" "--map-in, -I EXTENSION"
     printf "    The desired file extension of the input test cases\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--no_unzip, -n"
+    printf "  %s\n" "--no-unzip, -n"
     printf "    Download data into 'options.tests_dir' directory without unzipping\n"
     echo
 
@@ -429,6 +429,13 @@ algo_owls_fetch_usage() {
     # :argument.usage
     printf "  %s\n" "SOLUTION"
     printf "    The name of the target solution in the 'options.solutions_dir' directory\n"
+    echo
+
+    # :command.usage_examples
+    printf "%s\n" "Examples:"
+    printf "  algo_owls fetch FadingWind\n"
+    printf "  algo_owls fetch streets_ahead\n"
+    printf "  algo_owls fetch color_tubes --no-unzip\n"
     echo
 
   fi
@@ -460,12 +467,12 @@ algo_owls_fmt_usage() {
 
     # :command.usage_flags
     # :flag.usage
-    printf "  %s\n" "--fmt_cmd, -x COMMAND"
+    printf "  %s\n" "--fmt-cmd, -x COMMAND"
     printf "    The command to format the target solution\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--fmt_flags, -I FLAGS"
+    printf "  %s\n" "--fmt-flags, -I FLAGS"
     printf "    The flags to use when formatting the target solution\n"
     echo
 
@@ -475,7 +482,7 @@ algo_owls_fmt_usage() {
     echo
 
     # :flag.usage
-    printf "  %s\n" "--no_ext, -n"
+    printf "  %s\n" "--no-ext, -n"
     printf "    Ignore file extensions when formatting the program\n"
     echo
 
@@ -495,7 +502,7 @@ algo_owls_fmt_usage() {
     # :command.usage_examples
     printf "%s\n" "Examples:"
     printf "  algo_owls fmt fadingwind\n"
-    printf "  algo_owls fmt streetsahead --ext .java --fmt_cmd \"java -jar\n  lib/google-java-format.jar\" --fmt_flags \"--replace --skip-javadoc-formatting\"\n"
+    printf "  algo_owls fmt streetsahead --ext .java --fmt-cmd \"java -jar\n  lib/google-java-format.jar\" --fmt-flags \"--replace --skip-javadoc-formatting\"\n"
     echo
 
   fi
@@ -532,7 +539,7 @@ algo_owls_init_usage() {
     echo
 
     # :flag.usage
-    printf "  %s\n" "--no_ext, -n"
+    printf "  %s\n" "--no-ext, -n"
     printf "    Ignore file extensions when initializing the solution file\n"
     echo
 
@@ -606,7 +613,7 @@ algo_owls_quest_usage() {
     echo
 
     # :flag.usage
-    printf "  %s\n" "--ans_ext, -a EXTENSION"
+    printf "  %s\n" "--ans-ext, -a EXTENSION"
     printf "    The file extension of the provided answers\n"
     echo
 
@@ -621,17 +628,17 @@ algo_owls_quest_usage() {
     echo
 
     # :flag.usage
-    printf "  %s\n" "--in_ext, -i EXTENSION"
+    printf "  %s\n" "--in-ext, -i EXTENSION"
     printf "    The file extension of the input test cases\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--no_build, -d"
+    printf "  %s\n" "--no-build, -d"
     printf "    Ignore the default build command prior to questing the target program\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--no_ext, -n"
+    printf "  %s\n" "--no-ext, -n"
     printf "    Ignore extensions when questing the target solution\n"
     echo
 
@@ -652,7 +659,7 @@ algo_owls_quest_usage() {
     printf "%s\n" "Examples:"
     printf "  algo_owls quest fadingwind\n"
     printf "  algo_owls quest streetsahead -ext .class\n"
-    printf "  algo_owls quest restaurantopening --in_ext .in --ans_ext .ans\n"
+    printf "  algo_owls quest restaurantopening --in-ext .in --ans-ext .ans\n"
     printf "  algo_owls quest huntthewumpus --all\n"
     echo
 
@@ -700,17 +707,17 @@ algo_owls_run_usage() {
     echo
 
     # :flag.usage
-    printf "  %s\n" "--name_only, -N"
+    printf "  %s\n" "--name-only, -N"
     printf "    Use only the target program's name when executing the program\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--no_build, -d"
+    printf "  %s\n" "--no-build, -d"
     printf "    Ignore the default build command prior to running the target program\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--no_ext, -n"
+    printf "  %s\n" "--no-ext, -n"
     printf "    Ignore extensions when executing the target program\n"
     echo
 
@@ -720,22 +727,22 @@ algo_owls_run_usage() {
     echo
 
     # :flag.usage
-    printf "  %s\n" "--run_cmd, -x COMMAND"
+    printf "  %s\n" "--run-cmd, -x COMMAND"
     printf "    The run command to use to execute the program\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--run_flags, -I FLAGS"
+    printf "  %s\n" "--run-flags, -I FLAGS"
     printf "    The runtime flags to use when executing the program\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--run_sources, -s FLAG"
+    printf "  %s\n" "--run-sources, -s FLAG"
     printf "    The runtime flag to include sources in the execution\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--use_source, -u"
+    printf "  %s\n" "--use-source, -u"
     printf "    Use the target program's local directory from 'options.solutions_dir' in the\n    runtime source\n"
     echo
 
@@ -755,9 +762,9 @@ algo_owls_run_usage() {
     # :command.usage_examples
     printf "%s\n" "Examples:"
     printf "  algo_owls run fadingwind\n"
-    printf "  algo_owls run streetsahead --ext .class --run_cmd java --run_flags\n  \"-XX:+UseSerialGC\" --run_sources \"-cp options.target_dir\"\n"
-    printf "  algo_owls run restaurantopening --ext .class --run_cmd java --run_flags\n  \"-XX:+UseSerialGC\" --run_sources \"-cp ...\" --local\n"
-    printf "  algo_owls run huntthewumpus --ext .py --run_cmd python3 --use_source\n"
+    printf "  algo_owls run streetsahead --ext .class --run-cmd java --run-flags\n  \"-XX:+UseSerialGC\" --run-sources \"-cp options.target_dir\"\n"
+    printf "  algo_owls run restaurantopening --ext .class --run-cmd java --run-flags\n  \"-XX:+UseSerialGC\" --run-sources \"-cp ...\" --local\n"
+    printf "  algo_owls run huntthewumpus --ext .py --run-cmd python3 --use-source\n"
     printf "  algo_owls run colortubes --quiet\n"
     echo
 
@@ -810,12 +817,12 @@ algo_owls_submit_usage() {
     echo
 
     # :flag.usage
-    printf "  %s\n" "--no_ext, -n"
+    printf "  %s\n" "--no-ext, -n"
     printf "    Ignore extensions when executing the target solution\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--no_fmt, -q"
+    printf "  %s\n" "--no-fmt, -q"
     printf "    Ignore any formatting of target solution before committing\n"
     echo
 
@@ -983,7 +990,7 @@ handle_file_ext() {
     local settings_ext="${ini[settings.file_ext]}"
     local settings_no_ext="${ini[settings.no_ext]}"
     local args_ext="${args[--ext]}"
-    local args_no_ext="${args[--no_ext]}"
+    local args_no_ext="${args[--no-ext]}"
 
     if [[ -n $args_no_ext && $args_no_ext -eq 1 ]]; then
         echo ""
@@ -1107,12 +1114,12 @@ algo_owls_build_command() {
   fi
 
   build_cmd="${ini[build.cmd]}"
-  if [[ -n ${args[--build_cmd]} ]]; then
-      build_cmd="${args[--build_cmd]}"
+  if [[ -n ${args[--build-cmd]} ]]; then
+      build_cmd="${args[--build-cmd]}"
   fi
 
-  if [[ -n ${args[--build_flags]} ]]; then
-      build_cmd="$build_cmd ${args[--build_flags]}"
+  if [[ -n ${args[--build-flags]} ]]; then
+      build_cmd="$build_cmd ${args[--build-flags]}"
   else
       for key in "${!ini[@]}"; do
           if [[ $key == build_flags.* ]]; then
@@ -1121,12 +1128,12 @@ algo_owls_build_command() {
       done
   fi
 
-  if [[ -n ${args[--build_out]} ]]; then
-      build_cmd="$build_cmd ${args[--build_out]}"
+  if [[ -n ${args[--build-out]} ]]; then
+      build_cmd="$build_cmd ${args[--build-out]}"
   fi
 
-  if [[ -n ${args[--build_sources]} ]]; then
-      build_sources="${args[--build_sources]}"
+  if [[ -n ${args[--build-sources]} ]]; then
+      build_sources="${args[--build-sources]}"
       if [[ -n ${args[--local]} && ${args[--local]} -eq 1 ]]; then
           target_dir="${target_file%/*}"
           build_sources="${build_sources//.../$target_dir}"
@@ -1140,7 +1147,7 @@ algo_owls_build_command() {
       fi
   done
 
-  if [[ -z ${args[--build_sources]} && ${ini[build.local]} == true ]]; then
+  if [[ -z ${args[--build-sources]} && ${ini[build.local]} == true ]]; then
       target_dir="${target_file%/*}"
       build_cmd="${build_cmd//.../$target_dir}"
   fi
@@ -1194,7 +1201,7 @@ algo_owls_config_list_command() {
   ini_load .algo_owls.ini
 
   for key in $(ini_keys); do
-      if [[ -n ${args[--include_tests]} && ${args[--include_tests]} -eq 1 ]]; then
+      if [[ -n ${args[--include-tests]} && ${args[--include-tests]} -eq 1 ]]; then
           echo "$key=${ini[$key]}"
       elif [[ $key != tests.* ]]; then
           echo "$key=${ini[$key]}"
@@ -1251,7 +1258,7 @@ algo_owls_fetch_command() {
   echo "curl $data_file --output $target_file"
   curl $data_file --output $target_file
 
-  if [[ -n ${args[--no_unzip]} && ${args[--no_unzip]} -eq 1 ]]; then
+  if [[ -n ${args[--no-unzip]} && ${args[--no-unzip]} -eq 1 ]]; then
       exit 0
   fi
 
@@ -1270,14 +1277,14 @@ algo_owls_fetch_command() {
   echo "rm $target_file"
   rm $target_file
 
-  if [[ -n ${args[--in_ext]} ]]; then
-      if [[ -n ${args[--map_in]} || ${args[--in_ext]} != ${ini[options.in_ext]} ]]; then
-          file_ext="$(dot_file_ext ${args[--in_ext]})"
+  if [[ -n ${args[--in-ext]} ]]; then
+      if [[ -n ${args[--map-in]} || ${args[--in-ext]} != ${ini[options.in_ext]} ]]; then
+          file_ext="$(dot_file_ext ${args[--in-ext]})"
 
           for in_file in $(find $target_dir -name "*$file_ext"); do
               out_ext="${ini[options.in_ext]}"
-              if [[ -n ${args[--map_in]} ]]; then
-                  out_ext="${args[--map_in]}"
+              if [[ -n ${args[--map-in]} ]]; then
+                  out_ext="${args[--map-in]}"
               fi
               out_ext="$(dot_file_ext $out_ext)"
 
@@ -1289,14 +1296,14 @@ algo_owls_fetch_command() {
       fi
   fi
 
-  if [[ -n ${args[--ans_ext]} ]]; then
-      if [[ -n ${args[--map_ans]} || ${args[--ans_ext]} != ${ini[options.ans_ext]} ]]; then
-          file_ext="$(dot_file_ext ${args[--ans_ext]})"
+  if [[ -n ${args[--ans-ext]} ]]; then
+      if [[ -n ${args[--map-ans]} || ${args[--ans-ext]} != ${ini[options.ans_ext]} ]]; then
+          file_ext="$(dot_file_ext ${args[--ans-ext]})"
 
           for ans_file in $(find $target_dir -name "*$file_ext"); do
               out_ext="${ini[options.ans_ext]}"
-              if [[ -n ${args[--map_ans]} ]]; then
-                  out_ext="${args[--map_ans]}"
+              if [[ -n ${args[--map-ans]} ]]; then
+                  out_ext="${args[--map-ans]}"
               fi
               out_ext="$(dot_file_ext $out_ext)"
 
@@ -1331,12 +1338,12 @@ algo_owls_fmt_command() {
   fi
 
   fmt_cmd="${ini[fmt.cmd]}"
-  if [[ -n ${args[--fmt_cmd]} ]]; then
-      fmt_cmd="${args[--fmt_cmd]}"
+  if [[ -n ${args[--fmt-cmd]} ]]; then
+      fmt_cmd="${args[--fmt-cmd]}"
   fi
 
-  if [[ -n ${args[--fmt_flags]} ]]; then
-      fmt_cmd="$fmt_cmd ${args[--fmt_flags]}"
+  if [[ -n ${args[--fmt-flags]} ]]; then
+      fmt_cmd="$fmt_cmd ${args[--fmt-flags]}"
   else
       for key in "${!ini[@]}"; do
           if [[ $key == fmt_flags.* ]]; then
@@ -1421,7 +1428,7 @@ algo_owls_quest_command() {
   # src/quest_command.sh
   ini_load .algo_owls.ini
 
-  if [[ -z ${args[--no_build]} || ${args[--no_build]} -eq 0 ]]; then
+  if [[ -z ${args[--no-build]} || ${args[--no-build]} -eq 0 ]]; then
       if [[ ${ini[settings.auto_build]} == true ]]; then
           ./algo_owls build ${args[solution]}
       elif [[ -n ${args[--build]} && ${args[--build]} -eq 1 ]]; then
@@ -1442,22 +1449,22 @@ algo_owls_quest_command() {
 
   file_ext="$(handle_file_ext)"
 
-  run_cmd="./algo_owls run ${args[solution]} --quiet --no_build"
+  run_cmd="./algo_owls run ${args[solution]} --quiet --no-build"
   if [[ -n ${args[--ext]} ]]; then
       run_cmd="$run_cmd --ext ${args[--ext]}"
-  elif [[ -n ${args[--no_ext]} ]]; then
-      run_cmd="$run_cmd --no_ext"
+  elif [[ -n ${args[--no-ext]} ]]; then
+      run_cmd="$run_cmd --no-ext"
   fi
 
   in_ext="${ini[settings.in_ext]}"
-  if [[ -n ${args[--in_ext]} ]]; then
-      in_ext="${args[--in_ext]}"
+  if [[ -n ${args[--in-ext]} ]]; then
+      in_ext="${args[--in-ext]}"
   fi
   in_ext="$(dot_file_ext $in_ext)"
 
   ans_ext="${ini[settings.ans_ext]}"
-  if [[ -n ${args[--ans_ext]} ]]; then
-      ans_ext="${args[--ans_ext]}"
+  if [[ -n ${args[--ans-ext]} ]]; then
+      ans_ext="${args[--ans-ext]}"
   fi
   ans_ext="$(dot_file_ext $ans_ext)"
 
@@ -1490,7 +1497,7 @@ algo_owls_run_command() {
   # src/run_command.sh
   ini_load .algo_owls.ini
 
-  if [[ -z ${args[--no_build]} || ${args[--no_build]} -eq 0 ]]; then
+  if [[ -z ${args[--no-build]} || ${args[--no-build]} -eq 0 ]]; then
       if [[ ${ini[settings.auto_build]} == true ]]; then
           ./algo_owls build ${args[solution]}
       elif [[ -n ${args[--build]} && ${args[--build]} -eq 1 ]]; then
@@ -1503,7 +1510,7 @@ algo_owls_run_command() {
   solution_file="${args[solution]}"
   if [[ -n $file_ext && -n ${args[--ext]} ]]; then
       solution_file="$solution_file$file_ext"
-  elif [[ -z ${args[--no_ext]} || ${args[--no_ext]} -eq 0 ]]; then
+  elif [[ -z ${args[--no-ext]} || ${args[--no-ext]} -eq 0 ]]; then
       if [[ ${ini[run.file_ext]} != false ]]; then
           file_ext="$(dot_file_ext ${ini[run.file_ext]})"
       fi
@@ -1512,7 +1519,7 @@ algo_owls_run_command() {
       fi
   fi
 
-  if [[ -n ${args[--use_source]} && ${args[--use_source]} -eq 1 ]]; then
+  if [[ -n ${args[--use-source]} && ${args[--use-source]} -eq 1 ]]; then
       target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
   else
       target_file="$(find ${ini[options.target_dir]} -name $solution_file)"
@@ -1525,12 +1532,12 @@ algo_owls_run_command() {
   fi
 
   run_cmd="${ini[run.cmd]}"
-  if [[ -n ${args[--run_cmd]} ]]; then
-      run_cmd="${args[--run_cmd]}"
+  if [[ -n ${args[--run-cmd]} ]]; then
+      run_cmd="${args[--run-cmd]}"
   fi
 
-  if [[ -n ${args[--run_flags]} ]]; then
-      run_cmd="$run_cmd ${args[--run_flags]}"
+  if [[ -n ${args[--run-flags]} ]]; then
+      run_cmd="$run_cmd ${args[--run-flags]}"
   else
       for key in "${!ini[@]}"; do
           if [[ $key == run_flags.* ]]; then
@@ -1539,12 +1546,12 @@ algo_owls_run_command() {
       done
   fi
 
-  if [[ -n ${args[--run_sources]} ]]; then
-      run_sources="${args[--run_sources]}"
+  if [[ -n ${args[--run-sources]} ]]; then
+      run_sources="${args[--run-sources]}"
       if [[ -n ${args[--local]} && ${args[--local]} -eq 1 ]]; then
           target_dir="${target_file%/*}"
           run_sources="${run_sources//.../$target_dir}"
-      elif [[ -n ${args[--use_source]} && ${args[--use_source]} -eq 1 ]]; then
+      elif [[ -n ${args[--use-source]} && ${args[--use-source]} -eq 1 ]]; then
           target_dir="${target_file%/*}"
           run_sources="${run_sources//.../$target_dir}"
       fi
@@ -1565,7 +1572,7 @@ algo_owls_run_command() {
       run_cmd="${run_cmd//.../$target_dir}"
   fi
 
-  if [[ -n ${args[--name_only]} && ${args[--name_only]} -eq 1 ]]; then
+  if [[ -n ${args[--name-only]} && ${args[--name-only]} -eq 1 ]]; then
       target_file="${args[solution]}"
   elif [[ ${ini[run.name_only]} == true ]]; then
       target_file="${args[solution]}"
@@ -1601,7 +1608,7 @@ algo_owls_submit_command() {
       exit 1
   fi
 
-  if [[ -z ${args[--no_fmt]} || ${args[--no_fmt]} -eq 0 ]]; then
+  if [[ -z ${args[--no-fmt]} || ${args[--no-fmt]} -eq 0 ]]; then
       if [[ ${ini[settings.auto_fmt]} == true ]]; then
           ./algo_owls fmt ${args[solution]}
       elif [[ -n ${args[--fmt]} && ${args[--fmt]} -eq 1 ]]; then
@@ -1815,61 +1822,61 @@ algo_owls_build_parse_requirements() {
     key="$1"
     case "$key" in
       # :flag.case
-      --build_cmd | -x)
+      --build-cmd | -x)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--build_cmd']="$2"
+          args['--build-cmd']="$2"
           shift
           shift
         else
-          printf "%s\n" "--build_cmd requires an argument: --build_cmd, -x COMMAND" >&2
+          printf "%s\n" "--build-cmd requires an argument: --build-cmd, -x COMMAND" >&2
           exit 1
         fi
         ;;
 
       # :flag.case
-      --build_flags | -I)
+      --build-flags | -I)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--build_flags']="$2"
+          args['--build-flags']="$2"
           shift
           shift
         else
-          printf "%s\n" "--build_flags requires an argument: --build_flags, -I FLAGS" >&2
+          printf "%s\n" "--build-flags requires an argument: --build-flags, -I FLAGS" >&2
           exit 1
         fi
         ;;
 
       # :flag.case
-      --build_out | -o)
+      --build-out | -o)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--build_out']="$2"
+          args['--build-out']="$2"
           shift
           shift
         else
-          printf "%s\n" "--build_out requires an argument: --build_out, -o FLAG" >&2
+          printf "%s\n" "--build-out requires an argument: --build-out, -o FLAG" >&2
           exit 1
         fi
         ;;
 
       # :flag.case
-      --build_sources | -s)
+      --build-sources | -s)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--build_sources']="$2"
+          args['--build-sources']="$2"
           shift
           shift
         else
-          printf "%s\n" "--build_sources requires an argument: --build_sources, -s FLAG" >&2
+          printf "%s\n" "--build-sources requires an argument: --build-sources, -s FLAG" >&2
           exit 1
         fi
         ;;
@@ -1877,8 +1884,8 @@ algo_owls_build_parse_requirements() {
       # :flag.case
       --ext | -e)
         # :flag.conflicts
-        if [[ -n "${args['--no_ext']:-}" ]]; then
-          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_ext" >&2
+        if [[ -n "${args['--no-ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no-ext" >&2
           exit 1
         fi
 
@@ -1903,7 +1910,7 @@ algo_owls_build_parse_requirements() {
         ;;
 
       # :flag.case
-      --no_ext | -n)
+      --no-ext | -n)
         # :flag.conflicts
         if [[ -n "${args['--ext']:-}" ]]; then
           printf "conflicting options: %s cannot be used with %s\n" "$key" "--ext" >&2
@@ -1911,7 +1918,7 @@ algo_owls_build_parse_requirements() {
         fi
 
         # :flag.case_no_arg
-        args['--no_ext']=1
+        args['--no-ext']=1
         shift
         ;;
 
@@ -2171,10 +2178,10 @@ algo_owls_config_list_parse_requirements() {
     key="$1"
     case "$key" in
       # :flag.case
-      --include_tests | -t)
+      --include-tests | -t)
 
         # :flag.case_no_arg
-        args['--include_tests']=1
+        args['--include-tests']=1
         shift
         ;;
 
@@ -2293,70 +2300,70 @@ algo_owls_fetch_parse_requirements() {
         ;;
 
       # :flag.case
-      --ans_ext | -a)
+      --ans-ext | -a)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--ans_ext']="$2"
+          args['--ans-ext']="$2"
           shift
           shift
         else
-          printf "%s\n" "--ans_ext requires an argument: --ans_ext, -a EXTENSION" >&2
+          printf "%s\n" "--ans-ext requires an argument: --ans-ext, -a EXTENSION" >&2
           exit 1
         fi
         ;;
 
       # :flag.case
-      --in_ext | -i)
+      --in-ext | -i)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--in_ext']="$2"
+          args['--in-ext']="$2"
           shift
           shift
         else
-          printf "%s\n" "--in_ext requires an argument: --in_ext, -i EXTENSION" >&2
+          printf "%s\n" "--in-ext requires an argument: --in-ext, -i EXTENSION" >&2
           exit 1
         fi
         ;;
 
       # :flag.case
-      --map_ans | -A)
+      --map-ans | -A)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--map_ans']="$2"
+          args['--map-ans']="$2"
           shift
           shift
         else
-          printf "%s\n" "--map_ans requires an argument: --map_ans, -A EXTENSION" >&2
+          printf "%s\n" "--map-ans requires an argument: --map-ans, -A EXTENSION" >&2
           exit 1
         fi
         ;;
 
       # :flag.case
-      --map_in | -I)
+      --map-in | -I)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--map_in']="$2"
+          args['--map-in']="$2"
           shift
           shift
         else
-          printf "%s\n" "--map_in requires an argument: --map_in, -I EXTENSION" >&2
+          printf "%s\n" "--map-in requires an argument: --map-in, -I EXTENSION" >&2
           exit 1
         fi
         ;;
 
       # :flag.case
-      --no_unzip | -n)
+      --no-unzip | -n)
 
         # :flag.case_no_arg
-        args['--no_unzip']=1
+        args['--no-unzip']=1
         shift
         ;;
 
@@ -2416,31 +2423,31 @@ algo_owls_fmt_parse_requirements() {
     key="$1"
     case "$key" in
       # :flag.case
-      --fmt_cmd | -x)
+      --fmt-cmd | -x)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--fmt_cmd']="$2"
+          args['--fmt-cmd']="$2"
           shift
           shift
         else
-          printf "%s\n" "--fmt_cmd requires an argument: --fmt_cmd, -x COMMAND" >&2
+          printf "%s\n" "--fmt-cmd requires an argument: --fmt-cmd, -x COMMAND" >&2
           exit 1
         fi
         ;;
 
       # :flag.case
-      --fmt_flags | -I)
+      --fmt-flags | -I)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--fmt_flags']="$2"
+          args['--fmt-flags']="$2"
           shift
           shift
         else
-          printf "%s\n" "--fmt_flags requires an argument: --fmt_flags, -I FLAGS" >&2
+          printf "%s\n" "--fmt-flags requires an argument: --fmt-flags, -I FLAGS" >&2
           exit 1
         fi
         ;;
@@ -2448,8 +2455,8 @@ algo_owls_fmt_parse_requirements() {
       # :flag.case
       --ext | -e)
         # :flag.conflicts
-        if [[ -n "${args['--no_ext']:-}" ]]; then
-          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_ext" >&2
+        if [[ -n "${args['--no-ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no-ext" >&2
           exit 1
         fi
 
@@ -2466,7 +2473,7 @@ algo_owls_fmt_parse_requirements() {
         ;;
 
       # :flag.case
-      --no_ext | -n)
+      --no-ext | -n)
         # :flag.conflicts
         if [[ -n "${args['--ext']:-}" ]]; then
           printf "conflicting options: %s cannot be used with %s\n" "$key" "--ext" >&2
@@ -2474,7 +2481,7 @@ algo_owls_fmt_parse_requirements() {
         fi
 
         # :flag.case_no_arg
-        args['--no_ext']=1
+        args['--no-ext']=1
         shift
         ;;
 
@@ -2536,8 +2543,8 @@ algo_owls_init_parse_requirements() {
       # :flag.case
       --ext | -e)
         # :flag.conflicts
-        if [[ -n "${args['--no_ext']:-}" ]]; then
-          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_ext" >&2
+        if [[ -n "${args['--no-ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no-ext" >&2
           exit 1
         fi
 
@@ -2554,7 +2561,7 @@ algo_owls_init_parse_requirements() {
         ;;
 
       # :flag.case
-      --no_ext | -n)
+      --no-ext | -n)
         # :flag.conflicts
         if [[ -n "${args['--ext']:-}" ]]; then
           printf "conflicting options: %s cannot be used with %s\n" "$key" "--ext" >&2
@@ -2562,7 +2569,7 @@ algo_owls_init_parse_requirements() {
         fi
 
         # :flag.case_no_arg
-        args['--no_ext']=1
+        args['--no-ext']=1
         shift
         ;;
 
@@ -2671,16 +2678,16 @@ algo_owls_quest_parse_requirements() {
         ;;
 
       # :flag.case
-      --ans_ext | -a)
+      --ans-ext | -a)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--ans_ext']="$2"
+          args['--ans-ext']="$2"
           shift
           shift
         else
-          printf "%s\n" "--ans_ext requires an argument: --ans_ext, -a EXTENSION" >&2
+          printf "%s\n" "--ans-ext requires an argument: --ans-ext, -a EXTENSION" >&2
           exit 1
         fi
         ;;
@@ -2688,8 +2695,8 @@ algo_owls_quest_parse_requirements() {
       # :flag.case
       --build | -b)
         # :flag.conflicts
-        if [[ -n "${args['--no_build']:-}" ]]; then
-          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_build" >&2
+        if [[ -n "${args['--no-build']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no-build" >&2
           exit 1
         fi
 
@@ -2701,8 +2708,8 @@ algo_owls_quest_parse_requirements() {
       # :flag.case
       --ext | -e)
         # :flag.conflicts
-        if [[ -n "${args['--no_ext']:-}" ]]; then
-          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_ext" >&2
+        if [[ -n "${args['--no-ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no-ext" >&2
           exit 1
         fi
 
@@ -2719,22 +2726,22 @@ algo_owls_quest_parse_requirements() {
         ;;
 
       # :flag.case
-      --in_ext | -i)
+      --in-ext | -i)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--in_ext']="$2"
+          args['--in-ext']="$2"
           shift
           shift
         else
-          printf "%s\n" "--in_ext requires an argument: --in_ext, -i EXTENSION" >&2
+          printf "%s\n" "--in-ext requires an argument: --in-ext, -i EXTENSION" >&2
           exit 1
         fi
         ;;
 
       # :flag.case
-      --no_build | -d)
+      --no-build | -d)
         # :flag.conflicts
         if [[ -n "${args['--build']:-}" ]]; then
           printf "conflicting options: %s cannot be used with %s\n" "$key" "--build" >&2
@@ -2742,12 +2749,12 @@ algo_owls_quest_parse_requirements() {
         fi
 
         # :flag.case_no_arg
-        args['--no_build']=1
+        args['--no-build']=1
         shift
         ;;
 
       # :flag.case
-      --no_ext | -n)
+      --no-ext | -n)
         # :flag.conflicts
         if [[ -n "${args['--ext']:-}" ]]; then
           printf "conflicting options: %s cannot be used with %s\n" "$key" "--ext" >&2
@@ -2755,7 +2762,7 @@ algo_owls_quest_parse_requirements() {
         fi
 
         # :flag.case_no_arg
-        args['--no_ext']=1
+        args['--no-ext']=1
         shift
         ;;
 
@@ -2817,8 +2824,8 @@ algo_owls_run_parse_requirements() {
       # :flag.case
       --build | -b)
         # :flag.conflicts
-        if [[ -n "${args['--no_build']:-}" ]]; then
-          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_build" >&2
+        if [[ -n "${args['--no-build']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no-build" >&2
           exit 1
         fi
 
@@ -2830,8 +2837,8 @@ algo_owls_run_parse_requirements() {
       # :flag.case
       --ext | -e)
         # :flag.conflicts
-        if [[ -n "${args['--no_ext']:-}" ]]; then
-          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_ext" >&2
+        if [[ -n "${args['--no-ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no-ext" >&2
           exit 1
         fi
 
@@ -2850,8 +2857,8 @@ algo_owls_run_parse_requirements() {
       # :flag.case
       --local | -l)
         # :flag.conflicts
-        if [[ -n "${args['--use_source']:-}" ]]; then
-          printf "conflicting options: %s cannot be used with %s\n" "$key" "--use_source" >&2
+        if [[ -n "${args['--use-source']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--use-source" >&2
           exit 1
         fi
 
@@ -2861,15 +2868,15 @@ algo_owls_run_parse_requirements() {
         ;;
 
       # :flag.case
-      --name_only | -N)
+      --name-only | -N)
 
         # :flag.case_no_arg
-        args['--name_only']=1
+        args['--name-only']=1
         shift
         ;;
 
       # :flag.case
-      --no_build | -d)
+      --no-build | -d)
         # :flag.conflicts
         if [[ -n "${args['--build']:-}" ]]; then
           printf "conflicting options: %s cannot be used with %s\n" "$key" "--build" >&2
@@ -2877,12 +2884,12 @@ algo_owls_run_parse_requirements() {
         fi
 
         # :flag.case_no_arg
-        args['--no_build']=1
+        args['--no-build']=1
         shift
         ;;
 
       # :flag.case
-      --no_ext | -n)
+      --no-ext | -n)
         # :flag.conflicts
         if [[ -n "${args['--ext']:-}" ]]; then
           printf "conflicting options: %s cannot be used with %s\n" "$key" "--ext" >&2
@@ -2890,7 +2897,7 @@ algo_owls_run_parse_requirements() {
         fi
 
         # :flag.case_no_arg
-        args['--no_ext']=1
+        args['--no-ext']=1
         shift
         ;;
 
@@ -2903,52 +2910,52 @@ algo_owls_run_parse_requirements() {
         ;;
 
       # :flag.case
-      --run_cmd | -x)
+      --run-cmd | -x)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--run_cmd']="$2"
+          args['--run-cmd']="$2"
           shift
           shift
         else
-          printf "%s\n" "--run_cmd requires an argument: --run_cmd, -x COMMAND" >&2
+          printf "%s\n" "--run-cmd requires an argument: --run-cmd, -x COMMAND" >&2
           exit 1
         fi
         ;;
 
       # :flag.case
-      --run_flags | -I)
+      --run-flags | -I)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--run_flags']="$2"
+          args['--run-flags']="$2"
           shift
           shift
         else
-          printf "%s\n" "--run_flags requires an argument: --run_flags, -I FLAGS" >&2
+          printf "%s\n" "--run-flags requires an argument: --run-flags, -I FLAGS" >&2
           exit 1
         fi
         ;;
 
       # :flag.case
-      --run_sources | -s)
+      --run-sources | -s)
 
         # :flag.case_arg
         if [[ -n ${2+x} ]]; then
 
-          args['--run_sources']="$2"
+          args['--run-sources']="$2"
           shift
           shift
         else
-          printf "%s\n" "--run_sources requires an argument: --run_sources, -s FLAG" >&2
+          printf "%s\n" "--run-sources requires an argument: --run-sources, -s FLAG" >&2
           exit 1
         fi
         ;;
 
       # :flag.case
-      --use_source | -u)
+      --use-source | -u)
         # :flag.conflicts
         if [[ -n "${args['--local']:-}" ]]; then
           printf "conflicting options: %s cannot be used with %s\n" "$key" "--local" >&2
@@ -2956,7 +2963,7 @@ algo_owls_run_parse_requirements() {
         fi
 
         # :flag.case_no_arg
-        args['--use_source']=1
+        args['--use-source']=1
         shift
         ;;
 
@@ -3033,8 +3040,8 @@ algo_owls_submit_parse_requirements() {
       # :flag.case
       --ext | -e)
         # :flag.conflicts
-        if [[ -n "${args['--no_ext']:-}" ]]; then
-          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_ext" >&2
+        if [[ -n "${args['--no-ext']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no-ext" >&2
           exit 1
         fi
 
@@ -3053,8 +3060,8 @@ algo_owls_submit_parse_requirements() {
       # :flag.case
       --fmt | -p)
         # :flag.conflicts
-        if [[ -n "${args['--no_fmt']:-}" ]]; then
-          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no_fmt" >&2
+        if [[ -n "${args['--no-fmt']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--no-fmt" >&2
           exit 1
         fi
 
@@ -3079,7 +3086,7 @@ algo_owls_submit_parse_requirements() {
         ;;
 
       # :flag.case
-      --no_ext | -n)
+      --no-ext | -n)
         # :flag.conflicts
         if [[ -n "${args['--ext']:-}" ]]; then
           printf "conflicting options: %s cannot be used with %s\n" "$key" "--ext" >&2
@@ -3087,12 +3094,12 @@ algo_owls_submit_parse_requirements() {
         fi
 
         # :flag.case_no_arg
-        args['--no_ext']=1
+        args['--no-ext']=1
         shift
         ;;
 
       # :flag.case
-      --no_fmt | -q)
+      --no-fmt | -q)
         # :flag.conflicts
         if [[ -n "${args['--fmt']:-}" ]]; then
           printf "conflicting options: %s cannot be used with %s\n" "$key" "--fmt" >&2
@@ -3100,7 +3107,7 @@ algo_owls_submit_parse_requirements() {
         fi
 
         # :flag.case_no_arg
-        args['--no_fmt']=1
+        args['--no-fmt']=1
         shift
         ;;
 
@@ -3220,7 +3227,7 @@ algo_owls_wipe_parse_requirements() {
 
 # :command.initialize
 initialize() {
-  version="0.2.0"
+  version="0.9.0"
   long_usage=''
   set -e
 

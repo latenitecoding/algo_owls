@@ -16,12 +16,12 @@ if [[ -z $target_file ]]; then
 fi
 
 fmt_cmd="${ini[fmt.cmd]}"
-if [[ -n ${args[--fmt_cmd]} ]]; then
-    fmt_cmd="${args[--fmt_cmd]}"
+if [[ -n ${args[--fmt-cmd]} ]]; then
+    fmt_cmd="${args[--fmt-cmd]}"
 fi
 
-if [[ -n ${args[--fmt_flags]} ]]; then
-    fmt_cmd="$fmt_cmd ${args[--fmt_flags]}"
+if [[ -n ${args[--fmt-flags]} ]]; then
+    fmt_cmd="$fmt_cmd ${args[--fmt-flags]}"
 else
     for key in "${!ini[@]}"; do
         if [[ $key == fmt_flags.* ]]; then
