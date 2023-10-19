@@ -29,6 +29,14 @@ public class Hello {
       this.m = args[1];
     }
 
+    // public boolean equals(Object o) {
+    //   if (o instanceof Tuple) {
+    //     Tuple t = (Tuple) o;
+    //     return t.n == n && t.m == m;
+    //   }
+    //   return false;
+    // }
+
     public String toString() {
       return String.format("Tuple(%d, %d)", n, m);
     }
