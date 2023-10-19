@@ -38,4 +38,5 @@ done
 
 fmt_cmd="$fmt_cmd $target_file"
 
+echo "$fmt_cmd"
 eval $fmt_cmd
