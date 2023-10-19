@@ -11,7 +11,18 @@ public class Hello {
   // Helpers
   // ========================================================
 
-  private static record Tuple(int a, int b) {}
+  private static class Tuple {
+    int n, m;
+
+    public Tuple(int n, int m) {
+      this.n = n;
+      this.m = m;
+    }
+
+    public String toString() {
+      return String.format("Tuple(%d, %d)", n, m);
+    }
+  }
 
   @SuppressWarnings("unused")
   private static int next() throws IOException {
