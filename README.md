@@ -25,7 +25,7 @@ For the C++ branch: `git checkout cmypp`
 For the C# branch: `git checkout dflat`
 
 ### Haskell
-For the Haskell branch: `git checkout hadkell`
+For the Haskell branch: `git checkout gotkell`
 
 ### Go
 For the Go branch: `git checkout gokartz`
@@ -34,13 +34,16 @@ For the Go branch: `git checkout gokartz`
 For the Java branch: `git checkout hotjava`
 
 ### Julia
-For the Julia branch: `git checkout roberts`
+For the Julia branch: `git checkout andrews`
 
 ### Lean
 For the Lean branch: `git checkout leanonme`
 
+### Lisp
+For the Lisp branch: `git checkout dataisdata`
+
 ### OCaml
-For the OCaml branch: `git checkout humpday`
+For the OCaml branch: `git checkout mycaml`
 
 ### Python
 For the Python branch: `git checkout pyday`
