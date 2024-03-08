@@ -1,4 +1,4 @@
-# ICPC North American Qualifier 2022 Solutions
+# ICPC North American Qualifier 2022
 
 Problems can be found on [Kattis](https://naq22.kattis.com/contests/naq22/problems)
 
