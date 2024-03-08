@@ -10,6 +10,8 @@ To learn more about the CLI, run the following command in your choice of termina
 
 When using the algo owls CLI, target solutions are generally provided by name without a path or file extension. The only exception is when using the `init` command, which must include the path prefix to the target solution rooted at the `solutions` directory. For example, a solution for `FadingWind` can be created by running `algo_owls init icpc/nar2022/FadingWind`.
 
+_All solutions to problems in every branch should be located within the solutions directory. The src directory is for the sources files of the algo_owls CLI._
+
 ### Dev
 For those that would like to contribute to the algo owls CLI, there is a `dev` branch where that work takes place.
 
