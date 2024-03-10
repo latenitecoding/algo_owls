@@ -8,8 +8,11 @@ if [[ $solution_file != $solutions_dir* ]]; then
 fi
 
 file_ext="$(handle_file_ext)"
-if [[ -n $file_ext ]]; then
-    solution_file="$solution_file$file_ext"
+if [[ "${solution_file##*.}" = "${solution_file%.*}" ]]; then
+    # the solution file has no extension
+    if [[ -n $file_ext ]]; then
+        solution_file="$solution_file$file_ext"
+    fi
 fi
 
 if [[ -z ${args[--overwrite]} || ${args[--overwrite]} -eq 0 ]]; then
