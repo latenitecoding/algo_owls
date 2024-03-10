@@ -4,8 +4,6 @@ import java.util.stream.*;
 
 public class Hello {
   
-  private static final boolean DEBUG = false;
-
   // ========================================================
   // Solution
   // ========================================================
@@ -60,41 +58,5 @@ public class Hello {
   @SuppressWarnings("unused")
   private static Tuple nextTuple() throws IOException {
     return new Tuple(nextArray());
-  }
-
-  @SuppressWarnings("unused")
-  private static void print(String label, int[] arr) {
-    if (!DEBUG) return;
-    System.out.println("");
-    System.out.println("> " + label);
-    System.out.println(Arrays.toString(arr));
-    System.out.println("");
-  }
-
-  @SuppressWarnings("unused")
-  private static void print(String label, int[][] arr) {
-    if (!DEBUG) return;
-    System.out.println("");
-    System.out.println("> " + label);
-    for (int[] row : arr) System.out.println(Arrays.toString(row));
-    System.out.println("");
-  }
-
-  @SuppressWarnings("unused")
-  private static void print(String label, Object o) {
-    if (!DEBUG) return;
-    System.out.println("");
-    System.out.println("> " + label);
-    System.out.println(o);
-    System.out.println("");
-  }
-
-  @SuppressWarnings("unused")
-  private static void print(String label, Object[] arr) {
-    if (!DEBUG) return;
-    System.out.println("");
-    System.out.println("> " + label);
-    for (Object o : arr) System.out.println(o);
-    System.out.println("");
   }
 }
