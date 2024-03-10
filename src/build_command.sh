@@ -8,12 +8,16 @@ if [[ "${solution_file##*.}" = "${solution_file%.*}" ]]; then
     if [[ -n $file_ext ]]; then
         solution_file="$solution_file$file_ext"
     fi
+elif [[ -n $file_ext ]]; then
+    solution_file="${solution_file%.*}$file_ext"
+else
+    solution_file="${solution_file%.*}"
 fi
 
 if test -f $solution_file; then
     target_file=$solution_file
 else
-    target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
+    target_file="$(find ${ini[options.solutions_dir]} -name $(to_name $solution_file))"
 fi
 
 if [[ -z $target_file ]]; then

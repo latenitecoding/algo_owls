@@ -13,6 +13,10 @@ if [[ "${solution_file##*.}" = "${solution_file%.*}" ]]; then
     if [[ -n $file_ext ]]; then
         solution_file="$solution_file$file_ext"
     fi
+elif [[ -n $file_ext ]]; then
+    solution_file="${solution_file%.*}$file_ext"
+else
+    solution_file="${solution_file%.*}"
 fi
 
 if [[ -z ${args[--overwrite]} || ${args[--overwrite]} -eq 0 ]]; then
