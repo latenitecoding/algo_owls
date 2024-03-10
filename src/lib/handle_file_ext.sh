@@ -13,8 +13,14 @@ handle_file_ext() {
     if [[ -n $settings_no_ext && $settings_no_ext == true ]]; then
         file_ext=""
     fi
+
     if [[ -n $args_ext ]]; then
         file_ext="$args_ext"
+    fi
+
+    if [[ -z $file_ext ]]; then
+        echo ""
+        return
     fi
 
     echo "$(dot_file_ext $file_ext)"
