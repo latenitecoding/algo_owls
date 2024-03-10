@@ -13,26 +13,51 @@ file_ext="$(handle_file_ext)"
 solution_file="${args[solution]}"
 if [[ "${solution_file##*.}" = "${solution_file%.*}" ]]; then
     # the solution file has no extension
-    if [[ -n $file_ext && -n ${args[--ext]} ]]; then
-        solution_file="$solution_file$file_ext"
-    elif [[ -z ${args[--no-ext]} || ${args[--no-ext]} -eq 0 ]]; then
-        if [[ ${ini[run.file_ext]} != false ]]; then
-            file_ext="$(dot_file_ext ${ini[run.file_ext]})"
-        fi
-        if [[ -n $file_ext && ${ini[run.no_ext]} == false ]]; then
+    if [[ -z ${args[--no-ext]} || ${args[--no-ext]} -eq 0 ]]; then
+        if [[ -n $file_ext && -n ${args[--ext]} ]]; then
             solution_file="$solution_file$file_ext"
+        elif [[ -z ${ini[run.no_ext]} || ${ini[run.no_ext]} == false ]]; then
+            if [[ -n ${ini[run.file_ext]} && ${ini[run.file_ext]} != false ]]; then
+                file_ext="$(dot_file_ext ${ini[run.file_ext]})"
+            fi
+            if [[ -n $file_ext ]]; then
+                solution_file="$solution_file$file_ext"
+            fi
         fi
     fi
+elif [[ -n ${args[--no-ext]} && ${args[--no-ext]} -eq 1 ]]; then
+    solution_file="${solution_file%.*}"
+elif [[ -n $file_ext && -n ${args[--ext]} ]]; then
+    solution_file="${solution_file%.*}$file_ext"
+elif [[ -n ${ini[run.no_ext]} && ${ini[run.no_ext]} == true ]]; then
+    solution_file="${solution_file%.*}"
+elif [[ -n ${ini[run.file_ext]} && ${ini[run.file_ext]} != false ]]; then
+    file_ext="$(dot_file_ext ${ini[run.file_ext]})"
+    if [[ -n $file_ext ]]; then
+        solution_file="$solution_file$file_ext"
+    else 
+        solution_file="${solution_file%.*}"
+    fi
+elif [[ -n $file_ext ]]; then
+    solution_file="$solution_file$file_ext"
+else
+    solution_file="${solution_file%.*}"
 fi
 
 if test -f $solution_file; then
-    target_file=$solution_file
+    if [[ -n ${args[--use-source]} && ${args[--use-source]} -eq 1 ]]; then
+        target_file=$solution_file
+    elif [[ ${ini[run.use_source]} == true ]]; then
+        target_file=$solution_file
+    else
+        target_file="$(find ${ini[options.target_dir]} -name $(to_name $filename))"
+    fi
 elif [[ -n ${args[--use-source]} && ${args[--use-source]} -eq 1 ]]; then
-    target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
+    target_file="$(find ${ini[options.solutions_dir]} -name $(to_name $solution_file))"
 elif [[ ${ini[run.use_source]} == true ]]; then
-    target_file="$(find ${ini[options.solutions_dir]} -name $solution_file)"
+    target_file="$(find ${ini[options.solutions_dir]} -name $(to_name $solution_file))"
 else
-    target_file="$(find ${ini[options.target_dir]} -name $solution_file)"
+    target_file="$(find ${ini[options.target_dir]} -name $(to_name $solution_file))"
 fi
 
 if [[ -z $target_file ]]; then
