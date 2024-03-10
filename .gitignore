@@ -3,7 +3,3 @@ output/
 target/
 tests/
 
-
-# Added by cargo
-
-/target
