@@ -46,6 +46,12 @@ if [[ -n ${args[--run-cmd]} ]]; then
     run_cmd="${args[--run-cmd]}"
 fi
 
+exe_run=false
+if [[ -z $run_cmd || $run_cmd == false || "$run_cmd" = "\"\"" ]]; then
+    run_cmd=""
+    exe_run=true
+fi
+
 if [[ -n ${args[--run-flags]} ]]; then
     run_cmd="$run_cmd ${args[--run-flags]}"
 else
@@ -88,7 +94,11 @@ elif [[ ${ini[run.name_only]} == true ]]; then
     target_file="${args[solution]}"
 fi
 
-run_cmd="$run_cmd $target_file"
+if [[ $exe_run == true ]]; then
+    run_cmd="$target_file$run_cmd"
+else
+    run_cmd="$run_cmd $target_file"
+fi
 
 if [[ -z ${args[--quiet]} || ${args[--quiet]} -eq 0 ]]; then
     echo $run_cmd
