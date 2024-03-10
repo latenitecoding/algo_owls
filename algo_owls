@@ -3312,7 +3312,7 @@ algo_owls_wipe_parse_requirements() {
 
 # :command.initialize
 initialize() {
-  version="0.9.0"
+  version="1.0.0"
   long_usage=''
   set -e
 
