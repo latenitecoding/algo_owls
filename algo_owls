@@ -111,13 +111,13 @@ algo_owls_build_usage() {
     echo
 
     # :flag.usage
-    printf "  %s\n" "--local, -l"
-    printf "    Use target solution's local directory in build source\n"
+    printf "  %s\n" "--no-ext, -n"
+    printf "    Ignore file extensions when compiling the program\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--no-ext, -n"
-    printf "    Ignore file extensions when compiling the program\n"
+    printf "  %s\n" "--use-source, -u"
+    printf "    Use target solution's source directory in build source\n"
     echo
 
     # :command.usage_fixed_flags
@@ -137,7 +137,7 @@ algo_owls_build_usage() {
     printf "%s\n" "Examples:"
     printf "  algo_owls build fadingwind\n"
     printf "  algo_owls build streetsahead --ext .java --build-cmd javac --build-out \"-d\n  options.target_dir\" --build-sources \"-cp options.solutions_dir\"\n"
-    printf "  algo_owls build restaurantopening --ext .java --build-cmd javac --build-out\n  \"-d options.target_dir\" --build-sources \"-cp ...\" --local\n"
+    printf "  algo_owls build restaurantopening --ext .java --build-cmd javac --build-out\n  \"-d options.target_dir\" --build-sources \"-cp ...\" --use-source\n"
     echo
 
   fi
@@ -702,11 +702,6 @@ algo_owls_run_usage() {
     echo
 
     # :flag.usage
-    printf "  %s\n" "--local, -l"
-    printf "    Use the target program's local directory from 'options.target_dir' in the\n    runtime source\n"
-    echo
-
-    # :flag.usage
     printf "  %s\n" "--name-only, -N"
     printf "    Use only the target program's name when executing the program\n"
     echo
@@ -743,7 +738,12 @@ algo_owls_run_usage() {
 
     # :flag.usage
     printf "  %s\n" "--use-source, -u"
-    printf "    Use the target program's local directory from 'options.solutions_dir' in the\n    runtime source\n"
+    printf "    Use the target program's source directory from 'options.solutions_dir' in\n    the runtime source\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--use-target, -t"
+    printf "    Use the target program's target directory from 'options.target_dir' in the\n    runtime source\n"
     echo
 
     # :command.usage_fixed_flags
@@ -763,7 +763,7 @@ algo_owls_run_usage() {
     printf "%s\n" "Examples:"
     printf "  algo_owls run fadingwind\n"
     printf "  algo_owls run streetsahead --ext .class --run-cmd java --run-flags\n  \"-XX:+UseSerialGC\" --run-sources \"-cp options.target_dir\"\n"
-    printf "  algo_owls run restaurantopening --ext .class --run-cmd java --run-flags\n  \"-XX:+UseSerialGC\" --run-sources \"-cp ...\" --local\n"
+    printf "  algo_owls run restaurantopening --ext .class --run-cmd java --run-flags\n  \"-XX:+UseSerialGC\" --run-sources \"-cp ...\" --use-target\n"
     printf "  algo_owls run huntthewumpus --ext .py --run-cmd python3 --use-source\n"
     printf "  algo_owls run colortubes --quiet\n"
     echo
@@ -1154,7 +1154,7 @@ algo_owls_build_command() {
 
   if [[ -n ${args[--build-sources]} ]]; then
       build_sources="${args[--build-sources]}"
-      if [[ -n ${args[--local]} && ${args[--local]} -eq 1 ]]; then
+      if [[ -n ${args[--use_source]} && ${args[--use_source]} -eq 1 ]]; then
           target_dir="${target_file%/*}"
           build_sources="${build_sources//.../$target_dir}"
       fi
@@ -1167,7 +1167,7 @@ algo_owls_build_command() {
       fi
   done
 
-  if [[ -z ${args[--build-sources]} && ${ini[build.local]} == true ]]; then
+  if [[ -z ${args[--build-sources]} && ${ini[build.use_source]} == true ]]; then
       target_dir="${target_file%/*}"
       build_cmd="${build_cmd//.../$target_dir}"
   fi
@@ -1595,7 +1595,7 @@ algo_owls_run_command() {
 
   if [[ -n ${args[--run-sources]} ]]; then
       run_sources="${args[--run-sources]}"
-      if [[ -n ${args[--local]} && ${args[--local]} -eq 1 ]]; then
+      if [[ -n ${args[--use_target]} && ${args[--use_target]} -eq 1 ]]; then
           target_dir="${target_file%/*}"
           run_sources="${run_sources//.../$target_dir}"
       elif [[ -n ${args[--use-source]} && ${args[--use-source]} -eq 1 ]]; then
@@ -1611,7 +1611,7 @@ algo_owls_run_command() {
       fi
   done
 
-  if [[ ${ini[run.local]} == true ]]; then
+  if [[ ${ini[run.use_target]} == true ]]; then
       target_dir="${target_file%/*}"
       run_cmd="${run_cmd//.../$target_dir}"
   elif [[ ${ini[run.use_source]} == true ]]; then
@@ -1955,14 +1955,6 @@ algo_owls_build_parse_requirements() {
         ;;
 
       # :flag.case
-      --local | -l)
-
-        # :flag.case_no_arg
-        args['--local']=1
-        shift
-        ;;
-
-      # :flag.case
       --no-ext | -n)
         # :flag.conflicts
         if [[ -n "${args['--ext']:-}" ]]; then
@@ -1972,6 +1964,14 @@ algo_owls_build_parse_requirements() {
 
         # :flag.case_no_arg
         args['--no-ext']=1
+        shift
+        ;;
+
+      # :flag.case
+      --use-source | -u)
+
+        # :flag.case_no_arg
+        args['--use-source']=1
         shift
         ;;
 
@@ -2886,19 +2886,6 @@ algo_owls_run_parse_requirements() {
         ;;
 
       # :flag.case
-      --local | -l)
-        # :flag.conflicts
-        if [[ -n "${args['--use-source']:-}" ]]; then
-          printf "conflicting options: %s cannot be used with %s\n" "$key" "--use-source" >&2
-          exit 1
-        fi
-
-        # :flag.case_no_arg
-        args['--local']=1
-        shift
-        ;;
-
-      # :flag.case
       --name-only | -N)
 
         # :flag.case_no_arg
@@ -2985,13 +2972,26 @@ algo_owls_run_parse_requirements() {
       # :flag.case
       --use-source | -u)
         # :flag.conflicts
-        if [[ -n "${args['--local']:-}" ]]; then
-          printf "conflicting options: %s cannot be used with %s\n" "$key" "--local" >&2
+        if [[ -n "${args['--use-target']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--use-target" >&2
           exit 1
         fi
 
         # :flag.case_no_arg
         args['--use-source']=1
+        shift
+        ;;
+
+      # :flag.case
+      --use-target | -t)
+        # :flag.conflicts
+        if [[ -n "${args['--use-source']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--use-source" >&2
+          exit 1
+        fi
+
+        # :flag.case_no_arg
+        args['--use-target']=1
         shift
         ;;
 

@@ -43,7 +43,7 @@ fi
 
 if [[ -n ${args[--build-sources]} ]]; then
     build_sources="${args[--build-sources]}"
-    if [[ -n ${args[--local]} && ${args[--local]} -eq 1 ]]; then
+    if [[ -n ${args[--use_source]} && ${args[--use_source]} -eq 1 ]]; then
         target_dir="${target_file%/*}"
         build_sources="${build_sources//.../$target_dir}"
     fi
@@ -56,7 +56,7 @@ for key in "${!ini[@]}"; do
     fi
 done
 
-if [[ -z ${args[--build-sources]} && ${ini[build.local]} == true ]]; then
+if [[ -z ${args[--build-sources]} && ${ini[build.use_source]} == true ]]; then
     target_dir="${target_file%/*}"
     build_cmd="${build_cmd//.../$target_dir}"
 fi

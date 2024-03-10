@@ -64,7 +64,7 @@ fi
 
 if [[ -n ${args[--run-sources]} ]]; then
     run_sources="${args[--run-sources]}"
-    if [[ -n ${args[--local]} && ${args[--local]} -eq 1 ]]; then
+    if [[ -n ${args[--use_target]} && ${args[--use_target]} -eq 1 ]]; then
         target_dir="${target_file%/*}"
         run_sources="${run_sources//.../$target_dir}"
     elif [[ -n ${args[--use-source]} && ${args[--use-source]} -eq 1 ]]; then
@@ -80,7 +80,7 @@ for key in "${!ini[@]}"; do
     fi
 done
 
-if [[ ${ini[run.local]} == true ]]; then
+if [[ ${ini[run.use_target]} == true ]]; then
     target_dir="${target_file%/*}"
     run_cmd="${run_cmd//.../$target_dir}"
 elif [[ ${ini[run.use_source]} == true ]]; then

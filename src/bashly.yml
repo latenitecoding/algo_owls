@@ -34,18 +34,18 @@ commands:
     arg: extension
     help: The file extension to use for the solution file
     conflicts: [--no-ext]
-  - long: --local
-    short: -l
-    help: Use target solution's local directory in build source
   - long: --no-ext
     short: -n
     help: Ignore file extensions when compiling the program
     conflicts: [--ext]
+  - long: --use-source
+    short: -u
+    help: Use target solution's source directory in build source
 
   examples:
   - algo_owls build fadingwind
   - algo_owls build streetsahead --ext .java --build-cmd javac --build-out "-d options.target_dir" --build-sources "-cp options.solutions_dir"
-  - algo_owls build restaurantopening --ext .java --build-cmd javac --build-out "-d options.target_dir" --build-sources "-cp ..." --local
+  - algo_owls build restaurantopening --ext .java --build-cmd javac --build-out "-d options.target_dir" --build-sources "-cp ..." --use-source
 
 - name: config
   alias: c
@@ -278,10 +278,6 @@ commands:
     arg: extension
     help: The file extension to use for the target program
     conflicts: [--no-ext]
-  - long: --local
-    short: -l
-    help: Use the target program's local directory from 'options.target_dir' in the runtime source
-    conflicts: [--use-source]
   - long: --name-only
     short: -N
     help: Use only the target program's name when executing the program
@@ -310,13 +306,17 @@ commands:
     help: The runtime flag to include sources in the execution
   - long: --use-source
     short: -u
-    help: Use the target program's local directory from 'options.solutions_dir' in the runtime source
-    conflicts: [--local]
+    help: Use the target program's source directory from 'options.solutions_dir' in the runtime source
+    conflicts: [--use-target]
+  - long: --use-target
+    short: -t
+    help: Use the target program's target directory from 'options.target_dir' in the runtime source
+    conflicts: [--use-source]
 
   examples:
   - algo_owls run fadingwind
   - algo_owls run streetsahead --ext .class --run-cmd java --run-flags "-XX:+UseSerialGC" --run-sources "-cp options.target_dir"
-  - algo_owls run restaurantopening --ext .class --run-cmd java --run-flags "-XX:+UseSerialGC" --run-sources "-cp ..." --local
+  - algo_owls run restaurantopening --ext .class --run-cmd java --run-flags "-XX:+UseSerialGC" --run-sources "-cp ..." --use-target
   - algo_owls run huntthewumpus --ext .py --run-cmd python3 --use-source
   - algo_owls run colortubes --quiet
 
