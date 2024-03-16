@@ -116,6 +116,11 @@ algo_owls_build_usage() {
     echo
 
     # :flag.usage
+    printf "  %s\n" "--use-name, -U"
+    printf "    Use target solution's name in build source\n"
+    echo
+
+    # :flag.usage
     printf "  %s\n" "--use-source, -u"
     printf "    Use target solution's source directory in build source\n"
     echo
@@ -1179,9 +1184,13 @@ algo_owls_build_command() {
 
   if [[ -n ${args[--build-sources]} ]]; then
       build_sources="${args[--build-sources]}"
-      if [[ -n ${args[--use_source]} && ${args[--use_source]} -eq 1 ]]; then
+      if [[ -n ${args[--use-source]} && ${args[--use-source]} -eq 1 ]]; then
           target_dir="${target_file%/*}"
           build_sources="${build_sources//.../$target_dir}"
+      elif [[ -n ${args[--use-name]} && ${args[--use-name]} -eq 1 ]]; then
+          target_name="${target_file##*/}"
+          target_name="${target_name%.*}"
+          build_sources="${build_sources//.../$target_name}"
       fi
       build_cmd="$build_cmd $build_sources"
   fi
@@ -1195,6 +1204,10 @@ algo_owls_build_command() {
   if [[ -z ${args[--build-sources]} && ${ini[build.use_source]} == true ]]; then
       target_dir="${target_file%/*}"
       build_cmd="${build_cmd//.../$target_dir}"
+  elif [[ -z ${args[--build-sources]} && ${ini[build.use_name]} == true ]]; then
+      target_name="${target_file##*/}"
+      target_name="${target_name%.*}"
+      build_cmd="${build_cmd//.../$target_name}"
   fi
 
   build_cmd="$build_cmd $target_file"
@@ -2031,7 +2044,25 @@ algo_owls_build_parse_requirements() {
         ;;
 
       # :flag.case
+      --use-name | -U)
+        # :flag.conflicts
+        if [[ -n "${args['--use-source']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--use-source" >&2
+          exit 1
+        fi
+
+        # :flag.case_no_arg
+        args['--use-name']=1
+        shift
+        ;;
+
+      # :flag.case
       --use-source | -u)
+        # :flag.conflicts
+        if [[ -n "${args['--use-name']:-}" ]]; then
+          printf "conflicting options: %s cannot be used with %s\n" "$key" "--use-name" >&2
+          exit 1
+        fi
 
         # :flag.case_no_arg
         args['--use-source']=1

@@ -38,9 +38,14 @@ commands:
     short: -n
     help: Ignore file extensions when compiling the program
     conflicts: [--ext]
+  - long: --use-name
+    short: -U
+    help: Use target solution's name in build source
+    conflicts: [--use-source]
   - long: --use-source
     short: -u
     help: Use target solution's source directory in build source
+    conflicts: [--use-name]
 
   examples:
   - algo_owls build fadingwind

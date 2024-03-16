@@ -47,9 +47,13 @@ fi
 
 if [[ -n ${args[--build-sources]} ]]; then
     build_sources="${args[--build-sources]}"
-    if [[ -n ${args[--use_source]} && ${args[--use_source]} -eq 1 ]]; then
+    if [[ -n ${args[--use-source]} && ${args[--use-source]} -eq 1 ]]; then
         target_dir="${target_file%/*}"
         build_sources="${build_sources//.../$target_dir}"
+    elif [[ -n ${args[--use-name]} && ${args[--use-name]} -eq 1 ]]; then
+        target_name="${target_file##*/}"
+        target_name="${target_name%.*}"
+        build_sources="${build_sources//.../$target_name}"
     fi
     build_cmd="$build_cmd $build_sources"
 fi
@@ -63,6 +67,10 @@ done
 if [[ -z ${args[--build-sources]} && ${ini[build.use_source]} == true ]]; then
     target_dir="${target_file%/*}"
     build_cmd="${build_cmd//.../$target_dir}"
+elif [[ -z ${args[--build-sources]} && ${ini[build.use_name]} == true ]]; then
+    target_name="${target_file##*/}"
+    target_name="${target_name%.*}"
+    build_cmd="${build_cmd//.../$target_name}"
 fi
 
 build_cmd="$build_cmd $target_file"
