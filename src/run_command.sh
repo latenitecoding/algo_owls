@@ -14,12 +14,10 @@ solution_file="${args[solution]}"
 if [[ "${solution_file##*.}" = "${solution_file%.*}" ]]; then
     # the solution file has no extension
     if [[ -z ${args[--no-ext]} || ${args[--no-ext]} -eq 0 ]]; then
-        if [[ -n $file_ext && -n ${args[--ext]} ]]; then
+        if [[ -n $file_ext && -n ${args[--ext]} && ${args[--ext]} -eq 1 ]]; then
             solution_file="$solution_file$file_ext"
-        elif [[ -z ${ini[run.no_ext]} || ${ini[run.no_ext]} == false ]]; then
-            if [[ -n ${ini[run.file_ext]} && ${ini[run.file_ext]} != false ]]; then
-                file_ext="$(dot_file_ext ${ini[run.file_ext]})"
-            fi
+        elif [[ -n ${ini[run.file_ext]} && ${ini[run.file_ext]} != false ]]; then
+            file_ext="$(dot_file_ext ${ini[run.file_ext]})"
             if [[ -n $file_ext ]]; then
                 solution_file="$solution_file$file_ext"
             fi
@@ -29,7 +27,7 @@ elif [[ -n ${args[--no-ext]} && ${args[--no-ext]} -eq 1 ]]; then
     solution_file="${solution_file%.*}"
 elif [[ -n $file_ext && -n ${args[--ext]} ]]; then
     solution_file="${solution_file%.*}$file_ext"
-elif [[ -n ${ini[run.no_ext]} && ${ini[run.no_ext]} == true ]]; then
+elif [[ -z ${ini[run.file_ext]} || ${ini[run.file_ext]} == false ]]; then
     solution_file="${solution_file%.*}"
 elif [[ -n ${ini[run.file_ext]} && ${ini[run.file_ext]} != false ]]; then
     file_ext="$(dot_file_ext ${ini[run.file_ext]})"

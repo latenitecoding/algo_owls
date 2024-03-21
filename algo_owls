@@ -1006,7 +1006,6 @@ fmt_dir() {
 # src/lib/handle_file_ext.sh
 handle_file_ext() {
     local settings_ext="${ini[settings.file_ext]}"
-    local settings_no_ext="${ini[settings.no_ext]}"
     local args_ext="${args[--ext]}"
     local args_no_ext="${args[--no-ext]}"
 
@@ -1016,7 +1015,7 @@ handle_file_ext() {
     fi
 
     local file_ext="$settings_ext"
-    if [[ -n $settings_no_ext && $settings_no_ext == true ]]; then
+    if [[ -z $settings_ext || $settings_ext == false ]]; then
         file_ext=""
     fi
 
@@ -1591,12 +1590,10 @@ algo_owls_run_command() {
   if [[ "${solution_file##*.}" = "${solution_file%.*}" ]]; then
       # the solution file has no extension
       if [[ -z ${args[--no-ext]} || ${args[--no-ext]} -eq 0 ]]; then
-          if [[ -n $file_ext && -n ${args[--ext]} ]]; then
+          if [[ -n $file_ext && -n ${args[--ext]} && ${args[--ext]} -eq 1 ]]; then
               solution_file="$solution_file$file_ext"
-          elif [[ -z ${ini[run.no_ext]} || ${ini[run.no_ext]} == false ]]; then
-              if [[ -n ${ini[run.file_ext]} && ${ini[run.file_ext]} != false ]]; then
-                  file_ext="$(dot_file_ext ${ini[run.file_ext]})"
-              fi
+          elif [[ -n ${ini[run.file_ext]} && ${ini[run.file_ext]} != false ]]; then
+              file_ext="$(dot_file_ext ${ini[run.file_ext]})"
               if [[ -n $file_ext ]]; then
                   solution_file="$solution_file$file_ext"
               fi
@@ -1606,7 +1603,7 @@ algo_owls_run_command() {
       solution_file="${solution_file%.*}"
   elif [[ -n $file_ext && -n ${args[--ext]} ]]; then
       solution_file="${solution_file%.*}$file_ext"
-  elif [[ -n ${ini[run.no_ext]} && ${ini[run.no_ext]} == true ]]; then
+  elif [[ -z ${ini[run.file_ext]} || ${ini[run.file_ext]} == false ]]; then
       solution_file="${solution_file%.*}"
   elif [[ -n ${ini[run.file_ext]} && ${ini[run.file_ext]} != false ]]; then
       file_ext="$(dot_file_ext ${ini[run.file_ext]})"
@@ -3356,7 +3353,7 @@ algo_owls_wipe_parse_requirements() {
 
 # :command.initialize
 initialize() {
-  version="1.0.0"
+  version="1.1.0"
   long_usage=''
   set -e
 

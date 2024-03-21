@@ -1,6 +1,5 @@
 handle_file_ext() {
     local settings_ext="${ini[settings.file_ext]}"
-    local settings_no_ext="${ini[settings.no_ext]}"
     local args_ext="${args[--ext]}"
     local args_no_ext="${args[--no-ext]}"
 
@@ -10,7 +9,7 @@ handle_file_ext() {
     fi
 
     local file_ext="$settings_ext"
-    if [[ -n $settings_no_ext && $settings_no_ext == true ]]; then
+    if [[ -z $settings_ext || $settings_ext == false ]]; then
         file_ext=""
     fi
 
