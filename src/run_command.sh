@@ -72,7 +72,7 @@ if [[ -n ${args[--run-cmd]} ]]; then
 fi
 
 exe_run=false
-if [[ -z $run_cmd || $run_cmd == false || "$run_cmd" = "\"\"" ]]; then
+if [[ -z $run_cmd || $run_cmd == false || "$run_cmd" = "." || "$run_cmd" = "./" ]]; then
     run_cmd=""
     exe_run=true
 fi
