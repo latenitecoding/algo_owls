@@ -1,6 +1,6 @@
 name: algo_owls
 help: Use to create, execute, and test solutions to competitive programming problems
-version: 1.1.0
+version: 1.2.0
 
 commands:
 - name: build
@@ -38,12 +38,18 @@ commands:
     short: -n
     help: Ignore file extensions when compiling the program
     conflicts: [--ext]
+  - long: --quiet
+    short: -q
+    help: Suppress all output from algo_owls when compiling the target program
+  - long: --time
+    short: -t
+    help: Output the timings after compiling the target program
   - long: --use-name
-    short: -U
+    short: -N
     help: Use target solution's name in build source
     conflicts: [--use-source]
   - long: --use-source
-    short: -u
+    short: -S
     help: Use target solution's source directory in build source
     conflicts: [--use-name]
 
@@ -309,12 +315,15 @@ commands:
     short: -s
     arg: flag
     help: The runtime flag to include sources in the execution
+  - long: --time
+    short: -t
+    help: Output the timings after executing the target program
   - long: --use-source
-    short: -u
+    short: -S
     help: Use the target program's source directory from 'options.solutions_dir' in the runtime source
     conflicts: [--use-target]
   - long: --use-target
-    short: -t
+    short: -T
     help: Use the target program's target directory from 'options.target_dir' in the runtime source
     conflicts: [--use-source]
 

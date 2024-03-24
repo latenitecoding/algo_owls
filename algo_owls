@@ -116,12 +116,22 @@ algo_owls_build_usage() {
     echo
 
     # :flag.usage
-    printf "  %s\n" "--use-name, -U"
+    printf "  %s\n" "--quiet, -q"
+    printf "    Suppress all output from algo_owls when compiling the target program\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--time, -t"
+    printf "    Output the timings after compiling the target program\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--use-name, -N"
     printf "    Use target solution's name in build source\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--use-source, -u"
+    printf "  %s\n" "--use-source, -S"
     printf "    Use target solution's source directory in build source\n"
     echo
 
@@ -742,12 +752,17 @@ algo_owls_run_usage() {
     echo
 
     # :flag.usage
-    printf "  %s\n" "--use-source, -u"
+    printf "  %s\n" "--time, -t"
+    printf "    Output the timings after executing the target program\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--use-source, -S"
     printf "    Use the target program's source directory from 'options.solutions_dir' in\n    the runtime source\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--use-target, -t"
+    printf "  %s\n" "--use-target, -T"
     printf "    Use the target program's target directory from 'options.target_dir' in the\n    runtime source\n"
     echo
 
@@ -1211,8 +1226,15 @@ algo_owls_build_command() {
 
   build_cmd="$build_cmd $target_file"
 
-  echo $build_cmd
-  eval $build_cmd
+  if [[ -z ${args[--quiet]} || ${args[--quiet]} -eq 0 ]]; then
+      echo $build_cmd
+  fi
+
+  if [[ -n ${args[--time]} && ${args[--time]} -eq 1 ]]; then
+      time $build_cmd
+  else
+      eval $build_cmd
+  fi
 
 }
 
@@ -1577,10 +1599,18 @@ algo_owls_run_command() {
   ini_load .algo_owls.ini
 
   if [[ -z ${args[--no-build]} || ${args[--no-build]} -eq 0 ]]; then
+      build_args=""
+      if [[ -n ${args[--quiet]} && ${args[--quiet]} -eq 1 ]]; then
+          build_args="$build_args --quiet"
+      fi
+      if [[ -n ${args[--time]} && ${args[--time]} -eq 1 ]]; then
+          build_args="$build_args --time"
+      fi
+
       if [[ ${ini[settings.auto_build]} == true ]]; then
-          ./algo_owls build ${args[solution]}
+          ./algo_owls build ${args[solution]} $build_args
       elif [[ -n ${args[--build]} && ${args[--build]} -eq 1 ]]; then
-          ./algo_owls build ${args[solution]}
+          ./algo_owls build ${args[solution]} $build_args
       fi
   fi
 
@@ -1704,7 +1734,11 @@ algo_owls_run_command() {
       echo $run_cmd
   fi
 
-  eval $run_cmd
+  if [[ -n ${args[--time]} && ${args[--time]} -eq 1 ]]; then
+      time $run_cmd
+  else
+      eval $run_cmd
+  fi
 
 }
 
@@ -2041,7 +2075,23 @@ algo_owls_build_parse_requirements() {
         ;;
 
       # :flag.case
-      --use-name | -U)
+      --quiet | -q)
+
+        # :flag.case_no_arg
+        args['--quiet']=1
+        shift
+        ;;
+
+      # :flag.case
+      --time | -t)
+
+        # :flag.case_no_arg
+        args['--time']=1
+        shift
+        ;;
+
+      # :flag.case
+      --use-name | -N)
         # :flag.conflicts
         if [[ -n "${args['--use-source']:-}" ]]; then
           printf "conflicting options: %s cannot be used with %s\n" "$key" "--use-source" >&2
@@ -2054,7 +2104,7 @@ algo_owls_build_parse_requirements() {
         ;;
 
       # :flag.case
-      --use-source | -u)
+      --use-source | -S)
         # :flag.conflicts
         if [[ -n "${args['--use-name']:-}" ]]; then
           printf "conflicting options: %s cannot be used with %s\n" "$key" "--use-name" >&2
@@ -3072,7 +3122,15 @@ algo_owls_run_parse_requirements() {
         ;;
 
       # :flag.case
-      --use-source | -u)
+      --time | -t)
+
+        # :flag.case_no_arg
+        args['--time']=1
+        shift
+        ;;
+
+      # :flag.case
+      --use-source | -S)
         # :flag.conflicts
         if [[ -n "${args['--use-target']:-}" ]]; then
           printf "conflicting options: %s cannot be used with %s\n" "$key" "--use-target" >&2
@@ -3085,7 +3143,7 @@ algo_owls_run_parse_requirements() {
         ;;
 
       # :flag.case
-      --use-target | -t)
+      --use-target | -T)
         # :flag.conflicts
         if [[ -n "${args['--use-source']:-}" ]]; then
           printf "conflicting options: %s cannot be used with %s\n" "$key" "--use-source" >&2
@@ -3353,7 +3411,7 @@ algo_owls_wipe_parse_requirements() {
 
 # :command.initialize
 initialize() {
-  version="1.1.0"
+  version="1.2.0"
   long_usage=''
   set -e
 

@@ -75,5 +75,12 @@ fi
 
 build_cmd="$build_cmd $target_file"
 
-echo $build_cmd
-eval $build_cmd
+if [[ -z ${args[--quiet]} || ${args[--quiet]} -eq 0 ]]; then
+    echo $build_cmd
+fi
+
+if [[ -n ${args[--time]} && ${args[--time]} -eq 1 ]]; then
+    time $build_cmd
+else
+    eval $build_cmd
+fi

@@ -1,10 +1,18 @@
 ini_load .algo_owls.ini
 
 if [[ -z ${args[--no-build]} || ${args[--no-build]} -eq 0 ]]; then
+    build_args=""
+    if [[ -n ${args[--quiet]} && ${args[--quiet]} -eq 1 ]]; then
+        build_args="$build_args --quiet"
+    fi
+    if [[ -n ${args[--time]} && ${args[--time]} -eq 1 ]]; then
+        build_args="$build_args --time"
+    fi
+
     if [[ ${ini[settings.auto_build]} == true ]]; then
-        ./algo_owls build ${args[solution]}
+        ./algo_owls build ${args[solution]} $build_args
     elif [[ -n ${args[--build]} && ${args[--build]} -eq 1 ]]; then
-        ./algo_owls build ${args[solution]}
+        ./algo_owls build ${args[solution]} $build_args
     fi
 fi
 
@@ -127,4 +135,8 @@ if [[ -z ${args[--quiet]} || ${args[--quiet]} -eq 0 ]]; then
     echo $run_cmd
 fi
 
-eval $run_cmd
+if [[ -n ${args[--time]} && ${args[--time]} -eq 1 ]]; then
+    time $run_cmd
+else
+    eval $run_cmd
+fi
