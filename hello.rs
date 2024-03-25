@@ -9,7 +9,7 @@ pub fn main() {
 }
 
 //============================================
-// StdIn Helpers
+// Helpers
 //============================================
 
 #[allow(unused)]
@@ -46,4 +46,3 @@ where
         .map(|s| s.parse::<T>().unwrap())
         .collect::<Vec<T>>()
 }
-
