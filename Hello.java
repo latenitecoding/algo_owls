@@ -41,13 +41,28 @@ public class Hello {
   }
 
   @SuppressWarnings("unused")
-  private static int next() throws IOException {
-    return Integer.parseInt(reader.readLine());
+  private static String next() throws IOException {
+    StringBuilder str = new StringBuilder();
+    int c;
+    while ((c = reader.read()) != -1 && c != ' ' && c != '\n' && c != '\0') {
+      str.append((char) c);
+    }
+    return str.toString();
   }
 
   @SuppressWarnings("unused")
   private static int[] nextArray() throws IOException {
     return Arrays.stream(reader.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
+  }
+
+  @SuppressWarnings("unused")
+  private static float nextFloat() throws IOException {
+    return Float.parseFloat(nextLine());
+  }
+
+  @SuppressWarnings("unused")
+  private static int nextInt() throws IOException {
+    return Integer.parseInt(nextLine());
   }
 
   @SuppressWarnings("unused")
