@@ -7,7 +7,7 @@ pub fn main() !void {
     var in: [4096]u8 = undefined;
     var out: [4096]u8 = undefined;
 
-    const N = try nextInt(usize, &in, '\n');
+    const N = try lastInt(usize, &in);
 
     try print("{d}\n", &out, .{N});
 }
@@ -16,20 +16,28 @@ pub fn main() !void {
 // HELPERS
 //==================================================================
 
-fn next(buff: []u8, delimiter: u8) ![]u8 {
-    var r = stdin.readerStreaming(buff);
-    return try r.interface.takeDelimiterExclusive(delimiter);
-}
-
-fn nextFloat(comptime T: type, buff: []u8, delimiter: u8) !T {
-    var r = stdin.readerStreaming(buff);
-    const input = try r.interface.takeDelimiterExclusive(delimiter);
+fn lastFloat(comptime T: type, buff: []u8) !T {
+    const input = try nextLine(buff);
     return try std.fmt.parseFloat(T, input, 10);
 }
 
-fn nextInt(comptime T: type, buff: []u8, delimiter: u8) !T {
+fn lastInt(comptime T: type, buff: []u8) !T {
+    const input = try nextLine(buff);
+    return try std.fmt.parseInt(T, input, 10);
+}
+
+fn next(buff: []u8) ![]u8 {
     var r = stdin.readerStreaming(buff);
-    const input = try r.interface.takeDelimiterExclusive(delimiter);
+    return try r.interface.takeDelimiterExclusive(' ');
+}
+
+fn nextFloat(comptime T: type, buff: []u8) !T {
+    const input = try next(buff);
+    return try std.fmt.parseFloat(T, input, 10);
+}
+
+fn nextInt(comptime T: type, buff: []u8) !T {
+    const input = try next(buff);
     return try std.fmt.parseInt(T, input, 10);
 }
 
@@ -38,7 +46,7 @@ fn nextLine(buff: []u8) ![]u8 {
     return try r.interface.takeDelimiterExclusive('\n');
 }
 
-fn nextList(comptime T: type, buff: []u8, arr: []T, n: usize) !usize {
+fn nextList(comptime T: type, buff: []u8, arr: []T, n: usize) ![]T {
     var r = stdin.readerStreaming(buff);
     for (0..(n - 1)) |i| {
         const input = try r.interface.takeDelimiterExclusive(' ');
@@ -46,7 +54,7 @@ fn nextList(comptime T: type, buff: []u8, arr: []T, n: usize) !usize {
     }
     const input = try r.interface.takeDelimiterExclusive('\n');
     arr[n - 1] = try std.fmt.parseInt(T, input, 10);
-    return n;
+    return arr;
 }
 
 fn Tuple(comptime T: type) type {
