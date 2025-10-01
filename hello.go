@@ -35,11 +35,11 @@ func lastInt(reader *bufio.Reader) int {
 }
 
 func next(reader *bufio.Reader) string {
-	token, err := reader.ReadString(' ')
+	input, err := reader.ReadString(' ')
 	if err != nil {
 		log.Fatal(err)
 	}
-	return token[:len(token)-1]
+	return input[:len(input)-1]
 }
 
 func nextFloat(reader *bufio.Reader) float64 {
@@ -59,18 +59,19 @@ func nextInt(reader *bufio.Reader) int {
 }
 
 func nextLine(reader *bufio.Reader) string {
-	line, err := reader.ReadString('\n')
+	input, err := reader.ReadString('\n')
 	if err != nil {
 		log.Fatal(err)
 	}
-	return line[:len(line)-1]
+	return input[:len(input)-1]
 }
 
-func nextList(reader *bufio.Reader, arr []int, n int) {
+func nextList(reader *bufio.Reader, arr []int, n int) []int {
 	for i := 0; i < n - 1; i++ {
 		arr[i] = nextInt(reader)
 	}
 	arr[n - 1] = lastInt(reader)
+	return arr
 }
 
 type Tuple struct {
