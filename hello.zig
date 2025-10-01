@@ -1,50 +1,70 @@
 const std = @import("std");
-const stdin = std.io.getStdIn().reader();
-const stdout = std.io.getStdOut().writer();
 
-// ========================================================
-// Solution
-// ========================================================
+const stdin = std.fs.File.stdin();
+const stdout = std.fs.File.stdout();
 
 pub fn main() !void {
-    try print("Hello, World!\n", .{});
+    var in: [4096]u8 = undefined;
+    var out: [4096]u8 = undefined;
+
+    const N = try nextInt(usize, &in, '\n');
+
+    try print("{d}\n", &out, .{N});
 }
 
-// ========================================================
-// Helpers
-// ========================================================
+//==================================================================
+// HELPERS
+//==================================================================
 
-inline fn next(buffer: []u8) ![]u8 {
-    return (try stdin.readUntilDelimiterOrEof(buffer, ' ')).?;
+fn next(buff: []u8, delimiter: u8) ![]u8 {
+    var r = stdin.readerStreaming(buff);
+    return try r.interface.takeDelimiterExclusive(delimiter);
 }
 
-inline fn nextArray(comptime T: type, buffer: []u8, arr: []T, n: usize) !usize {
+fn nextFloat(comptime T: type, buff: []u8, delimiter: u8) !T {
+    var r = stdin.readerStreaming(buff);
+    const input = try r.interface.takeDelimiterExclusive(delimiter);
+    return try std.fmt.parseFloat(T, input, 10);
+}
+
+fn nextInt(comptime T: type, buff: []u8, delimiter: u8) !T {
+    var r = stdin.readerStreaming(buff);
+    const input = try r.interface.takeDelimiterExclusive(delimiter);
+    return try std.fmt.parseInt(T, input, 10);
+}
+
+fn nextLine(buff: []u8) ![]u8 {
+    var r = stdin.readerStreaming(buff);
+    return try r.interface.takeDelimiterExclusive('\n');
+}
+
+fn nextList(comptime T: type, buff: []u8, arr: []T, n: usize) !usize {
+    var r = stdin.readerStreaming(buff);
     for (0..(n - 1)) |i| {
-        arr[i] = try std.fmt.parseInt(T, try next(buffer), 10);
+        const input = try r.interface.takeDelimiterExclusive(' ');
+        arr[i] = try std.fmt.parseInt(T, input, 10);
     }
-    arr[n - 1] = try std.fmt.parseInt(T, try nextLine(buffer), 10);
+    const input = try r.interface.takeDelimiterExclusive('\n');
+    arr[n - 1] = try std.fmt.parseInt(T, input, 10);
     return n;
 }
 
-inline fn nextFloat(comptime T: type, buffer: []u8) !T {
-    return try std.fmt.parseFloat(T, try nextLine(buffer));
+fn Tuple(comptime T: type) type {
+    return struct { T, T };
 }
 
-inline fn nextInt(comptime T: type, buffer: []u8) !T {
-    return try std.fmt.parseInt(T, try nextLine(buffer), 10);
-}
-
-inline fn nextLine(buffer: []u8) ![]u8 {
-    return (try stdin.readUntilDelimiterOrEof(buffer, '\n')).?;
-}
-
-inline fn nextTuple(comptime T: type, buffer: []u8) !struct { T, T } {
+fn nextTuple(comptime T: type, buff: []u8) !Tuple(T) {
+    var r = stdin.readerStreaming(buff);
+    const left = try r.interface.takeDelimiterExclusive(' ');
+    const right = try r.interface.takeDelimiterExclusive('\n');
     return .{
-        try std.fmt.parseInt(T, try next(buffer), 10),
-        try std.fmt.parseInt(T, try nextLine(buffer), 10),
+        try std.fmt.parseInt(T, left, 10),
+        try std.fmt.parseInt(T, right, 10),
     };
 }
 
-inline fn print(comptime format: []const u8, args: anytype) !void {
-    try stdout.print(format, args);
+fn print(comptime fmt: []const u8, buff: []u8, args: anytype) !void {
+    var w = stdout.writerStreaming(buff);
+    try w.interface.print(fmt, args);
+    try w.interface.flush();
 }
